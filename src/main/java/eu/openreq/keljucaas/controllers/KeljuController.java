@@ -38,7 +38,7 @@ public class KeljuController {
 		
 		ElementModel model = new eu.openreq.keljucaas.services.MurmeliModelParser().parseMurmeliModel(json);
 		
-		System.out.println("Requirements received from Milla");
+		System.out.println("Requirements received from Mulperi");
 		try {
 			return new ResponseEntity<>("Requirements received: " + model, HttpStatus.ACCEPTED);
 		}
