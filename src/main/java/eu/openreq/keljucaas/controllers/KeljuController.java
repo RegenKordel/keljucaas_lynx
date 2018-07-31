@@ -1,7 +1,9 @@
 package eu.openreq.keljucaas.controllers;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.chocosolver.solver.Solution;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import com.google.gson.Gson;
 
 import eu.openreq.keljucaas.services.FormatTransformerService;
+import eu.openreq.keljucaas.services.KeljuCSPPlanner;
 import eu.openreq.keljucaas.services.MurmeliModelParser;
 import eu.openreq.keljucaas.services.ReleaseCSPPlanner;
 import fi.helsinki.ese.murmeli.*;
@@ -36,6 +39,41 @@ public class KeljuController {
     public @ResponseBody String greeting() {
         return "Hello World";
     }
+	
+	@ApiOperation(value = "Import Murmeli JSON model",
+			notes = "Import a model in JSON format",
+			response = String.class)
+	@ApiResponses(value = { 
+			@ApiResponse(code = 201, message = "Success, returns received requirements and dependencies in OpenReq JSON format"),
+			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
+			@ApiResponse(code = 409, message = "Failure")}) 
+	@RequestMapping(value = "/testKelju", method = RequestMethod.POST)
+	public ResponseEntity<?> testKelju(@RequestBody String json) throws Exception {
+		
+		MurmeliModelParser parser = new MurmeliModelParser();
+		ElementModel model = parser.parseMurmeliModel(json);
+		
+		KeljuCSPPlanner planner = new KeljuCSPPlanner(model);
+		planner.generateCSP();
+		
+		boolean isConsistent = planner.isReleasePlanConsistent();
+	
+		if (isConsistent) {
+			return new ResponseEntity<>(
+				transform.generateProjectJsonResponse(true, "Consistent", true),
+				HttpStatus.OK);
+		}
+		System.out.println("All requirements to or from which the original has a relation:");
+		List<Element> diagnosis = planner.getDiagnosis();
+		for (Element d : diagnosis) {
+			System.out.println(d.getNameID());
+		}
+		
+		return new ResponseEntity<>(
+				transform.generateProjectJsonResponse(false, "False", true),
+				HttpStatus.CONFLICT);
+		
+	}
 
 	@ApiOperation(value = "Import Murmeli JSON model",
 			notes = "Import a model in JSON format",

@@ -31,7 +31,7 @@ public class ElementModel {
 	
 	@SerializedName("relations")
 	@Expose
-	private List<RelationshipType> relations;
+	private List<Relationship> relations;
 	
 	@SerializedName("constraints")
 	@Expose
@@ -134,15 +134,15 @@ public class ElementModel {
 		this.subContainers = subContainers;
 	}
 
-	public List<RelationshipType> getRelations() {
+	public List<Relationship> getRelations() {
 		return relations;
 	}
 
-	public void setRelations(List<RelationshipType> relations) {
+	public void setRelations(List<Relationship> relations) {
 		this.relations = relations;
 	}
 	
-	public void addRelation(RelationshipType relation) {
+	public void addRelation(Relationship relation) {
 		this.relations.add(relation);
 	}
 	

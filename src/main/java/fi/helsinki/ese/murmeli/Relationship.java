@@ -10,7 +10,7 @@ import com.google.gson.annotations.SerializedName;
 * Relation between two elements
 *
 */
-public class RelationshipType {
+public class Relationship {
 
 	public enum NameType {
 		
@@ -61,14 +61,14 @@ public class RelationshipType {
 	
 	private static int hid = 0;
 	
-	public RelationshipType(NameType nameType, String from, String to, int id) {
+	public Relationship(NameType nameType, String from, String to, int id) {
 		this.nameType = nameType;
 		this.fromID = from;
 		this.toID = to;
 		this.id = id;
 	}
 	
-	public RelationshipType(NameType nameType, String from, String to) {
+	public Relationship(NameType nameType, String from, String to) {
 		this.nameType = nameType;
 		this.fromID = from;
 		this.toID = to;
@@ -76,12 +76,12 @@ public class RelationshipType {
 		hid++;
 	}
 	
-	public RelationshipType(NameType nameType, Element from, Element to, int id) {
+	public Relationship(NameType nameType, Element from, Element to, int id) {
 		
 		this(nameType, from.getNameID(), to.getNameID(), id);
 	}
 	
-	public RelationshipType(NameType nameType, Element from, Element to) {
+	public Relationship(NameType nameType, Element from, Element to) {
 		
 		this(nameType, from.getNameID(), to.getNameID());
 	}

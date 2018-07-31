@@ -13,29 +13,27 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 
 import fi.helsinki.ese.murmeli.*;
+import fi.helsinki.ese.murmeli.Relationship;
 import fi.helsinki.ese.murmeli.Relationship.NameType;
 
 
-public class ReleaseCSPPlanner {
-
-	//private ReleasePlan releasePlan;
+public class KeljuCSPPlanner {
 	private ElementModel elementModel;
 	
-	private LinkedHashMap<String, Integer> reqIDToIndex;
-	private LinkedHashMap<Integer, String> indexToreqID;
+	private LinkedHashMap<String, Integer> elementIDToIndex;
+	private LinkedHashMap<Integer, String> indexToelementID;
 
-	private final int nReleases;
-	private final int nRequirements;
+	private final int nContainers;
+	private final int nElements;
 	Req4Csp[] reqCSPs = null;
 	Model model = null;
 
-	public ReleaseCSPPlanner(ElementModel elementModel) {
-		//this.releasePlan = releasePlan;
+	public KeljuCSPPlanner(ElementModel elementModel) {
 		this.elementModel = elementModel;
-		nReleases = elementModel.getsubContainers().size();
-		nRequirements = elementModel.getElements().size();
-		reqIDToIndex = new LinkedHashMap<>(nRequirements);
-		indexToreqID = new LinkedHashMap<>(nRequirements);
+		nContainers = 1;
+		nElements = elementModel.getElements().size();
+		elementIDToIndex = new LinkedHashMap<>(nElements);
+		indexToelementID = new LinkedHashMap<>(nElements);
 		initializeRequirementIndexMaps();
 	}
 
@@ -43,17 +41,17 @@ public class ReleaseCSPPlanner {
 		int index1 = 0;
 		for (Element element : elementModel.getElements().values()) {
 			Integer index2 = Integer.valueOf(index1++);
-			reqIDToIndex.put(element.getNameID(), index2);
-			indexToreqID.put(index2, element.getNameID());
+			elementIDToIndex.put(element.getNameID(), index2);
+			indexToelementID.put(index2, element.getNameID());
 		}
 	}
 
-	public final int getNReleases() {
-		return nReleases;
+	public final int getNContainers() {
+		return nContainers;
 	}
 
-	public final int getNRequirements() {
-		return nRequirements;
+	public final int getNElements() {
+		return nElements;
 	}
 
 	/**
@@ -61,7 +59,7 @@ public class ReleaseCSPPlanner {
 	 */
 	public void generateCSP() {
 		model = new Model("ReleasePlanner"); // NOTE change this?
-		this.reqCSPs = new Req4Csp[nRequirements];
+		this.reqCSPs = new Req4Csp[nElements];
 
 		initializeReqCSPs();
 		setConstraints();
@@ -72,9 +70,10 @@ public class ReleaseCSPPlanner {
 	 * Initialize Req4Csp[] reqCSPs
 	 */
 	private void initializeReqCSPs() {
-		for (Element requirement : elementModel.getElements().values()) {
-			Req4Csp req4csp = new Req4Csp(requirement, this, model, this.elementModel);
-			reqCSPs[reqIDToIndex.get(requirement.getNameID())] = req4csp;
+		for (Element element : elementModel.getElements().values()) {
+			Req4Csp req4csp = new Req4Csp(element, this, model, this.elementModel);
+			req4csp.setOriginalElement(element);
+			reqCSPs[elementIDToIndex.get(element.getNameID())] = req4csp;
 		}
 	}
 
@@ -85,7 +84,7 @@ public class ReleaseCSPPlanner {
 		for (Container release : elementModel.getsubContainers()) {
 			ArrayList<IntVar> releaseEffortVars = new ArrayList<>();
 			for (Element requirement : elementModel.getElements().values()) {
-				Req4Csp req4Csp = reqCSPs[reqIDToIndex.get(requirement.getNameID())];
+				Req4Csp req4Csp = reqCSPs[elementIDToIndex.get(requirement.getNameID())];
 
 				IntVar effortVar = req4Csp.getEffortOfRelease(release.getID() - 1);
 
@@ -106,9 +105,8 @@ public class ReleaseCSPPlanner {
 	 */
 	private void addAllDependencies() {
 		for (Element requirement : elementModel.getElements().values()) {
-			Req4Csp requirementFrom = reqCSPs[reqIDToIndex.get(requirement.getNameID())];
+			Req4Csp requirementFrom = reqCSPs[elementIDToIndex.get(requirement.getNameID())];
 			addRequiresDependencies(requirementFrom, requirement);
-			addExcludesDependencies(requirementFrom, requirement);
 		}
 	}
 	
@@ -120,51 +118,67 @@ public class ReleaseCSPPlanner {
 	 * @param requirement
 	 */
 	private void addRequiresDependencies(Req4Csp requiring, Element requirement) {
-		if (!getRequiresDependencies(requirement).isEmpty()) {
-			addDependenciesToModel(requiring, getRequiresDependencies(requirement), model, 1, "<=");
+		List<Relationship> relations = getRequiresDependencies(requirement);
+		if (!relations.isEmpty()) {
+			addDependenciesToModel(requiring, relations, model, 1, "<=");
 		}
+		for (Relationship r : relations) {
+			System.out.println("Real From " + r.getFromID() + " To: " + r.getToID());
+		}
+		List<Relationship> rels = new ArrayList<Relationship>();
+		for (Relationship rel : this.elementModel.getRelations()) {
+			Relationship r = new Relationship (NameType.REQUIRES, rel.getToID(), rel.getFromID());
+			rels.add(r);
+		}
+		relations = getRequiresDependencies(requirement, rels);
+		if (!relations.isEmpty()) {
+			addDependenciesToModel(requiring, relations, model, 1, "<=");
+		}
+		for (Relationship r : relations) {
+			System.out.println("Fake From " + r.getFromID() + " To: " + r.getToID());
+		}
+//		relations = getRequiringDependencies(requirement);
+//		if (!relations.isEmpty()) {
+//			addDependenciesToModel(requiring, relations, model, 1, "<=");
+//		}
 	}
 	
 	private List<Relationship> getRequiresDependencies(Element element) {
 		List<Relationship> dependencies = new ArrayList<>();
 		
 		for (Relationship relation : this.elementModel.getRelations()) {
-			if (relation.getFromID().equals(element.getNameID())) {
-				if (relation.getNameType().equals(NameType.REQUIRES)) {
-					dependencies.add(relation);
-				}
+			if (relation.getToID().equals(element.getNameID())) {
+				dependencies.add(relation);
 			}
 		}
 		
 		return dependencies;
 	}
 	
-	/**
-	 * Add excludes-dependencies, in this (global) version if A excludes B, B cannot
-	 * be in the same project (in any release) as A
-	 * 
-	 * @param excluding
-	 * @param requirement
-	 */
-	private void addExcludesDependencies(Req4Csp excluding, Element requirement) {
-		if (!getExcludesDependencies(requirement).isEmpty()) {
-			addDependenciesToModel(excluding, getExcludesDependencies(requirement), model, 0, "!=");
-		}
-	}
-	
-	private List<Relationship> getExcludesDependencies(Element element) {
+	private List<Relationship> getRequiresDependencies(Element element, List<Relationship> relations) {
 		List<Relationship> dependencies = new ArrayList<>();
 		
-		for (Relationship relation : this.elementModel.getRelations()) {
-			if (relation.getFromID().equals(element.getNameID())) {
-				if (relation.getNameType().equals(NameType.INCOMPATIBLE)) {
-					dependencies.add(relation);
-				}
+		for (Relationship relation : relations) {
+			if (relation.getToID().equals(element.getNameID())) {
+				dependencies.add(relation);
 			}
 		}
 		
 		return dependencies;
 	}
+	
+//	private List<RelationshipType> getRequiringDependencies(Element element) {
+//		List<RelationshipType> dependencies = new ArrayList<>();
+//		
+//		for (RelationshipType relation : this.elementModel.getRelations()) {
+//			if (relation.getFromID().equals(element.getNameID())) {
+//				dependencies.add(relation);
+//			}
+//		}
+//		
+//		return dependencies;
+//	}
+	
 
 	/**
 	 * Adds dependencies (e.g. requires, excludes) to the model
@@ -186,10 +200,11 @@ public class ReleaseCSPPlanner {
 	private void addDependenciesToModel(Req4Csp requirementFrom, List<Relationship> dependencies, Model model,
 			int isIncludedValue, String relation) {
 		for (Relationship rel : dependencies) {
-			int requirementIndex = reqIDToIndex.get(rel.getToID());
+			int requirementIndex = elementIDToIndex.get(rel.getToID());
 			Req4Csp requirementTo = reqCSPs[requirementIndex];
 			IntVar size = model.intVar("size", 2); // added this and the third model.arithm(), breaks consistency if
 													// a dependent requirement is missing from releases (in which case it's assignedRelease is an array and has domainSize > 1)
+
 			model.ifThen(requirementFrom.getIsIncluded(),
 					model.and(model.arithm(requirementTo.getIsIncluded(), "=", isIncludedValue),
 							model.arithm(requirementTo.getAssignedRelease(), relation,
@@ -202,7 +217,7 @@ public class ReleaseCSPPlanner {
 
 	public boolean isReleasePlanConsistent() {
 		
-		for (int index = 0; index < nRequirements; index++) {
+		for (int index = 0; index < nElements; index++) {
 			reqCSPs[index].require(true);
 		}
 		model.getSolver().reset();
@@ -219,29 +234,35 @@ public class ReleaseCSPPlanner {
 	 * 
 	 * @return
 	 */
-	public String getDiagnosis() {
+	public List<Element> getDiagnosis() {
 		List<Req4Csp> allReqs = new ArrayList<>();
 		
-		for (int req = 0; req < nRequirements; req++) {
+		for (int req = 0; req < nElements; req++) {
 			allReqs.add(reqCSPs[req]);
 		}
 		List<Req4Csp> diagnosis = fastDiag(allReqs, allReqs);
-		StringBuffer sb = new StringBuffer(); 
-		if (diagnosis.isEmpty()) {
-			sb.append("(No Diagnosis found.)");
-		} 
-		else {
-			for (int i = 0; i < diagnosis.size(); i++) {
-				Req4Csp reqB = diagnosis.get(i);
-				String reqId = reqB.getId();
-				sb.append(reqId);
-				if (diagnosis.size() > 1 && i < diagnosis.size() - 1) {
-					sb.append(",");
-				}
-			}
+		List<Element> elementList = new ArrayList<>();
 		
+		for (Req4Csp req : diagnosis) {
+			elementList.add(req.originalElement);
 		}
-		return sb.toString();
+		return elementList;
+//		StringBuffer sb = new StringBuffer(); 
+//		if (diagnosis.isEmpty()) {
+//			sb.append("(No Diagnosis found.)");
+//		} 
+//		else {
+//			for (int i = 0; i < diagnosis.size(); i++) {
+//				Req4Csp reqB = diagnosis.get(i);
+//				String reqId = reqB.getId();
+//				sb.append(reqId);
+//				if (diagnosis.size() > 1 && i < diagnosis.size() - 1) {
+//					sb.append(",");
+//				}
+//			}
+//		
+//		}
+//		return sb.toString();
 	}
 
 	// Old XML-version
@@ -280,7 +301,7 @@ public class ReleaseCSPPlanner {
 		private ElementModel elementModel;
 		private Element originalElement = null;
 
-		Req4Csp(Element requirement, ReleaseCSPPlanner rcg, Model model, ElementModel elementModel) {
+		Req4Csp(Element requirement, KeljuCSPPlanner rcg, Model model, ElementModel elementModel) {
 			this.model = model;
 			this.elementModel = elementModel;
 			id = requirement.getNameID();
@@ -312,10 +333,10 @@ public class ReleaseCSPPlanner {
 		 * @param requirement
 		 * @param rcg
 		 */
-		private void setAssignedRelease(Element requirement, ReleaseCSPPlanner rcg) {
+		private void setAssignedRelease(Element requirement, KeljuCSPPlanner rcg) {
 			if (getRelease(requirement) == 0) {
 				assignedRelease = model.intVar(requirement.getNameID() + "_assignedTo", 
-						-1, rcg.getNReleases() - 1);
+						-1, rcg.getNContainers() - 1);
 			} else {
 				assignedRelease = model.intVar(requirement.getNameID() + "_assignedTo",
 						getRelease(requirement) - 1);
@@ -346,13 +367,13 @@ public class ReleaseCSPPlanner {
 		 * @param requirement
 		 * @param rcg
 		 */
-		private void createEffortVariables(Element requirement, ReleaseCSPPlanner rcg) {
-			effortInRelease = new IntVar[rcg.getNReleases()+1];
+		private void createEffortVariables(Element requirement, KeljuCSPPlanner rcg) {
+			effortInRelease = new IntVar[rcg.getNContainers()+1];
 			int[] effortDomain = new int[2];
 			effortDomain[0] = 0;
 			effortDomain[1] = getEffort(requirement); // What if there is no effort?
 
-			for (int releaseIndex = 0; releaseIndex < rcg.getNReleases(); releaseIndex++) {
+			for (int releaseIndex = 0; releaseIndex < rcg.getNContainers(); releaseIndex++) {
 				String varName = "req_" + requirement.getNameID() + "_" + (releaseIndex); //e.g req_REQ1_1 (Requirement 1 in release 1)
 
 				if (getAssignedRelease(requirement) == -1) { // not assigned
@@ -374,9 +395,9 @@ public class ReleaseCSPPlanner {
 		 * @param requirement
 		 * @param rcg
 		 */
-		private void createConstraints(Element requirement, ReleaseCSPPlanner rcg) {
+		private void createConstraints(Element requirement, KeljuCSPPlanner rcg) {
 			if (getAssignedRelease(requirement) == 0) {
-				for (int releaseIndex = 0; releaseIndex < rcg.getNReleases(); releaseIndex++) {
+				for (int releaseIndex = 0; releaseIndex < rcg.getNContainers(); releaseIndex++) {
 					// effectively forces others to 0 because domain size is 2, and the non-0 gets
 					// forbidden //?????????????????????????????
 					// Could try if adding explicit constraints would be faster
@@ -460,7 +481,7 @@ public class ReleaseCSPPlanner {
 	}
 
 	private void setRequirementsToList(List<Req4Csp> reqsToSet) {
-		for (int i = 0; i < nRequirements; i++) {
+		for (int i = 0; i < nElements; i++) {
 			reqCSPs[i].unRequire();
 		}
 		for (Req4Csp req : reqsToSet) {
@@ -469,8 +490,6 @@ public class ReleaseCSPPlanner {
 	}
 
 	private boolean consistent(List<Req4Csp> constraints) {
-
-		// System.out.print("consistent? ");
 
 		if (constraints.size() == 0) {
 			return true;
