@@ -110,7 +110,7 @@ public class Parts {
 		this.role = role;
 	}
 	
-	public List<String> getType() {
+	public List<String> getParts() {
 		return parts;
 	}
 	
