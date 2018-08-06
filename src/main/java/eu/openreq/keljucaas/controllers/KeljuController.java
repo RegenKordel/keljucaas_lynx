@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -65,24 +66,54 @@ public class KeljuController {
 	}
 	
 	
-	@ApiOperation(value = "Find the transitive closure of an element",
-			notes = "Give an element nameID as a parameter",
+	@ApiOperation(value = "Find the transitive closure of an requirement",
+			notes = "Accepts a Map containing a requirement id (String) as a key and the depth (int) as a value",
 			response = String.class)
 	@ApiResponses(value = { 
-			@ApiResponse(code = 201, message = "Success, returns received requirements and dependencies in Murmeli JSON format"),
+			@ApiResponse(code = 201, message = "Success, returns a transitive closure of the requested requirement"),
 			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
 			@ApiResponse(code = 409, message = "Failure")}) 
 	@RequestMapping(value = "/findTransitiveClosureOfElement", method = RequestMethod.POST)
-	public ResponseEntity<?> findTransitiveClosureOfElement(@RequestBody String element) throws Exception {
+	public ResponseEntity<?> findTransitiveClosureOfElement(@RequestBody Map<String, Integer> requested) throws Exception {
+		System.out.println("In Kelju's findTransitiveClosureOfElement");
+
 		ElementModel newModel = null;
+		String reqId = null;
+		for(String id : requested.keySet()) {
+			reqId = id;
+		}
+		int depth = requested.get(reqId);
+		
+		System.out.println("ReqId is " + reqId + " depth is " + depth);
+		
 		for (ElementModel model : savedModels) {
-			if (model.getElements().containsKey(element)) {
+			if (model.getElements().containsKey(reqId)) {
 				Map<String, List<ElementRelationTuple>> graph = service.generateGraph(model);
-				newModel = service.getTransitiveClosure(graph, "QTWB-32", 5);
+				newModel = service.getTransitiveClosure(graph, reqId, depth);
 			}
 		}
 		return new ResponseEntity<>(gson.toJson(newModel),HttpStatus.OK);
 	}
+	
+//	@ApiOperation(value = "Find the transitive closure of an element",
+//			notes = "Give an element nameID as a parameter",
+//			response = String.class)
+//	@ApiResponses(value = { 
+//			@ApiResponse(code = 201, message = "Success, returns received requirements and dependencies in Murmeli JSON format"),
+//			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
+//			@ApiResponse(code = 409, message = "Failure")}) 
+//	@RequestMapping(value = "/findTransitiveClosureOfElement", method = RequestMethod.POST)
+//	public ResponseEntity<?> findTransitiveClosureOfElement(@RequestBody String element) throws Exception {
+//		ElementModel newModel = null;
+//		for (ElementModel model : savedModels) {
+//			if (model.getElements().containsKey(element)) {
+//				Map<String, List<ElementRelationTuple>> graph = service.generateGraph(model);
+//				newModel = service.getTransitiveClosure(graph, "QTWB-32", 5);
+//			}
+//		}
+//		return new ResponseEntity<>(gson.toJson(newModel),HttpStatus.OK);
+//	}
+	
 	
 	
 	@ApiOperation(value = "Import Murmeli JSON model",
