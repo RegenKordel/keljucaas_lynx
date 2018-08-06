@@ -34,7 +34,12 @@ import io.swagger.annotations.ApiResponses;
 @Controller
 @RequestMapping("/")
 public class KeljuController {
+	
+	private KeljuService service = new KeljuService();
+	
 	private FormatTransformerService transform = new FormatTransformerService();
+	private List<ElementModel> savedModels = new ArrayList<>();
+	private Gson gson = new Gson();
 	
 	@ApiOperation(value = "Return Hello World",
 		    notes = "Return Hello World for testing or keepalive purposes")
@@ -42,6 +47,43 @@ public class KeljuController {
     public @ResponseBody String greeting() {
         return "Hello World";
     }
+	
+	@ApiOperation(value = "Import Murmeli JSON model and save it",
+			notes = "Import a model in JSON format",
+			response = String.class)
+	@ApiResponses(value = { 
+			@ApiResponse(code = 201, message = "Success, returns received requirements and dependencies in OpenReq JSON format"),
+			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
+			@ApiResponse(code = 409, message = "Failure")}) 
+	@RequestMapping(value = "/importModel", method = RequestMethod.POST)
+	public ResponseEntity<?> importModel(@RequestBody String json) throws Exception {
+		MurmeliModelParser parser = new MurmeliModelParser();
+		ElementModel model = parser.parseMurmeliModel(json);
+		savedModels.add(model);
+		System.out.println(savedModels.get(0));
+		return new ResponseEntity<>("Model saved", HttpStatus.OK);
+	}
+	
+	
+	@ApiOperation(value = "Find the transitive closure of an element",
+			notes = "Give an element nameID as a parameter",
+			response = String.class)
+	@ApiResponses(value = { 
+			@ApiResponse(code = 201, message = "Success, returns received requirements and dependencies in Murmeli JSON format"),
+			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
+			@ApiResponse(code = 409, message = "Failure")}) 
+	@RequestMapping(value = "/findTransitiveClosureOfElement", method = RequestMethod.POST)
+	public ResponseEntity<?> findTransitiveClosureOfElement(@RequestBody String element) throws Exception {
+		ElementModel newModel = null;
+		for (ElementModel model : savedModels) {
+			if (model.getElements().containsKey(element)) {
+				Map<String, List<ElementRelationTuple>> graph = service.generateGraph(model);
+				newModel = service.getTransitiveClosure(graph, "QTWB-32", 5);
+			}
+		}
+		return new ResponseEntity<>(gson.toJson(newModel),HttpStatus.OK);
+	}
+	
 	
 	@ApiOperation(value = "Import Murmeli JSON model",
 			notes = "Import a model in JSON format",
@@ -52,7 +94,6 @@ public class KeljuController {
 			@ApiResponse(code = 409, message = "Failure")}) 
 	@RequestMapping(value = "/testKelju", method = RequestMethod.POST)
 	public ResponseEntity<?> testKelju(@RequestBody String json) throws Exception {
-		System.out.println("Hello from Kelju");
 		Gson gson = new Gson();
 		
 		MurmeliModelParser parser = new MurmeliModelParser();
@@ -139,7 +180,7 @@ public class KeljuController {
 				HttpStatus.CONFLICT);
 	}
 	
-	private void printModel(ElementModel model) {
+//	private void printModel(ElementModel model) {
 //      System.out.println("\nStatus name " + model.getAttributeValueTypes().get("status").getName());
 //      System.out.println("Status ID " + model.getAttributeValueTypes().get("status").getID());
 //      System.out.println("Status BaseType " + model.getAttributeValueTypes().get("status").getBaseType());
@@ -149,33 +190,33 @@ public class KeljuController {
 //      System.out.println("\nBug nameID " + model.getElementTypes().get("bug").getNameID());
 //      System.out.println("Bug attributedef 0 " + model.getElementTypes().get("bug").getAttributeDefinitions().get(0));
 //      System.out.println("Bug potentialpart 0 " + model.getElementTypes().get("bug").getPotentialParts().get(0));
-      
+//      
 //      System.out.println("\nREQ_1 name " + model.getElements().get("QTWB-24").getNameID());
 //      System.out.println("REQ_1 type " + model.getElements().get("REQ_1").getType());
 //      System.out.println("REQ_1 attributes " + model.getElements().get("REQ_1").getAttributes());
 //      System.out.println("REQ_1 interfaces " + model.getElements().get("REQ_1").getProvidedInterfaces());
-      
+//      
 //      System.out.println("\nSubcontainer nameID " + model.getsubContainers().get(0).getNameID());
 //      System.out.println("Subcontainer children " + model.getsubContainers().get(0).getChildren());
 //      System.out.println("Subcontainer attributes " + model.getsubContainers().get(0).getAttributes());
 //      System.out.println("Subcontainer elements " + model.getsubContainers().get(0).getElements());
 //      System.out.println("Subcontainer next " + model.getsubContainers().get(0).getNext());
-      
-      System.out.println("\nRootcontainer nameID " + model.getRootContainer().getNameID());
-      System.out.println("Rootcontainer attributes " + model.getRootContainer().getAttributes());
-      System.out.println("Rootcontainer children " + model.getRootContainer().getChildren());
-      System.out.println("Rootcontainer elements " + model.getRootContainer().getElements());
-      System.out.println("Rootcontainer next " + model.getRootContainer().getNext());
-      
-      System.out.println("\nRelation nameType " + model.getRelations().get(0).getNameType());
-      
-      System.out.println("\n" + model.getConstraints());
-      
+//      
+//      System.out.println("\nRootcontainer nameID " + model.getRootContainer().getNameID());
+//      System.out.println("Rootcontainer attributes " + model.getRootContainer().getAttributes());
+//      System.out.println("Rootcontainer children " + model.getRootContainer().getChildren());
+//      System.out.println("Rootcontainer elements " + model.getRootContainer().getElements());
+//      System.out.println("Rootcontainer next " + model.getRootContainer().getNext());
+//      
+//      System.out.println("\nRelation nameType " + model.getRelations().get(0).getNameType());
+//      
+//      System.out.println("\n" + model.getConstraints());
+//      
 //      System.out.println("\nAttributeValue name " + model.getAttributeValues().get(1).getName());
 //      System.out.println("AttributeValue value " + model.getAttributeValues().get(1).getValue());
 //      System.out.println("AttributeValue type " + model.getAttributeValues().get(1).getType());
 //      System.out.println("AttributeValue source " + model.getAttributeValues().get(1).getSource());
-	}
+//	}
 	
 	/**
 	 * Check Consistency and compute diagnosis if not consistent 
