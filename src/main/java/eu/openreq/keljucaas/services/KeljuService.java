@@ -25,12 +25,16 @@ public class KeljuService {
 		
 		for (ElementModel model : models) {
 			
+			System.out.println("LOLLERO LOLLERO! MODELEITA TÄÄLLÄ!");
+			
 			relationsToGraph(graph, model, mocks);
 			
 			partsToGraph(graph, model, mocks);
 		}
 		
 		dealWithDuplicatingMocks(graph, mocks);
+		
+		System.out.println(graph);
 		
 		return graph;
 	}
@@ -39,20 +43,13 @@ public class KeljuService {
 		
 		for (String mock : mocks) {
 			
-			String baseName = mock.substring(0, mock.lastIndexOf('-')-1);
+			String baseName = mock.substring(0, mock.lastIndexOf('-'));
+			
+			System.out.println(baseName);
 			
 			if (graph.containsKey(baseName)) {
 				
-				Element real = null;
-				
-				// search the real version of mock
-				for (ElementRelationTuple tuple : graph.get(graph.get(baseName).get(0).getElement().getNameID())) {
-					
-					if (tuple.getElement().getNameID().equals(baseName)) {
-						real = tuple.getElement();
-						break;
-					}
-				}
+				Element real = findRequestedElement(graph, baseName);
 				
 				// set mock's relations to the real one
 				for (ElementRelationTuple tuple : graph.get(mock)) {
@@ -228,7 +225,9 @@ public class KeljuService {
 			}
 		}
 		
-		layers.put(currentDepth, layer);
+		if (!layer.isEmpty()) {
+			layers.put(currentDepth, layer);
+		}
 		
 		addElementsAndRelationsToModel(model, nextLayer, new LinkedList<ElementRelationTuple>(), depth, currentDepth+1, graph, layers);
 	}

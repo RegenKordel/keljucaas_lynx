@@ -63,6 +63,11 @@ public class KeljuController {
 	public ResponseEntity<?> importModel(@RequestBody String json) throws Exception {
 		MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
+		
+		System.out.println(model.getRootContainer());
+		System.out.println(model.getRootContainer().getNameID());
+		System.out.println(this.savedModels);
+		
 		savedModels.put(model.getRootContainer().getNameID(), model);
 		System.out.println(savedModels.get(0));
 		return new ResponseEntity<>("Model saved", HttpStatus.OK);
