@@ -25,16 +25,12 @@ public class KeljuService {
 		
 		for (ElementModel model : models) {
 			
-			System.out.println("LOLLERO LOLLERO! MODELEITA TÄÄLLÄ!");
-			
 			relationsToGraph(graph, model, mocks);
 			
 			partsToGraph(graph, model, mocks);
 		}
 		
 		dealWithDuplicatingMocks(graph, mocks);
-		
-		System.out.println(graph);
 		
 		return graph;
 	}
@@ -44,8 +40,6 @@ public class KeljuService {
 		for (String mock : mocks) {
 			
 			String baseName = mock.substring(0, mock.lastIndexOf('-'));
-			
-			System.out.println(baseName);
 			
 			if (graph.containsKey(baseName)) {
 				
@@ -131,13 +125,10 @@ public class KeljuService {
 				if (relation.getFromID().endsWith("mock")) {
 					mocks.add(relation.getFromID());
 				}
-				
-				System.out.println("relation.getFromID(): " + relation.getFromID());
  			}
 			
 			ElementRelationTuple tuple = new ElementRelationTuple(model.getElements().get(relation.getToID()), relation);
 			graph.get(relation.getFromID()).add(tuple);
-			System.out.println("relation.getFromID(): " + graph.get(relation.getFromID()));
 			
 			if (!graph.containsKey(relation.getToID())) {
 				graph.put(relation.getToID(), new ArrayList());
@@ -158,7 +149,6 @@ public class KeljuService {
 		Map<Integer, List<String>> layers = new HashMap();
 		
 		Element requested = this.findRequestedElement(graph, id);
-		System.out.println("Requst: " + requested.getNameID());
 		
 		if (requested == null) {
 			return new TransitiveClosure();
@@ -182,9 +172,9 @@ public class KeljuService {
 	}
 	
 	private Element findRequestedElement(Map<String, List<ElementRelationTuple>> graph, String id) {
-		System.out.println(graph.get(id).get(0).getElement());
+		
 		Element element = graph.get(id).get(0).getElement();
-		System.out.println(element.getNameID());
+		
 		if (element != null) {
 			for (ElementRelationTuple tuple : graph.get(element.getNameID())) {
 				if (tuple.getElement().getNameID().equals(id)) {
@@ -208,7 +198,6 @@ public class KeljuService {
 		
 		while (!currentLayer.isEmpty()) {
 			ElementRelationTuple tuple = currentLayer.poll();
-			System.out.println("TUPPELI: " + tuple.getElement().getNameID());
 			if (!model.getElements().containsKey(tuple.getElement().getNameID())) {
 				model.addElement(tuple.getElement());
 				for (ElementRelationTuple nextTuple : graph.get(tuple.getElement().getNameID())) {
