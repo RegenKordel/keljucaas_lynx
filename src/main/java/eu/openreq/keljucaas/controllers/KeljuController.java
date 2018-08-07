@@ -1,6 +1,7 @@
 package eu.openreq.keljucaas.controllers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import com.google.gson.Gson;
 
 import eu.openreq.keljucaas.domain.ElementRelationTuple;
+import eu.openreq.keljucaas.domain.TransitiveClosure;
 import eu.openreq.keljucaas.services.FormatTransformerService;
 import eu.openreq.keljucaas.services.KeljuCSPPlanner;
 import eu.openreq.keljucaas.services.KeljuService;
@@ -39,7 +41,8 @@ public class KeljuController {
 	private KeljuService service = new KeljuService();
 	
 	private FormatTransformerService transform = new FormatTransformerService();
-	private List<ElementModel> savedModels = new ArrayList<>();
+	private Map<String, List<ElementRelationTuple>> graph = new HashMap();
+	private Map<String, ElementModel> savedModels = new HashMap();
 	private Gson gson = new Gson();
 	
 	@ApiOperation(value = "Return Hello World",
@@ -60,9 +63,40 @@ public class KeljuController {
 	public ResponseEntity<?> importModel(@RequestBody String json) throws Exception {
 		MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
-		savedModels.add(model);
+		savedModels.put(model.getRootContainer().getNameID(), model);
 		System.out.println(savedModels.get(0));
 		return new ResponseEntity<>("Model saved", HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Update the graph of models",
+			response = String.class)
+	@ApiResponses(value = { 
+			@ApiResponse(code = 201, message = "Success"),
+			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
+			@ApiResponse(code = 409, message = "Failure")}) 
+	@RequestMapping(value = "/updateGraph", method = RequestMethod.POST)
+	public ResponseEntity<?> updateGraph() throws Exception {
+		
+		Map<String, List<ElementRelationTuple>> graph = this.service.generateGraph(this.savedModels.values());
+		this.graph = graph;
+		
+		return new ResponseEntity<>("Graph updated", HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Import Murmeli JSON model, save it and update graph of requirements",
+			notes = "Import a model in JSON format",
+			response = String.class)
+	@ApiResponses(value = { 
+			@ApiResponse(code = 201, message = "Success, returns received requirements and dependencies in OpenReq JSON format"),
+			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
+			@ApiResponse(code = 409, message = "Failure")}) 
+	@RequestMapping(value = "/importModelAndUpdateGraph", method = RequestMethod.POST)
+	public ResponseEntity<?> importModelAndUpdateGraph(@RequestBody String json) throws Exception {
+		
+		this.importModel(json);
+		this.updateGraph();
+		
+		return new ResponseEntity<>("Model saved and graph updated", HttpStatus.OK);
 	}
 	
 	
@@ -77,7 +111,7 @@ public class KeljuController {
 	public ResponseEntity<?> findTransitiveClosureOfElement(@RequestBody Map<String, Integer> requested) throws Exception {
 		System.out.println("In Kelju's findTransitiveClosureOfElement");
 
-		ElementModel newModel = null;
+		TransitiveClosure newModel = null;
 		String reqId = null;
 		for(String id : requested.keySet()) {
 			reqId = id;
@@ -86,12 +120,8 @@ public class KeljuController {
 		
 		System.out.println("ReqId is " + reqId + " depth is " + depth);
 		
-		for (ElementModel model : savedModels) {
-			if (model.getElements().containsKey(reqId)) {
-				Map<String, List<ElementRelationTuple>> graph = service.generateGraph(model);
-				newModel = service.getTransitiveClosure(graph, reqId, depth);
-			}
-		}
+		newModel = service.getTransitiveClosure(graph, reqId, depth);
+		
 		return new ResponseEntity<>(gson.toJson(newModel),HttpStatus.OK);
 	}
 	
@@ -131,13 +161,13 @@ public class KeljuController {
 		ElementModel model = parser.parseMurmeliModel(json);
 		
 		KeljuService service = new KeljuService();
-		Map<String, List<ElementRelationTuple>> graph = service.generateGraph(model);
+		Map<String, List<ElementRelationTuple>> graph = service.generateGraph(this.savedModels.values());
 		
 		
 		
-		ElementModel newModel = service.getTransitiveClosure(graph, "QTWB-32", 5);
+		TransitiveClosure newModel = service.getTransitiveClosure(graph, "QTWB-32", 5);
 		
-		System.out.println(newModel.getElements());
+		System.out.println(newModel.getModel().getElements());
 		
 			return new ResponseEntity<>(gson.toJson(newModel),HttpStatus.OK);
 	}
