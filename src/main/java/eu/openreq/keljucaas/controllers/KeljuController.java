@@ -129,7 +129,7 @@ public class KeljuController {
 		
 		service.addAttributes(this.savedModels.values(), newModel.getModel());
 		
-		return new ResponseEntity<>(gson.toJson(newModel),HttpStatus.OK);
+		return new ResponseEntity<String>(gson.toJson(newModel),HttpStatus.OK);
 	}
 	
 //	@ApiOperation(value = "Find the transitive closure of an element",
