@@ -127,6 +127,8 @@ public class KeljuController {
 		
 		newModel = service.getTransitiveClosure(graph, reqId, depth);
 		
+		service.addAttributes(this.savedModels.values(), newModel.getModel());
+		
 		return new ResponseEntity<>(gson.toJson(newModel),HttpStatus.OK);
 	}
 	

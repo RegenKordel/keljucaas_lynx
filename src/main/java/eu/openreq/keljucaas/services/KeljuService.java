@@ -35,6 +35,19 @@ public class KeljuService {
 		return graph;
 	}
 	
+	public void addAttributes(Collection<ElementModel> models, ElementModel transitiveClosure) {
+		
+		for (Element element : transitiveClosure.getElements().values()) {
+			for (Integer attribute : element.getAttributes().values()) {
+				for (ElementModel model : models) {
+					if (model.getAttributeValues().containsKey(attribute)) {
+						transitiveClosure.addAttriputeValue(model.getAttributeValues().get(attribute));
+					}
+				}
+			}
+		}
+	}
+
 	private void dealWithDuplicatingMocks(Map<String, List<ElementRelationTuple>> graph, Set<String> mocks) {
 		
 		for (String mock : mocks) {
