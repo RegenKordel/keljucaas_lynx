@@ -120,11 +120,26 @@ public class KeljuController {
 		
 		newModel = service.getTransitiveClosure(graph, reqId, depth);
 		
+		if (newModel.getModel().getElements().isEmpty()) {
+			newModel.getModel().addElement(findRequestedFromModels(reqId));
+		}
+		
 		service.addAttributes(this.savedModels.values(), newModel.getModel());
 		
 		return new ResponseEntity<String>(gson.toJson(newModel),HttpStatus.OK);
 	}
 	
+	private Element findRequestedFromModels(String reqId) {
+		
+		for (ElementModel model : this.savedModels.values()) {
+			if (model.getElements().containsKey(reqId)) {
+				return model.getElements().get(reqId);
+			}
+		}
+	
+		return null;
+	}
+
 //	@ApiOperation(value = "Find the transitive closure of an element",
 //			notes = "Give an element nameID as a parameter",
 //			response = String.class)

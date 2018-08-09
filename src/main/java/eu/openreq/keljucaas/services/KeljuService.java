@@ -38,7 +38,7 @@ public class KeljuService {
 	public void addAttributes(Collection<ElementModel> models, ElementModel transitiveClosure) {
 		
 		for (Element element : transitiveClosure.getElements().values()) {
-			System.out.println("Here I am!");
+//			System.out.println("Here I am!");
 			for (Integer attribute : element.getAttributes().values()) {
 				for (ElementModel model : models) {
 					if (model.getAttributeValues().containsKey(attribute)) {
@@ -158,6 +158,8 @@ public class KeljuService {
 	}
 
 	public TransitiveClosure getTransitiveClosure(Map<String, List<ElementRelationTuple>> graph, String id, int depth) {
+		
+		//System.out.println(graph);
 		
 		ElementModel model = new ElementModel();
 		Map<Integer, List<String>> layers = new HashMap();
