@@ -169,7 +169,10 @@ public class KeljuService {
 		}
 		
 		if (requested == null) {
-			return new TransitiveClosure();
+			TransitiveClosure trans = new TransitiveClosure();
+			trans.setModel(model);
+			trans.setLayers(layers);
+			return trans;
 		}
 		
 		model.addElement(requested);
