@@ -38,6 +38,7 @@ public class KeljuService {
 	public void addAttributes(Collection<ElementModel> models, ElementModel transitiveClosure) {
 		
 		for (Element element : transitiveClosure.getElements().values()) {
+			System.out.println("Here I am!");
 			for (Integer attribute : element.getAttributes().values()) {
 				for (ElementModel model : models) {
 					if (model.getAttributeValues().containsKey(attribute)) {

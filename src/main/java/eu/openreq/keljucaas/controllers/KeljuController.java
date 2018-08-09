@@ -64,12 +64,8 @@ public class KeljuController {
 		MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 		
-		System.out.println(model.getRootContainer());
-		System.out.println(model.getRootContainer().getNameID());
-		System.out.println(this.savedModels);
-		
 		savedModels.put(model.getRootContainer().getNameID(), model);
-		System.out.println(savedModels.get(0));
+	
 		return new ResponseEntity<>("Model saved", HttpStatus.OK);
 	}
 	
@@ -114,7 +110,6 @@ public class KeljuController {
 			@ApiResponse(code = 409, message = "Failure")}) 
 	@RequestMapping(value = "/findTransitiveClosureOfElement", method = RequestMethod.POST)
 	public ResponseEntity<?> findTransitiveClosureOfElement(@RequestBody Map<String, Integer> requested) throws Exception {
-		System.out.println("In Kelju's findTransitiveClosureOfElement");
 
 		TransitiveClosure newModel = null;
 		String reqId = null;
@@ -122,8 +117,6 @@ public class KeljuController {
 			reqId = id;
 		}
 		int depth = requested.get(reqId);
-		
-		System.out.println("ReqId is " + reqId + " depth is " + depth);
 		
 		newModel = service.getTransitiveClosure(graph, reqId, depth);
 		
@@ -170,13 +163,9 @@ public class KeljuController {
 		KeljuService service = new KeljuService();
 		Map<String, List<ElementRelationTuple>> graph = service.generateGraph(this.savedModels.values());
 		
-		
-		
 		TransitiveClosure newModel = service.getTransitiveClosure(graph, "QTWB-32", 5);
 		
-		System.out.println(newModel.getModel().getElements());
-		
-			return new ResponseEntity<>(gson.toJson(newModel),HttpStatus.OK);
+		return new ResponseEntity<>(gson.toJson(newModel),HttpStatus.OK);
 	}
 
 	@ApiOperation(value = "Import Murmeli JSON model",
@@ -197,8 +186,6 @@ public class KeljuController {
 		
 		ReleaseCSPPlanner rcspGen = new ReleaseCSPPlanner(model);
 		rcspGen.generateCSP();
-		
-		System.out.println("CSP done");
 		
 		boolean isConsistent = rcspGen.isReleasePlanConsistent();
 		if (isConsistent) {
@@ -231,8 +218,6 @@ public class KeljuController {
 		
 		ReleaseCSPPlanner rcspGen = new ReleaseCSPPlanner(model);
 		rcspGen.generateCSP();
-		
-		System.out.println("CSP done");
 		
 		boolean isConsistent = rcspGen.isReleasePlanConsistent();
 		if (isConsistent) {
