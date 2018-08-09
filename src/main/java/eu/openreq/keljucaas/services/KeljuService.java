@@ -162,7 +162,11 @@ public class KeljuService {
 		ElementModel model = new ElementModel();
 		Map<Integer, List<String>> layers = new HashMap();
 		
-		Element requested = this.findRequestedElement(graph, id);
+		Element requested = null;
+		
+		if (graph.containsKey(id)) {
+			requested = this.findRequestedElement(graph, id);
+		}
 		
 		if (requested == null) {
 			return new TransitiveClosure();
