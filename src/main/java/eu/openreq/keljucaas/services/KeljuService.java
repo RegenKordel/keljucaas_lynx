@@ -63,10 +63,15 @@ public class KeljuService {
 				for (ElementRelationTuple tuple : graph.get(mock)) {
 					
 					if (tuple.getRelationship() != null) {
+						
 						if (tuple.getRelationship().getFromID().equals(mock)) {
-							tuple.getRelationship().setFromID(baseName);
+							
+							Relationship rel = new Relationship(tuple.getRelationship().getNameType(), baseName, tuple.getRelationship().getToID());
+							tuple.setRelationship(rel);
 						} else {
-							tuple.getRelationship().setToID(baseName);
+							
+							Relationship rel = new Relationship(tuple.getRelationship().getNameType(), tuple.getRelationship().getFromID(), baseName);
+							tuple.setRelationship(rel);
 						}
 					}
 					
