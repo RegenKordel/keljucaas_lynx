@@ -17,28 +17,31 @@ import fi.helsinki.ese.murmeli.ElementModel;
 import fi.helsinki.ese.murmeli.Parts;
 import fi.helsinki.ese.murmeli.Relationship;
 
-public class KeljuService {
+/**
+ * Methods used to handle the graph and transitive closure.
+ * 
+ */
+public class TransitiveClosureService {
 	
 	public Map<String, List<ElementRelationTuple>> generateGraph(Collection<ElementModel> models) {
+		
 		Map<String, List<ElementRelationTuple>> graph = new HashMap();
 		Set<String> mocks = new HashSet();
 		
 		for (ElementModel model : models) {
-			
 			relationsToGraph(graph, model, mocks);
-			
 			partsToGraph(graph, model, mocks);
 		}
 		
-		dealWithDuplicatingMocks(graph, mocks);
+		dealWithDuplicatingMocksInTheGraph(graph, mocks);
 		
 		return graph;
 	}
 	
-	public void addAttributes(Collection<ElementModel> models, ElementModel transitiveClosure) {
+	
+	public void addAttributesToTransitiveClosure(Collection<ElementModel> models, ElementModel transitiveClosure) {
 		
 		for (Element element : transitiveClosure.getElements().values()) {
-//			System.out.println("Here I am!");
 			for (Integer attribute : element.getAttributes().values()) {
 				for (ElementModel model : models) {
 					if (model.getAttributeValues().containsKey(attribute)) {
@@ -49,7 +52,8 @@ public class KeljuService {
 		}
 	}
 
-	private void dealWithDuplicatingMocks(Map<String, List<ElementRelationTuple>> graph, Set<String> mocks) {
+	
+	private void dealWithDuplicatingMocksInTheGraph(Map<String, List<ElementRelationTuple>> graph, Set<String> mocks) {
 		
 		for (String mock : mocks) {
 			
@@ -59,7 +63,7 @@ public class KeljuService {
 				
 				Element real = findRequestedElement(graph, baseName);
 				
-				// set mock's relations to the real one
+//				set mock's relations to the real one
 				for (ElementRelationTuple tuple : graph.get(mock)) {
 					
 					if (tuple.getRelationship() != null) {
@@ -99,6 +103,7 @@ public class KeljuService {
 		}
 	}
 
+	
 	private void partsToGraph(Map<String, List<ElementRelationTuple>> graph, ElementModel model, Set<String> mocks) {
 		
 		for (Element element : model.getElements().values()) {
@@ -134,6 +139,7 @@ public class KeljuService {
 		}
 	}
 
+	
 	private void relationsToGraph(Map<String, List<ElementRelationTuple>> graph, ElementModel model, Set<String> mocks) {
 		
 		for (Relationship relation : model.getRelations()) {
@@ -161,10 +167,9 @@ public class KeljuService {
 			graph.get(relation.getToID()).add(tuple);
 		}
 	}
+	
 
 	public TransitiveClosure getTransitiveClosure(Map<String, List<ElementRelationTuple>> graph, String id, int depth) {
-		
-		//System.out.println(graph);
 		
 		ElementModel model = new ElementModel();
 		Map<Integer, List<String>> layers = new HashMap();
@@ -199,6 +204,7 @@ public class KeljuService {
 		return closure;
 	}
 	
+	
 	private Element findRequestedElement(Map<String, List<ElementRelationTuple>> graph, String id) {
 		
 		Element element = graph.get(id).get(0).getElement();
@@ -212,6 +218,7 @@ public class KeljuService {
 		}
 		return null;
 	}
+	
 	
 	private void addElementsAndRelationsToModel(ElementModel model, Queue<ElementRelationTuple> currentLayer, Queue<ElementRelationTuple> nextLayer,
 			int depth, int currentDepth, Map<String, List<ElementRelationTuple>> graph, Map<Integer, List<String>> layers) {

@@ -1,5 +1,8 @@
 package eu.openreq.keljucaas.domain;
 
+// This class is for preserving the information about relations for 
+// each element in the graph used for getting the transitive closure.
+
 import fi.helsinki.ese.murmeli.Element;
 import fi.helsinki.ese.murmeli.Relationship;
 

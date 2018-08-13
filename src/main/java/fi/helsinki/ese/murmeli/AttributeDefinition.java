@@ -23,25 +23,21 @@ public class AttributeDefinition {
 	@Expose
 	private Optionality optionality = Optionality.REQUIRED;
 	
-	public AttributeDefinition(Integer defaultValue, String type, Optionality opt) {
-		
+	public AttributeDefinition(Integer defaultValue, String type, Optionality opt) {		
 		this.defaultValue = defaultValue;
 		this.valueType = type;
 		this.optionality = opt;
 	}
 	
-	public AttributeDefinition(AttributeValue defaultValue, AttributeValueType type, Optionality opt) {
-		
+	public AttributeDefinition(AttributeValue defaultValue, AttributeValueType type, Optionality opt) {		
 		this(defaultValue.getID(), type.getName(), opt);
 	}
 	
-	public AttributeDefinition(AttributeValue defaultValue, AttributeValueType type) {
-		
+	public AttributeDefinition(AttributeValue defaultValue, AttributeValueType type) {		
 		this(defaultValue.getID(), type.getName(), Optionality.REQUIRED);
 	}
 	
-	public AttributeDefinition(AttributeValueType type) {
-		
+	public AttributeDefinition(AttributeValueType type) {		
 		this(null, type);
 	}
 
@@ -76,6 +72,5 @@ public class AttributeDefinition {
 	public void setOptionality(Optionality optionality) {
 		this.optionality = optionality;
 	}
-	
 	
 }
