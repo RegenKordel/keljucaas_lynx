@@ -113,10 +113,16 @@ public class KeljuController {
 
 		TransitiveClosure newModel = null;
 		String reqId = null;
-		for(String id : requested.keySet()) {
-			reqId = id;
+		int depth = 0;
+		
+		for (String id : requested.keySet()) {
+			if (this.graph.containsKey(id)) {
+				reqId = id;
+			} else if (this.graph.containsKey(id + "-mock")) {
+				reqId = id + "-mock";
+			}
+			depth = requested.get(id);
 		}
-		int depth = requested.get(reqId);
 		
 		newModel = service.getTransitiveClosure(graph, reqId, depth);
 		
