@@ -106,10 +106,10 @@ public class KeljuController {
 		
 //		Check if the wanted element is in the graph, if it is not then look for the mock element.
 		for (String id : requested.keySet()) {
-			if (this.graph.containsKey(id)) {
-				reqId = id;
-			} else if (this.graph.containsKey(id + "-mock")) {
+			if (this.graph.containsKey(id + "-mock")) {
 				reqId = id + "-mock";
+			} else {
+				reqId = id;
 			}
 			depth = requested.get(id);
 		}
