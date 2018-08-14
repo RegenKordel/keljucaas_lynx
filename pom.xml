@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>keljucaas</groupId>
   <artifactId>keljucaas</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.2</version>
   
   	<name>KeljuCaas</name>
 	<description>Murmeli eating Caas</description>
