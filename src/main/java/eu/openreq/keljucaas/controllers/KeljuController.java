@@ -166,7 +166,7 @@ public class KeljuController {
 		
 		return new ResponseEntity<>(
 		transform.generateProjectJsonResponse(false, "Not consistent", false),
-		HttpStatus.CONFLICT);
+		HttpStatus.OK);
 		
 	}
 	
@@ -200,7 +200,7 @@ public class KeljuController {
 		
 		return new ResponseEntity<>(
 				transform.generateProjectJsonResponse(false, diagnosis, true),
-				HttpStatus.CONFLICT);
+				HttpStatus.OK);
 	}
 	
 }
