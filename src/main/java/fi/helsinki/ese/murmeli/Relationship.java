@@ -1,5 +1,7 @@
 package fi.helsinki.ese.murmeli;
 
+import java.util.HashMap;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -59,6 +61,10 @@ public class Relationship {
 	@Expose
 	private int power = 0;
 	
+	@SerializedName("attribtutes")
+	@Expose
+	private HashMap<String, Integer> attributes;
+	
 	private static int hid = 0;
 	
 	public Relationship(NameType nameType, String from, String to, int id) {
@@ -66,6 +72,7 @@ public class Relationship {
 		this.fromID = from;
 		this.toID = to;
 		this.id = id;
+		this.attributes = new HashMap();
 	}
 	
 	public Relationship(NameType nameType, String from, String to) {
@@ -73,6 +80,7 @@ public class Relationship {
 		this.fromID = from;
 		this.toID = to;
 		this.id = hid;
+		this.attributes = new HashMap();
 		hid++;
 	}
 	
@@ -86,6 +94,30 @@ public class Relationship {
 		this(nameType, from.getNameID(), to.getNameID());
 	}
 	
+	public HashMap<String, Integer> getAttributes() {
+		return attributes;
+	}
+
+	public void setAttributes(HashMap<String, Integer> attributes) {
+		this.attributes = attributes;
+	}
+	
+	public int getAttribute(String name) {
+		return this.attributes.get(name);
+	}
+	
+	public int getStatus() {
+		return this.attributes.get("status");
+	}
+	
+	public void addAttribute(AttributeValue atr) {
+		this.attributes.put(atr.getName(), atr.getID());
+	}
+	
+	public void addAttribute(String name, int id) {
+		this.attributes.put(name, id);
+	}
+
 	public int getID() {
 		return this.id;
 	}
