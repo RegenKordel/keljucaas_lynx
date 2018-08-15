@@ -115,9 +115,11 @@ public class KeljuController {
 		}
 		
 		newModel = service.getTransitiveClosure(graph, reqId, depth);
-		
+		System.out.println("Model is: " + newModel);
 		if (newModel.getModel().getElements().isEmpty()) {
-			newModel.getModel().addElement(findRequestedFromModels(reqId));
+			if (findRequestedFromModels(reqId) != null) {
+				newModel.getModel().addElement(findRequestedFromModels(reqId));
+			}
 		}
 		
 		service.addAttributesToTransitiveClosure(this.savedModels.values(), newModel.getModel());
