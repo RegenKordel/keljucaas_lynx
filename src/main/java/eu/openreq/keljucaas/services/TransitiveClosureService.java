@@ -50,6 +50,16 @@ public class TransitiveClosureService {
 				}
 			}
 		}
+		
+		for (Relationship rel : transitiveClosure.getRelations()) {
+			for (Integer attribute : rel.getAttributes().values()) {
+				for (ElementModel model : models) {
+					if (model.getAttributeValues().containsKey(attribute)) {
+						transitiveClosure.addAttriputeValue(model.getAttributeValues().get(attribute));
+					}
+				}
+			}
+		}
 	}
 
 	
