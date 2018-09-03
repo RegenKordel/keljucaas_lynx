@@ -41,7 +41,7 @@ public class TransitiveClosureService {
 	public void addAttributesToTransitiveClosure(Collection<ElementModel> models, ElementModel transitiveClosure) {
 
 		for (Element element : transitiveClosure.getElements().values()) {
-			if (element.getAttributes().values() != null) {
+			if (element.getAttributes() != null) {
 				for (Integer attribute : element.getAttributes().values()) {
 					for (ElementModel model : models) {
 						if (model.getAttributeValues().containsKey(attribute)) {
@@ -53,7 +53,7 @@ public class TransitiveClosureService {
 		}
 
 		for (Relationship rel : transitiveClosure.getRelations()) {
-			if (rel.getAttributes().values() != null) {
+			if (rel.getAttributes() != null) {
 				for (Integer attribute : rel.getAttributes().values()) {
 					for (ElementModel model : models) {
 						if (model.getAttributeValues().containsKey(attribute)) {
