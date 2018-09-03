@@ -154,7 +154,7 @@ public class ElementModel {
 		this.attributeValues = attributeValues;
 	}
 
-	public void addAttriputeValue(AttributeValue value) {
+	public void addAttributeValue(AttributeValue value) {
 		this.attributeValues.put(value.getID(), value);
 	}
 }

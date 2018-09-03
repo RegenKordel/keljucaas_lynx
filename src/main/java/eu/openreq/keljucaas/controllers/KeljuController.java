@@ -30,107 +30,100 @@ import io.swagger.annotations.ApiResponses;
 @Controller
 @RequestMapping("/")
 public class KeljuController {
-	
+
 	private TransitiveClosureService service = new TransitiveClosureService();
 	private ConsistencyCheckService transform = new ConsistencyCheckService();
 	private Map<String, List<ElementRelationTuple>> graph = new HashMap();
 	private Map<String, ElementModel> savedModels = new HashMap();
 	private Gson gson = new Gson();
-	
-	
-	@ApiOperation(value = "Import Murmeli JSON model and save it",
-			notes = "Import a model in JSON format",
-			response = String.class)
-	@ApiResponses(value = { 
+
+	@ApiOperation(value = "Import Murmeli JSON model and save it", notes = "Import a model in JSON format", response = String.class)
+	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Success, rgiven model is saved to the list of saved models."),
 			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
-			@ApiResponse(code = 409, message = "Failure")}) 
+			@ApiResponse(code = 409, message = "Failure") })
 	@RequestMapping(value = "/importModel", method = RequestMethod.POST)
 	public ResponseEntity<?> importModel(@RequestBody String json) throws Exception {
-		
+
 		MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
-		
+
 		savedModels.put(model.getRootContainer().getNameID(), model);
-	
+
 		return new ResponseEntity<>("Model saved", HttpStatus.OK);
 	}
-	
-	
-	@ApiOperation(value = "Update the graph of models",
-			response = String.class)
-	@ApiResponses(value = { 
+
+	@ApiOperation(value = "Update the graph of models", response = String.class)
+	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Success, the graph is updated according the list of saved models"),
 			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
-			@ApiResponse(code = 409, message = "Failure")}) 
+			@ApiResponse(code = 409, message = "Failure") })
 	@RequestMapping(value = "/updateGraph", method = RequestMethod.POST)
 	public ResponseEntity<?> updateGraph() throws Exception {
-		
+
 		Map<String, List<ElementRelationTuple>> graph = this.service.generateGraph(this.savedModels.values());
 		this.graph = graph;
-		
+
 		return new ResponseEntity<>("Graph updated", HttpStatus.OK);
 	}
-	
-	
-	@ApiOperation(value = "Import Murmeli JSON model, save it and update graph of requirements",
-			notes = "Import a model in JSON format",
-			response = String.class)
-	@ApiResponses(value = { 
+
+	@ApiOperation(value = "Import Murmeli JSON model, save it and update graph of requirements", notes = "Import a model in JSON format", response = String.class)
+	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Success, returns received requirements and dependencies in OpenReq JSON format"),
 			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
-			@ApiResponse(code = 409, message = "Failure")}) 
+			@ApiResponse(code = 409, message = "Failure") })
 	@RequestMapping(value = "/importModelAndUpdateGraph", method = RequestMethod.POST)
 	public ResponseEntity<?> importModelAndUpdateGraph(@RequestBody String json) throws Exception {
-		
+
 		this.importModel(json);
 		this.updateGraph();
-		
+
 		return new ResponseEntity<>("Model saved and graph updated", HttpStatus.OK);
 	}
-	
-	
-	@ApiOperation(value = "Find the transitive closure of an element",
-			notes = "Accepts a Map containing a element id (String) as a key and the depth (int) as a value",
-			response = String.class)
-	@ApiResponses(value = { 
+
+	@ApiOperation(value = "Find the transitive closure of an element", notes = "Accepts a Map containing a element id (String) as a key and the depth (int) as a value", response = String.class)
+	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Success, returns a transitive closure of the requested element"),
 			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
-			@ApiResponse(code = 409, message = "Failure")}) 
+			@ApiResponse(code = 409, message = "Failure") })
 	@RequestMapping(value = "/findTransitiveClosureOfElement", method = RequestMethod.POST)
-	public ResponseEntity<?> findTransitiveClosureOfElement(@RequestBody Map<String, Integer> requested) throws Exception {
+	public ResponseEntity<?> findTransitiveClosureOfElement(@RequestBody Map<String, Integer> requested)
+			throws Exception {
 
 		TransitiveClosure newModel = null;
 		String reqId = null;
 		int depth = 0;
-		
-//		Check if the wanted element is in the graph, if it is not then look for the mock element.
-		for (String id : requested.keySet()) {
-			if (this.graph.containsKey(id + "-mock")) {
-				reqId = id + "-mock";
-			} else {
-				reqId = id;
+		String response = "";
+		try {
+			// Check if the wanted element is in the graph, if it is not then look for the
+			// mock element.
+			for (String id : requested.keySet()) {
+				if (this.graph.containsKey(id + "-mock")) {
+					reqId = id + "-mock";
+				} else {
+					reqId = id;
+				}
+				depth = requested.get(id);
 			}
-			depth = requested.get(id);
-		}
-		
-		newModel = service.getTransitiveClosure(graph, reqId, depth);
-		
-		if (newModel.getModel().getElements().isEmpty()) {
-			if (findRequestedFromModels(reqId) != null) {
-				newModel.getModel().addElement(findRequestedFromModels(reqId));
+			newModel = service.getTransitiveClosure(graph, reqId, depth);
+			if (newModel.getModel().getElements().isEmpty()) {
+				if (findRequestedFromModels(reqId) != null) {
+					newModel.getModel().addElement(findRequestedFromModels(reqId));
+				}
 			}
+
+			service.addAttributesToTransitiveClosure(this.savedModels.values(), newModel.getModel());
+			response = gson.toJson(newModel);
+			return new ResponseEntity<String>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
-		
-		service.addAttributesToTransitiveClosure(this.savedModels.values(), newModel.getModel());
-		
-		return new ResponseEntity<String>(gson.toJson(newModel),HttpStatus.OK);
 	}
-	
-	
-//	Finds the requested element from saved models.
+
+	// Finds the requested element from saved models.
 	private Element findRequestedFromModels(String reqId) {
-		
+
 		for (ElementModel model : this.savedModels.values()) {
 			if (model.getElements().containsKey(reqId)) {
 				return model.getElements().get(reqId);
@@ -138,71 +131,55 @@ public class KeljuController {
 		}
 		return null;
 	}
-	
 
-	@ApiOperation(value = "Returns consistency of received model",
-			notes = "Import a model in OpenReq JSON format",
-			response = String.class)
-	@ApiResponses(value = { 
-			@ApiResponse(code = 201, message = "Returns consistency of received model"),
+	@ApiOperation(value = "Returns consistency of received model", notes = "Import a model in OpenReq JSON format", response = String.class)
+	@ApiResponses(value = { @ApiResponse(code = 201, message = "Returns consistency of received model"),
 			@ApiResponse(code = 400, message = "Failure ex. malformed input"),
-			@ApiResponse(code = 409, message = "Failure")}) 
+			@ApiResponse(code = 409, message = "Failure") })
 	@RequestMapping(value = "/uploadDataAndCheckForConsistency", method = RequestMethod.POST)
 	public ResponseEntity<?> uploadDataAndCheckForConsistency(@RequestBody String json) throws Exception {
-		
-//		System.out.println("Requirements received from Mulperi");
-		
+
+		// System.out.println("Requirements received from Mulperi");
+
 		MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 
-		
 		CSPPlanner rcspGen = new CSPPlanner(model);
 		rcspGen.generateCSP();
-		
+
 		boolean isConsistent = rcspGen.isReleasePlanConsistent();
 		if (isConsistent) {
-			return new ResponseEntity<>(
-				transform.generateProjectJsonResponse(true, "Consistent", true),
-				HttpStatus.OK);
+			return new ResponseEntity<>(transform.generateProjectJsonResponse(true, "Consistent", true), HttpStatus.OK);
 		}
-		
-		return new ResponseEntity<>(
-		transform.generateProjectJsonResponse(false, "Not consistent", false),
-		HttpStatus.OK);
-		
+
+		return new ResponseEntity<>(transform.generateProjectJsonResponse(false, "Not consistent", false),
+				HttpStatus.OK);
+
 	}
-	
-	@ApiOperation(value = "Returns consistency and diagnosis of received model",
-			notes = "Import a model in OpenReq JSON format",
-			response = String.class)
-	@ApiResponses(value = { 
-			@ApiResponse(code = 201, message = "Returns consistency and diagnosis of received model"),
+
+	@ApiOperation(value = "Returns consistency and diagnosis of received model", notes = "Import a model in OpenReq JSON format", response = String.class)
+	@ApiResponses(value = { @ApiResponse(code = 201, message = "Returns consistency and diagnosis of received model"),
 			@ApiResponse(code = 400, message = "Failure ex. malformed input"),
-			@ApiResponse(code = 409, message = "Failure")}) 
+			@ApiResponse(code = 409, message = "Failure") })
 	@RequestMapping(value = "/uploadDataCheckForConsistencyAndDoDiagnosis", method = RequestMethod.POST)
 	public ResponseEntity<?> uploadDataCheckForConsistencyAndDoDiagnosis(@RequestBody String json) throws Exception {
-		
-//		System.out.println("Requirements received from Mulperi");
-		
+
+		// System.out.println("Requirements received from Mulperi");
+
 		MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 
-		
 		CSPPlanner rcspGen = new CSPPlanner(model);
 		rcspGen.generateCSP();
-		
+
 		boolean isConsistent = rcspGen.isReleasePlanConsistent();
 		if (isConsistent) {
-			return new ResponseEntity<>(
-				transform.generateProjectJsonResponse(true, "Consistent", true),
-				HttpStatus.OK);
+			return new ResponseEntity<>(transform.generateProjectJsonResponse(true, "Consistent", true), HttpStatus.OK);
 		}
-		
+
 		String diagnosis = rcspGen.getDiagnosis();
-		
-		return new ResponseEntity<>(
-				transform.generateProjectJsonResponse(false, diagnosis, true),
-				HttpStatus.OK);
+
+		return new ResponseEntity<>(transform.generateProjectJsonResponse(false, diagnosis, true), HttpStatus.OK);
 	}
-	
+
 }
