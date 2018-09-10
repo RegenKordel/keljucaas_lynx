@@ -61,7 +61,7 @@ public class Relationship {
 	@Expose
 	private int power = 0;
 	
-	@SerializedName("attribtutes")
+	@SerializedName("attributes")
 	@Expose
 	private HashMap<String, Integer> attributes;
 	

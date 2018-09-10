@@ -36,6 +36,10 @@ public class KeljuController {
 	private Map<String, List<ElementRelationTuple>> graph = new HashMap();
 	private Map<String, ElementModel> savedModels = new HashMap();
 	private Gson gson = new Gson();
+	/**
+	 * Value for the transitive closure search
+	 */
+	private static int searchDepth = 5;
 
 	@ApiOperation(value = "Import Murmeli JSON model and save it", notes = "Import a model in JSON format", response = String.class)
 	@ApiResponses(value = {
@@ -81,14 +85,13 @@ public class KeljuController {
 		return new ResponseEntity<>("Model saved and graph updated", HttpStatus.OK);
 	}
 
-	@ApiOperation(value = "Find the transitive closure of an element", notes = "Accepts a Map containing a element id (String) as a key and the depth (int) as a value", response = String.class)
+	@ApiOperation(value = "Find the transitive closure of an element", notes = "Accepts requirementId as a String, returns the transitive closure to depth 5 as a default (depth 0 if there are no dependencies)", response = String.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Success, returns a transitive closure of the requested element"),
 			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
 			@ApiResponse(code = 409, message = "Failure") })
 	@RequestMapping(value = "/findTransitiveClosureOfElement", method = RequestMethod.POST)
-	public ResponseEntity<?> findTransitiveClosureOfElement(@RequestBody Map<String, Integer> requested)
-			throws Exception {
+	public ResponseEntity<?> findTransitiveClosureOfElement(@RequestBody String requirementId) throws Exception {
 
 		TransitiveClosure newModel = null;
 		String reqId = null;
@@ -97,14 +100,13 @@ public class KeljuController {
 		try {
 			// Check if the wanted element is in the graph, if it is not then look for the
 			// mock element.
-			for (String id : requested.keySet()) {
-				if (this.graph.containsKey(id + "-mock")) {
-					reqId = id + "-mock";
-				} else {
-					reqId = id;
-				}
-				depth = requested.get(id);
+			if (this.graph.containsKey(requirementId + "-mock")) {
+				reqId = requirementId + "-mock";
+			} else {
+				reqId = requirementId;
 			}
+			depth = searchDepth;
+
 			newModel = service.getTransitiveClosure(graph, reqId, depth);
 			if (newModel.getModel().getElements().isEmpty()) {
 				if (findRequestedFromModels(reqId) != null) {
