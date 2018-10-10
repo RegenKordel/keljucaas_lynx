@@ -77,6 +77,11 @@ public class CSPPlanner {
 		initializeElementCSPs();
 		setConstraints();
 		addAllRelationships();
+		//TODO: modify so that it can be controlled if efforts and capacities are used. 
+		//If they are not, the mode check boils down to checking dependencies, 
+		//which should be more straightforward. Byt maybe it is just easier to make minor modifications
+		
+		//TODO Think if support for unassigned requirements should be dropped for now?
 	}
 
 	
@@ -108,6 +113,7 @@ public class CSPPlanner {
 			}
 			if (containerEffortVars.size() > 0) {
 				IntVar[] effortVarArray = containerEffortVars.toArray(new IntVar[0]);
+				//TODO JT: why double?
 				Double d = (Double) this.elementModel.getAttributeValues().get(container.getAttributes().get("capacity")).getValue();
 				model.sum(effortVarArray, "<=", (Integer) d.intValue()).post(); // TODO: What if no capacity?
 			}
@@ -183,6 +189,7 @@ public class CSPPlanner {
 	}
 
 	
+	//TODO Unclear semanitcs for parameters of this method
 	/**
 	 * Adds relationships (e.g. requires, excludes) to the model
 	 * 
@@ -196,7 +203,8 @@ public class CSPPlanner {
 	 * @param isIncludedValue
 	 *            tells whether the relationship is requiring (1) or excluding (0) (if
 	 *            0, two elements cannot be in the same project)
-	 * @param relation
+	 * @param relation n //TODO this seems to be choco comparison operator, redocument or change. 
+	 * 					
 	 *            String that tells the model if the two elements can or cannot
 	 *            be in the same sub-container (or in a previous etc)
 	 */
@@ -208,6 +216,9 @@ public class CSPPlanner {
 			IntVar size = model.intVar("size", 2); 	// added this and the third model.arithm(), breaks consistency if
 													// a dependent element is missing from sub-containers (in which case it's 
 													// assignedContainer is an array and has domainSize > 1)
+													//JT: there is no array in assignedContainer! the domain size can be >1, yes. 
+													//JT: and why relationships.size() of 'size' variables? could use a constant in arithm!
+			//TODO redo 
 			model.ifThen(elementFrom.getIsIncluded(),
 					model.and(model.arithm(elementTo.getIsIncluded(), "=", isIncludedValue),
 							model.arithm(elementTo.getAssignedContainer(), relation,
@@ -454,6 +465,7 @@ public class CSPPlanner {
 		}
 		
 		
+		//TODO JT: remove doubles? Or is there some reason
 		private int getEffortOfElement(Element element) {
 			Double d = (Double) elementModel.getAttributeValues().get(element.getAttributes().get("effort")).getValue();
 			return d.intValue();
@@ -476,7 +488,7 @@ public class CSPPlanner {
 				String varName = "req_" + element.getNameID() + "_" + (releaseIndex); //e.g req_REQ1_1 (element 1 in release 1)
 
 				if (getAssignedRelease(element) == -1) { // not assigned
-					effortInContainer[releaseIndex] = model.intVar(varName, effortDomain); // effort in release is 0 or the effort																				
+					effortInContainer[releaseIndex] = model.intVar(varName, effortDomain); // effort in each release is 0 or the effort	(bever divided to several releases)																		
 				} else { // assigned to release
 					if (getAssignedRelease(element) == releaseIndex) {
 						effortInContainer[releaseIndex] = model.intVar(varName, effortDomain); //e.g for REQ2_1 (meaning REQ2 in release 1) effortInRelease is req_REQ2_1 = {0,2}
@@ -501,7 +513,7 @@ public class CSPPlanner {
 					// effectively forces others to 0 because domain size is 2, and the non-0 gets
 					// forbidden //?????????????????????????????
 					// Could try if adding explicit constraints would be faster
-					model.ifOnlyIf(
+					model.ifOnlyIf(//TODO JT: if we want to support 0 efforts, should reconsider this! M
 							model.and(model.arithm(isIncluded, "=", 1), model.arithm(assignedContainer, "=", releaseIndex)),
 							model.arithm(effortInContainer[releaseIndex], "=", getEffortOfElement(element)));
 					// "ifOnlyIf(Constraint cstr1, Constraint cstr2)"
