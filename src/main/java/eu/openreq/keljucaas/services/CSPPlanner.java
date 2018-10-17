@@ -28,7 +28,7 @@ import fi.helsinki.ese.murmeli.Relationship.NameType;
 public class CSPPlanner {
 
 	private ElementModel elementModel;
-	
+
 	private LinkedHashMap<String, Integer> elementIDToIndex;
 	private LinkedHashMap<Integer, String> indexToElementID;
 
@@ -46,7 +46,7 @@ public class CSPPlanner {
 		initializeelementIndexMaps();
 	}
 
-	
+
 	private void initializeelementIndexMaps() {
 		int index1 = 0;
 		for (Element element : elementModel.getElements().values()) {
@@ -56,17 +56,17 @@ public class CSPPlanner {
 		}
 	}
 
-	
+
 	public final int getNReleases() {
 		return nContainers;
 	}
 
-	
+
 	public final int getNelements() {
 		return nElements;
 	}
 
-	
+
 	/**
 	 * Generate Constraint Satisfaction Problem model
 	 */
@@ -80,11 +80,11 @@ public class CSPPlanner {
 		//TODO: modify so that it can be controlled if efforts and capacities are used. 
 		//If they are not, the mode check boils down to checking dependencies, 
 		//which should be more straightforward. Byt maybe it is just easier to make minor modifications
-		
+
 		//TODO Think if support for unassigned requirements should be dropped for now?
 	}
 
-	
+
 	/**
 	 * Initialize Element4Csp[] elementCSPs
 	 */
@@ -95,7 +95,7 @@ public class CSPPlanner {
 		}
 	}
 
-	
+
 	/**
 	 * Set constraints for ensuring enough effort per release
 	 */
@@ -120,7 +120,7 @@ public class CSPPlanner {
 		}
 	}
 
-	
+
 	/**
 	 * Add different dependency types to the model
 	 */
@@ -131,8 +131,8 @@ public class CSPPlanner {
 			addExcludesRelationships(elementFrom, element);
 		}
 	}
-	
-	
+
+
 	/**
 	 * Add requires-relationships, in this version if A requires B, B must be
 	 * included and assigned in the same or earlier sub-container than A
@@ -145,11 +145,11 @@ public class CSPPlanner {
 			addRelationshipsToModel(requiring, getRequiresRelationships(element), model, 1, "<=");
 		}
 	}
-	
-	
+
+
 	private List<Relationship> getRequiresRelationships(Element element) {
 		List<Relationship> relationships = new ArrayList<>();
-		
+
 		for (Relationship relation : this.elementModel.getRelations()) {
 			if (relation.getFromID().equals(element.getNameID())) {
 				if (relation.getNameType().equals(NameType.REQUIRES)) {
@@ -159,8 +159,8 @@ public class CSPPlanner {
 		}
 		return relationships;
 	}
-	
-	
+
+
 	/**
 	 * Add excludes-relationships, in this (global) version if A excludes B, B cannot
 	 * be in the same root container (in any sub-container) as A
@@ -173,11 +173,11 @@ public class CSPPlanner {
 			addRelationshipsToModel(excluding, getExcludesRelationships(element), model, 0, "!=");
 		}
 	}
-	
-	
+
+
 	private List<Relationship> getExcludesRelationships(Element element) {
 		List<Relationship> relationships = new ArrayList<>();
-		
+
 		for (Relationship relation : this.elementModel.getRelations()) {
 			if (relation.getFromID().equals(element.getNameID())) {
 				if (relation.getNameType().equals(NameType.INCOMPATIBLE)) {
@@ -188,7 +188,7 @@ public class CSPPlanner {
 		return relationships;
 	}
 
-	
+
 	//TODO Unclear semanitcs for parameters of this method
 	/**
 	 * Adds relationships (e.g. requires, excludes) to the model
@@ -214,10 +214,10 @@ public class CSPPlanner {
 			int elementIndex = elementIDToIndex.get(rel.getToID());
 			Element4Csp elementTo = elementCSPs[elementIndex];
 			IntVar size = model.intVar("size", 2); 	// added this and the third model.arithm(), breaks consistency if
-													// a dependent element is missing from sub-containers (in which case it's 
-													// assignedContainer is an array and has domainSize > 1)
-													//JT: there is no array in assignedContainer! the domain size can be >1, yes. 
-													//JT: and why relationships.size() of 'size' variables? could use a constant in arithm!
+			// a dependent element is missing from sub-containers (in which case it's 
+			// assignedContainer is an array and has domainSize > 1)
+			//JT: there is no array in assignedContainer! the domain size can be >1, yes. 
+			//JT: and why relationships.size() of 'size' variables? could use a constant in arithm!
 			//TODO redo 
 			model.ifThen(elementFrom.getIsIncluded(),
 					model.and(model.arithm(elementTo.getIsIncluded(), "=", isIncludedValue),
@@ -229,9 +229,9 @@ public class CSPPlanner {
 		}
 	}
 
-	
+
 	public boolean isReleasePlanConsistent() {
-		
+
 		for (int index = 0; index < nElements; index++) {
 			elementCSPs[index].require(true);
 		}
@@ -239,11 +239,11 @@ public class CSPPlanner {
 
 		Solver solver = model.getSolver();
 		boolean solution = solver.solve();
-		
+
 		return solution;
 	}
-	
-	
+
+
 	/**
 	 * Get problematic element IDs as a String (elements that have been
 	 * diagnosed as breaking the consistency of the model)
@@ -252,7 +252,7 @@ public class CSPPlanner {
 	 */
 	public String getDiagnosis() {
 		List<Element4Csp> allElements = new ArrayList<>();
-		
+
 		for (int req = 0; req < nElements; req++) {
 			allElements.add(elementCSPs[req]);
 		}
@@ -273,7 +273,7 @@ public class CSPPlanner {
 		}
 		return sb.toString();
 	}
-	
+
 
 	private void setElementsToList(List<Element4Csp> elementsToSet) {
 		for (int i = 0; i < nElements; i++) {
@@ -295,7 +295,7 @@ public class CSPPlanner {
 		return result;
 	}
 
-	
+
 	/**
 	 * Adapted from
 	 * /JMiniZinc/at.siemens.ct.jminizinc.diag/src/main/java/at/siemens/ct/jmz/diag/FastDiag.java
@@ -321,7 +321,7 @@ public class CSPPlanner {
 		return fd(Collections.emptyList(), C, AC);
 	}
 
-	
+
 	/**
 	 * Function that computes diagnoses in FastDiag Adapted from
 	 * /JMiniZinc/at.siemens.ct.jminizinc.diag/src/main/java/at/siemens/ct/jmz/diag/FastDiag.java
@@ -362,7 +362,7 @@ public class CSPPlanner {
 		return appendListsAsSets(D1, D2);
 	}
 
-	
+
 	public static List<Element4Csp> appendListsAsSets(List<Element4Csp> CS1, List<Element4Csp> CS2) {
 		List<Element4Csp> union = new ArrayList<>(CS1);
 		if (CS2 == null)
@@ -376,7 +376,7 @@ public class CSPPlanner {
 		return union;
 	}
 
-	
+
 	public static List<Element4Csp> diffListsAsSets(List<Element4Csp> ac, List<Element4Csp> c2) {
 		List<Element4Csp> diff = new ArrayList<Element4Csp>();
 		for (Element4Csp element : ac) {
@@ -386,8 +386,8 @@ public class CSPPlanner {
 		}
 		return diff;
 	}
-	
-	
+
+
 	/*
 	 * Element is transformed so that Choco solver can understand it.
 	 * 
@@ -414,7 +414,6 @@ public class CSPPlanner {
 
 			requireCstr = model.arithm(isIncluded, "=", 1);
 			denyCstr = model.arithm(isIncluded, "=", 0);
-			// TODO restore? (no idea what this means)
 			model.post(requireCstr);
 			requirePosted = true;
 
@@ -422,18 +421,18 @@ public class CSPPlanner {
 			createEffortVariables(element, planner);
 			createConstraints(element, planner);
 		}
-		
-		
+
+
 		public Element getOriginalElement() {
 			return originalElement;
 		}
 
-		
+
 		public void setOriginalElement(Element originalElement) {
 			this.originalElement = originalElement;
 		}
 
-		
+
 		/**
 		 * 
 		 * @param element
@@ -448,13 +447,13 @@ public class CSPPlanner {
 						getElementsContainer(element) - 1);
 			}
 		}
-		
-		
+
+
 		private int getAssignedRelease(Element element) {
 			return this.assignedContainer.getUB();
 		}
-		
-		
+
+
 		private int getElementsContainer(Element element) {
 			for (Container container : this.elementModel.getsubContainers()) {
 				if (container.getElements().contains(element.getNameID())) {
@@ -463,15 +462,15 @@ public class CSPPlanner {
 			}
 			return 0;
 		}
-		
-		
+
+
 		//TODO JT: remove doubles? Or is there some reason
 		private int getEffortOfElement(Element element) {
 			Double d = (Double) elementModel.getAttributeValues().get(element.getAttributes().get("effort")).getValue();
 			return d.intValue();
 		}
 
-		
+
 		/**
 		 * Create choco variables for representing effort in each container
 		 * 
@@ -482,7 +481,7 @@ public class CSPPlanner {
 			effortInContainer = new IntVar[planner.getNReleases()+1];
 			int[] effortDomain = new int[2];
 			effortDomain[0] = 0;
-			effortDomain[1] = getEffortOfElement(element); // TODO: What if there is no effort?
+			effortDomain[1] = getEffortOfElement(element); 
 
 			for (int releaseIndex = 0; releaseIndex < planner.getNReleases(); releaseIndex++) {
 				String varName = "req_" + element.getNameID() + "_" + (releaseIndex); //e.g req_REQ1_1 (element 1 in release 1)
@@ -499,7 +498,7 @@ public class CSPPlanner {
 			}
 		}
 
-		
+
 		/**
 		 * Create constraints that enforce If the effort in assigned release if release
 		 * is assigned, connect only the affected release
@@ -508,46 +507,59 @@ public class CSPPlanner {
 		 * @param planner
 		 */
 		private void createConstraints(Element element, CSPPlanner planner) {
-			if (getAssignedRelease(element) == 0) {
+			if (getEffortOfElement(element) == 0) { 
+				// effort of element is not specified (=0). 
+				// Require effort allocated to a release is 0 in every release.
+				// No need for constraint, if capacity of rfelease is already 0
 				for (int releaseIndex = 0; releaseIndex < planner.getNReleases(); releaseIndex++) {
-					// effectively forces others to 0 because domain size is 2, and the non-0 gets
-					// forbidden //?????????????????????????????
-					// Could try if adding explicit constraints would be faster
-					model.ifOnlyIf(//TODO JT: if we want to support 0 efforts, should reconsider this! M
-							model.and(model.arithm(isIncluded, "=", 1), model.arithm(assignedContainer, "=", releaseIndex)),
-							model.arithm(effortInContainer[releaseIndex], "=", getEffortOfElement(element)));
-					// "ifOnlyIf(Constraint cstr1, Constraint cstr2)"
-					// "Posts an equivalence constraint stating that cstr1 is satisfied <=> cstr2 is satisfied, BEWARE : it is automatically posted (it cannot be reified)"
-					// Source: http://www.choco-solver.org/apidocs/org/chocosolver/solver/constraints/IReificationFactory.html
+					IntVar effortInRelease= effortInContainer[releaseIndex];
+					if (effortInRelease.getUB() > 0) {
+						model.arithm(effortInRelease, "=", 0);
+					}
 				}
-			} else {
-				model.ifThenElse(model.arithm(isIncluded, "=", 1),
-						model.arithm(effortInContainer[getAssignedRelease(element)], "=", getEffortOfElement(element)),
-						model.arithm(effortInContainer[getAssignedRelease(element)], "=", 0));
-				// if isIncluded, Then model.arithm(effortInRelease[element.getAssignedRelease() - 1], "=",element.getEffort()),
-				// and if Not isIncluded, Then model.arithm(effortInRelease[element.getAssignedRelease() - 1], "=", 0)
-				// "IReificationFactory.ifThenElse(BoolVar ifVar, Constraint thenCstr, Constraint elseCstr)"
-				// "Posts an implication constraint: ifVar => thenCstr && not(ifVar) => elseCstr."
-				// See http://www.choco-solver.org/apidocs/org/chocosolver/solver/variables/class-use/BoolVar.html
-				
+			}
+			else {
+				if (getAssignedRelease(element) == 0) { //not assigned to any release
+					for (int releaseIndex = 0; releaseIndex < planner.getNReleases(); releaseIndex++) {
+						// effectively forces others to 0 because domain size is 2, and the non-0 gets
+						// forbidden //?????????????????????????????
+						// Could try if adding explicit constraints would be faster
+						model.ifOnlyIf(
+								model.and(model.arithm(isIncluded, "=", 1), model.arithm(assignedContainer, "=", releaseIndex)),
+								model.arithm(effortInContainer[releaseIndex], "=", getEffortOfElement(element)));
+						// "ifOnlyIf(Constraint cstr1, Constraint cstr2)"
+						// "Posts an equivalence constraint stating that cstr1 is satisfied <=> cstr2 is satisfied, BEWARE : it is automatically posted (it cannot be reified)"
+						// Source: http://www.choco-solver.org/apidocs/org/chocosolver/solver/constraints/IReificationFactory.html
+					}
+				} else { //aasigned to a release
+					model.ifThenElse(model.arithm(isIncluded, "=", 1),
+							model.arithm(effortInContainer[getAssignedRelease(element)], "=", getEffortOfElement(element)),
+							model.arithm(effortInContainer[getAssignedRelease(element)], "=", 0));
+					// if isIncluded, Then model.arithm(effortInRelease[element.getAssignedRelease() - 1], "=",element.getEffort()),
+					// and if Not isIncluded, Then model.arithm(effortInRelease[element.getAssignedRelease() - 1], "=", 0)
+					// "IReificationFactory.ifThenElse(BoolVar ifVar, Constraint thenCstr, Constraint elseCstr)"
+					// "Posts an implication constraint: ifVar => thenCstr && not(ifVar) => elseCstr."
+					// See http://www.choco-solver.org/apidocs/org/chocosolver/solver/variables/class-use/BoolVar.html
+
+				}
 			}
 		}
-		
+
 
 		protected IntVar getEffortOfContainer(int releaseIndex) {
 			return effortInContainer[releaseIndex]; 
 		}
-		
+
 
 		protected IntVar getAssignedContainer() {
 			return assignedContainer;
 		}
 
-		
+
 		protected BoolVar getIsIncluded() {
 			return isIncluded;
 		}
-		
+
 
 		protected void require(boolean include) {
 			if (include) {
@@ -573,7 +585,7 @@ public class CSPPlanner {
 
 			}
 		}
-		
+
 
 		protected void unRequire() {
 			if (denyPosted) {
@@ -590,7 +602,7 @@ public class CSPPlanner {
 		public String getId() {
 			return id;
 		}
-		
+
 
 		public String toString() {
 			return id;
