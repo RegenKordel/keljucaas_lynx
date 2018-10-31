@@ -33,28 +33,28 @@ public class Container {
 	*/
 	@SerializedName("children")
 	@Expose
-	private List<Integer> children = new ArrayList();
+	private List<Integer> children = new ArrayList<Integer>();
 	/**
 	* Containers directly after this one
 	*
 	*/
 	@SerializedName("next")
 	@Expose
-	private List<Integer> next = new ArrayList();
+	private List<Integer> next = new ArrayList<Integer>();
 	/**
 	* Elements in this container
 	*
 	*/
 	@SerializedName("elements")
 	@Expose
-	private List<String> elements = new ArrayList();
+	private List<String> elements = new ArrayList<String>();
 	/**
 	* Attributes describing this container
 	*
 	*/
 	@SerializedName("attributes")
 	@Expose
-	private HashMap<String, Integer> attributes = new HashMap();
+	private HashMap<String, Integer> attributes = new HashMap<String, Integer>();
 	
 	private static int hid = 0;
 	

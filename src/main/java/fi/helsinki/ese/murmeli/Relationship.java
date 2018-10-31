@@ -72,7 +72,7 @@ public class Relationship {
 		this.fromID = from;
 		this.toID = to;
 		this.id = id;
-		this.attributes = new HashMap();
+		this.attributes = new HashMap<String, Integer>();
 	}
 	
 	public Relationship(NameType nameType, String from, String to) {
@@ -80,7 +80,7 @@ public class Relationship {
 		this.fromID = from;
 		this.toID = to;
 		this.id = hid;
-		this.attributes = new HashMap();
+		this.attributes = new HashMap<String, Integer>();
 		hid++;
 	}
 	

@@ -69,19 +69,19 @@ public class Element {
 	
 	public Element(String nameID, int id) {
 		this.nameID = nameID;
-		this.attributes = new HashMap();
-		this.requiredInterfaces = new ArrayList();
-		this.providedInterfaces = new ArrayList();
-		this.parts = new ArrayList();
+		this.attributes = new HashMap<String, Integer>();
+		this.requiredInterfaces = new ArrayList<Integer>();
+		this.providedInterfaces = new ArrayList<Integer>();
+		this.parts = new ArrayList<Parts>();
 		this.id = id;
 	}
 	
 	public Element(String nameID) {
 		this.nameID = nameID;
-		this.attributes = new HashMap();
-		this.requiredInterfaces = new ArrayList();
-		this.providedInterfaces = new ArrayList();
-		this.parts = new ArrayList();
+		this.attributes = new HashMap<String, Integer>();
+		this.requiredInterfaces = new ArrayList<Integer>();
+		this.providedInterfaces = new ArrayList<Integer>();
+		this.parts = new ArrayList<Parts>();
 		this.id = hid;
 		hid++;
 	}

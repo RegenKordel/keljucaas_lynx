@@ -52,14 +52,14 @@ public class ElementModel {
 	
 	public ElementModel() {
 		
-		this.attributeValueTypes = new HashMap();
-		this.elementTypes = new HashMap();
-		this.elements = new HashMap();
-		this.subContainers = new ArrayList();
+		this.attributeValueTypes = new HashMap<String, AttributeValueType>();
+		this.elementTypes = new HashMap<String, ElementType>();
+		this.elements = new HashMap<String, Element>();
+		this.subContainers = new ArrayList<Container>();
 		this.rootContainer = null;
-		this.relations = new ArrayList();
-		this.constraints = new HashMap();
-		this.attributeValues = new HashMap();
+		this.relations = new ArrayList<Relationship>();
+		this.constraints = new HashMap<Integer, Constraint>();
+		this.attributeValues = new HashMap<Integer, AttributeValue>();
 	}
 	
 	public HashMap<String, AttributeValueType> getAttributeValueTypes() {
