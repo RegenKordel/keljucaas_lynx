@@ -26,6 +26,8 @@ import fi.helsinki.ese.murmeli.Relationship.NameType;
  * 
  */
 public class CSPPlanner {
+	
+	private final static int UNASSIGNED = -1; 
 
 	private ElementModel elementModel;
 
@@ -395,6 +397,7 @@ public class CSPPlanner {
 	public static class Element4Csp {
 		private BoolVar isIncluded;
 		private IntVar assignedContainer;
+		private int originalContainerAssigment;
 		private IntVar[] effortInContainer;
 		private boolean denyPosted = false;
 		private boolean requirePosted = false;
@@ -403,11 +406,12 @@ public class CSPPlanner {
 		private Model model;
 		private String id;
 		private ElementModel elementModel;
-		private Element originalElement = null;
+		private Element element = null;
 
 		Element4Csp(Element element, CSPPlanner planner, Model model, ElementModel elementModel) {
 			this.model = model;
 			this.elementModel = elementModel;
+			this.element = element;
 			id = element.getNameID();
 
 			isIncluded = model.boolVar(element.getNameID() + "_in");
@@ -416,41 +420,33 @@ public class CSPPlanner {
 			denyCstr = model.arithm(isIncluded, "=", 0);
 			model.post(requireCstr);
 			requirePosted = true;
+			//in terms of Index. Container 1 =0, Container 0 = UNASSIGNED
+			originalContainerAssigment = getElementsContainer(element) -1;
 
-			setAssignedContainer(element, planner);
-			createEffortVariables(element, planner);
-			createConstraints(element, planner);
+			setAssignedContainer(planner);
+			createEffortVariables(planner);
+			createConstraints(planner);
 		}
 
-
-		public Element getOriginalElement() {
-			return originalElement;
-		}
-
-
-		public void setOriginalElement(Element originalElement) {
-			this.originalElement = originalElement;
-		}
-
-
+		
 		/**
 		 * 
 		 * @param element
 		 * @param planner
 		 */
-		private void setAssignedContainer(Element element, CSPPlanner planner) {
-			if (getElementsContainer(element) == 0) {
-				assignedContainer = model.intVar(element.getNameID() + "_assignedTo", 
+		private void setAssignedContainer(CSPPlanner planner) {
+			if (getOriginallyAssignedRelease() == UNASSIGNED) {
+				assignedContainer = model.intVar(id + "_assignedTo", 
 						-1, planner.getNReleases() - 1);
 			} else {
-				assignedContainer = model.intVar(element.getNameID() + "_assignedTo",
-						getElementsContainer(element) - 1);
+				assignedContainer = model.intVar(id + "_assignedTo",
+						getOriginallyAssignedRelease());
 			}
 		}
 
 
-		private int getAssignedRelease(Element element) {
-			return this.assignedContainer.getUB();
+		private int getOriginallyAssignedRelease() {
+			return this.originalContainerAssigment;
 		}
 
 
@@ -465,7 +461,7 @@ public class CSPPlanner {
 
 
 		//TODO JT: remove doubles? Or is there some reason
-		private int getEffortOfElement(Element element) {
+		private int getEffortOfElement() {
 			Double d = (Double) elementModel.getAttributeValues().get(element.getAttributes().get("effort")).getValue();
 			return d.intValue();
 		}
@@ -477,19 +473,20 @@ public class CSPPlanner {
 		 * @param element
 		 * @param planner
 		 */
-		private void createEffortVariables(Element element, CSPPlanner planner) {
-			effortInContainer = new IntVar[planner.getNReleases()+1];
+		private void createEffortVariables(CSPPlanner planner) {
+			//effortInContainer = new IntVar[planner.getNReleases()+1]; why +1? Not used now? There could be an overflow release
+			effortInContainer = new IntVar[planner.getNReleases()];
 			int[] effortDomain = new int[2];
 			effortDomain[0] = 0;
-			effortDomain[1] = getEffortOfElement(element); 
+			effortDomain[1] = getEffortOfElement(); 
 
 			for (int releaseIndex = 0; releaseIndex < planner.getNReleases(); releaseIndex++) {
 				String varName = "req_" + element.getNameID() + "_" + (releaseIndex); //e.g req_REQ1_1 (element 1 in release 1)
 
-				if (getAssignedRelease(element) == -1) { // not assigned
+				if (getOriginallyAssignedRelease() == UNASSIGNED) { // not assigned
 					effortInContainer[releaseIndex] = model.intVar(varName, effortDomain); // effort in each release is 0 or the effort	(bever divided to several releases)																		
 				} else { // assigned to release
-					if (getAssignedRelease(element) == releaseIndex) {
+					if (getOriginallyAssignedRelease() == releaseIndex) {
 						effortInContainer[releaseIndex] = model.intVar(varName, effortDomain); //e.g for REQ2_1 (meaning REQ2 in release 1) effortInRelease is req_REQ2_1 = {0,2}
 					} else {
 						effortInContainer[releaseIndex] = model.intVar(varName, 0); // domain is fixed 0 in other releases (e.g for REQ2_2 (meaning REQ2 in release 2) effortInRelease is req_REQ2_2 = 0
@@ -506,8 +503,8 @@ public class CSPPlanner {
 		 * @param element
 		 * @param planner
 		 */
-		private void createConstraints(Element element, CSPPlanner planner) {
-			if (getEffortOfElement(element) == 0) { 
+		private void createConstraints(CSPPlanner planner) {
+			if (getEffortOfElement() == 0) { 
 				// effort of element is not specified (=0). 
 				// Require effort allocated to a release is 0 in every release.
 				// No need for constraint, if capacity of rfelease is already 0
@@ -519,22 +516,22 @@ public class CSPPlanner {
 				}
 			}
 			else {
-				if (getAssignedRelease(element) == 0) { //not assigned to any release
+				if (getOriginallyAssignedRelease() == UNASSIGNED) { //not assigned to any release
 					for (int releaseIndex = 0; releaseIndex < planner.getNReleases(); releaseIndex++) {
 						// effectively forces others to 0 because domain size is 2, and the non-0 gets
 						// forbidden //?????????????????????????????
 						// Could try if adding explicit constraints would be faster
 						model.ifOnlyIf(
 								model.and(model.arithm(isIncluded, "=", 1), model.arithm(assignedContainer, "=", releaseIndex)),
-								model.arithm(effortInContainer[releaseIndex], "=", getEffortOfElement(element)));
+								model.arithm(effortInContainer[releaseIndex], "=", getEffortOfElement()));
 						// "ifOnlyIf(Constraint cstr1, Constraint cstr2)"
 						// "Posts an equivalence constraint stating that cstr1 is satisfied <=> cstr2 is satisfied, BEWARE : it is automatically posted (it cannot be reified)"
 						// Source: http://www.choco-solver.org/apidocs/org/chocosolver/solver/constraints/IReificationFactory.html
 					}
 				} else { //aasigned to a release
 					model.ifThenElse(model.arithm(isIncluded, "=", 1),
-							model.arithm(effortInContainer[getAssignedRelease(element)], "=", getEffortOfElement(element)),
-							model.arithm(effortInContainer[getAssignedRelease(element)], "=", 0));
+							model.arithm(effortInContainer[getOriginallyAssignedRelease()], "=", getEffortOfElement()),
+							model.arithm(effortInContainer[getOriginallyAssignedRelease()], "=", 0));
 					// if isIncluded, Then model.arithm(effortInRelease[element.getAssignedRelease() - 1], "=",element.getEffort()),
 					// and if Not isIncluded, Then model.arithm(effortInRelease[element.getAssignedRelease() - 1], "=", 0)
 					// "IReificationFactory.ifThenElse(BoolVar ifVar, Constraint thenCstr, Constraint elseCstr)"

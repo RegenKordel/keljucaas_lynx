@@ -166,7 +166,9 @@ public class KeljuController {
 	@RequestMapping(value = "/uploadDataCheckForConsistencyAndDoDiagnosis", method = RequestMethod.POST)
 	public ResponseEntity<?> uploadDataCheckForConsistencyAndDoDiagnosis(@RequestBody String json) throws Exception {
 
-		// System.out.println("Requirements received from Mulperi");
+		 //System.out.println("Requirements received from Mulperi");
+		 //System.out.println(json);
+		 
 
 		MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
