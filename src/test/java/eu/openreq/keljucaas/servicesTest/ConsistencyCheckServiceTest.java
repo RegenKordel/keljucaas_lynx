@@ -1,12 +1,14 @@
 package eu.openreq.keljucaas.servicesTest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
+import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +29,15 @@ public class ConsistencyCheckServiceTest {
 	@Autowired
 	private KeljuController keljuController;
 	
-	@Test
+	private Gson gson;
+	
 
+    @Before
+    public void setUp() {
+    	gson = new Gson();
+    }
+	
+	@Test
 	public void Consistent01() {
 
 		try {
@@ -39,11 +48,16 @@ public class ConsistencyCheckServiceTest {
 				fail("Could not read input string from '" + inputFileName +"'.");
 				
 			ResponseEntity<?> response = keljuController.uploadDataCheckForConsistencyAndDoDiagnosis(jsonText);
-			assertEquals(response.getStatusCodeValue(), 200);
-			System.out.println(response);
-			System.out.println(response.getStatusCodeValue());
-			System.out.println(response.getHeaders());
+	
 			System.out.println(response.getBody());
+
+			FullResponse fullResponse  = gson.fromJson(response.getBody().toString(), FullResponse.class);
+			List<String> diagnosis = fullResponse.getResponse().getDiagnosis();
+			
+			assertEquals(response.getStatusCodeValue(), 200);
+			assertTrue(diagnosis==null);
+			assertTrue(fullResponse.getResponse().isConsistent());
+			
 		} catch (Exception e) {
 			System.out.println(e);
 			fail();
@@ -51,7 +65,7 @@ public class ConsistencyCheckServiceTest {
 	}
 
 	@Test
-	public void inconsistent_incompatible_01() {
+	public void inconsistentIncompatible01() {
 
 		try {
 			
@@ -61,11 +75,16 @@ public class ConsistencyCheckServiceTest {
 				fail("Could not read input string from '" + inputFileName +"'.");
 				
 			ResponseEntity<?> response = keljuController.uploadDataCheckForConsistencyAndDoDiagnosis(jsonText);
-			assertEquals(response.getStatusCodeValue(), 200);
-			System.out.println(response);
-			System.out.println(response.getStatusCodeValue());
-			System.out.println(response.getHeaders());
+			
 			System.out.println(response.getBody());
+
+			FullResponse fullResponse  = gson.fromJson(response.getBody().toString(), FullResponse.class);
+			List<String> diagnosis = fullResponse.getResponse().getDiagnosis();
+		
+			assertTrue(diagnosis.contains("REQ1"));
+			assertEquals(fullResponse.getResponse().isConsistent(), false);
+			assertEquals(response.getStatusCodeValue(), 200);
+			
 		} catch (Exception e) {
 			System.out.println(e);
 			fail();
@@ -73,7 +92,7 @@ public class ConsistencyCheckServiceTest {
 	}
 	
 	@Test
-	public void Inconsistent_incompatible_resourceExceed() {
+	public void inconsistentIncompatibleResourceExceeded() {
 
 		try {
 			
@@ -83,16 +102,19 @@ public class ConsistencyCheckServiceTest {
 				fail("Could not read input string from '" + inputFileName +"'.");
 				
 			ResponseEntity<?> response = keljuController.uploadDataCheckForConsistencyAndDoDiagnosis(jsonText);
-			assertEquals(response.getStatusCodeValue(), 200);
-			System.out.println(response);
-			System.out.println(response.getStatusCodeValue());
-			System.out.println(response.getHeaders());
+
 			System.out.println(response.getBody());
 			
-			
-			 Gson gson = new Gson();
+			String jsonString = response.getBody().toString();
+			System.out.println(jsonString);
 			FullResponse fullResponse  = gson.fromJson(response.getBody().toString(), FullResponse.class);
-			    System.out.println(gson.toJson(fullResponse));
+			List<String> diagnosis = fullResponse.getResponse().getDiagnosis();
+			
+			assertTrue(diagnosis.contains("REQ1"));
+			assertTrue(diagnosis.contains("REQ3"));
+			assertTrue(!diagnosis.contains("REQ2"));
+			assertEquals(fullResponse.getResponse().isConsistent(), false);
+			assertEquals(response.getStatusCodeValue(), 200);
 		} catch (Exception e) {
 			System.out.println(e);
 			fail();
@@ -113,16 +135,28 @@ public class ConsistencyCheckServiceTest {
 	}
 	
 	private static class FullResponse {
-		DiagnosisResponse response;
-	}
-	private static class DiagnosisResponse {
-		public boolean consistent;
-		public ArrayList<String> diagnosis;
-		@Override
-		public String toString() {
-			return "DiagnosisResponse [consistent=" + consistent + ", diagnosis=" + diagnosis + "]";
+		private Response response;
+		public Response getResponse() {
+			return response;
 		}
-		
+	}
+
+	private static class Response {
+		private List<String> diagnosis;
+		private boolean consistent;
+	
+		public List<String> getDiagnosis() {
+			return diagnosis;
+		}
+		public void setDiagnosis(List<String> diagnosis) {
+			this.diagnosis = diagnosis;
+		}
+		public boolean isConsistent() {
+			return consistent;
+		}
+		public void setConsistent(boolean consistent) {
+			this.consistent = consistent;
+		}
 	}
 
 }
