@@ -49,8 +49,6 @@ public class ConsistencyCheckServiceTest {
 				
 			ResponseEntity<?> response = keljuController.uploadDataCheckForConsistencyAndDoDiagnosis(jsonText);
 	
-			System.out.println(response.getBody());
-
 			FullResponse fullResponse  = gson.fromJson(response.getBody().toString(), FullResponse.class);
 			List<String> diagnosis = fullResponse.getResponse().getDiagnosis();
 			
@@ -76,12 +74,14 @@ public class ConsistencyCheckServiceTest {
 				
 			ResponseEntity<?> response = keljuController.uploadDataCheckForConsistencyAndDoDiagnosis(jsonText);
 			
-			System.out.println(response.getBody());
-
 			FullResponse fullResponse  = gson.fromJson(response.getBody().toString(), FullResponse.class);
 			List<String> diagnosis = fullResponse.getResponse().getDiagnosis();
 		
 			assertTrue(diagnosis.contains("REQ1"));
+			assertTrue(!diagnosis.contains("REQ2"));
+			assertTrue(!diagnosis.contains("REQ3"));
+			assertTrue(!diagnosis.contains("REQ4"));
+			assertTrue(!diagnosis.contains("REQ5"));
 			assertEquals(fullResponse.getResponse().isConsistent(), false);
 			assertEquals(response.getStatusCodeValue(), 200);
 			
@@ -103,16 +103,14 @@ public class ConsistencyCheckServiceTest {
 				
 			ResponseEntity<?> response = keljuController.uploadDataCheckForConsistencyAndDoDiagnosis(jsonText);
 
-			System.out.println(response.getBody());
-			
-			String jsonString = response.getBody().toString();
-			System.out.println(jsonString);
 			FullResponse fullResponse  = gson.fromJson(response.getBody().toString(), FullResponse.class);
 			List<String> diagnosis = fullResponse.getResponse().getDiagnosis();
 			
 			assertTrue(diagnosis.contains("REQ1"));
 			assertTrue(diagnosis.contains("REQ3"));
 			assertTrue(!diagnosis.contains("REQ2"));
+			assertTrue(!diagnosis.contains("REQ4"));
+			assertTrue(!diagnosis.contains("REQ5"));
 			assertEquals(fullResponse.getResponse().isConsistent(), false);
 			assertEquals(response.getStatusCodeValue(), 200);
 		} catch (Exception e) {
