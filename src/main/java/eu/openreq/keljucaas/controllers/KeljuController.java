@@ -33,8 +33,8 @@ public class KeljuController {
 
 	private TransitiveClosureService service = new TransitiveClosureService();
 	private ConsistencyCheckService transform = new ConsistencyCheckService();
-	private Map<String, List<ElementRelationTuple>> graph = new HashMap();
-	private Map<String, ElementModel> savedModels = new HashMap();
+	private Map<String, List<ElementRelationTuple>> graph = new HashMap<>();
+	private Map<String, ElementModel> savedModels = new HashMap<>();
 	private Gson gson = new Gson();
 	/**
 	 * Value for the transitive closure search
@@ -147,7 +147,6 @@ public class KeljuController {
 		ElementModel model = parser.parseMurmeliModel(json);
 
 		CSPPlanner rcspGen = new CSPPlanner(model);
-		rcspGen.generateCSP();
 
 		boolean isConsistent = rcspGen.isReleasePlanConsistent();
 		if (isConsistent) {
@@ -174,7 +173,6 @@ public class KeljuController {
 		ElementModel model = parser.parseMurmeliModel(json);
 
 		CSPPlanner rcspGen = new CSPPlanner(model);
-		rcspGen.generateCSP();
 
 		boolean isConsistent = rcspGen.isReleasePlanConsistent();
 		if (isConsistent) {
@@ -185,5 +183,34 @@ public class KeljuController {
 
 		return new ResponseEntity<>(transform.generateProjectJsonResponse(false, diagnosis, true), HttpStatus.OK);
 	}
+	//TODO enable this functionality, 
+	/** 
+	@ApiOperation(value = "Returns consistency and diagnosis of received model", notes = "Import a model in OpenReq JSON format", response = String.class)
+	@ApiResponses(value = { @ApiResponse(code = 201, message = "Returns consistency and diagnosis of received model"),
+			@ApiResponse(code = 400, message = "Failure ex. malformed input"),
+			@ApiResponse(code = 409, message = "Failure") })
+	@RequestMapping(value = "/uploadDataCheckForConsistencyAndDoDiagnosis2", method = RequestMethod.POST)
+	public ResponseEntity<?> uploadDataCheckForConsistencyAndDoDiagnosis2(@RequestBody String json) throws Exception {
+
+		 //System.out.println("Requirements received from Mulperi");
+		 //System.out.println(json);
+		 
+
+		MurmeliModelParser parser = new MurmeliModelParser();
+		ElementModel model = parser.parseMurmeliModel(json);
+
+		CSPPlanner rcspGen = new CSPPlanner(model);
+
+		boolean isConsistent = rcspGen.isReleasePlanConsistent();
+		if (isConsistent) {
+			return new ResponseEntity<>(transform.generateProjectJsonResponse(true, "Consistent", true), HttpStatus.OK);
+		}
+
+		//note me parameter: whether to diagnose out requirements, relationships or both
+		String diagnosis = rcspGen.getDiagnosisStr(false, true);
+
+		return new ResponseEntity<>(transform.generateProjectJsonResponse(false, diagnosis, true), HttpStatus.OK);
+	}
+**/
 
 }

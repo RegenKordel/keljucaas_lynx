@@ -8,11 +8,19 @@ import java.util.List;
 
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 
-import fi.helsinki.ese.murmeli.*;
+import eu.openreq.keljucaas.domain.Diagnosable;
+import eu.openreq.keljucaas.domain.Element4Csp;
+import eu.openreq.keljucaas.domain.IncompatibleRelationship4Csp;
+import eu.openreq.keljucaas.domain.Relationship4Csp;
+import eu.openreq.keljucaas.domain.ReleaseInfo;
+import eu.openreq.keljucaas.domain.ReleasePlanInfo;
+import eu.openreq.keljucaas.domain.RequiresRelationship4Csp;
+import fi.helsinki.ese.murmeli.Container;
+import fi.helsinki.ese.murmeli.Element;
+import fi.helsinki.ese.murmeli.ElementModel;
+import fi.helsinki.ese.murmeli.Relationship;
 import fi.helsinki.ese.murmeli.Relationship.NameType;
 
 /**
@@ -26,8 +34,8 @@ import fi.helsinki.ese.murmeli.Relationship.NameType;
  * 
  */
 public class CSPPlanner {
-	
-	private final static int UNASSIGNED = -1; 
+
+	public final static int UNASSIGNED = -1; 
 
 	private ElementModel elementModel;
 
@@ -36,20 +44,46 @@ public class CSPPlanner {
 
 	private final int nContainers;
 	private final int nElements;
-	Element4Csp[] elementCSPs = null;
+	private Element4Csp[] element4CSPs = null;
+	private ArrayList<Relationship4Csp> relationship4Csps = new ArrayList<>();
+	private boolean diagnoseElements; //if false, diagnosis requirements setting does not clear these requirements 
+	private boolean diagnoseRelations; //if false, diagnosis requirements setting does not clear these requirements
+
+	private LinkedHashMap <String, ReleasePlanInfo> releaseStates = new LinkedHashMap<>();
+
 	Model model = null;
+	//Solution solution;
 
 	public CSPPlanner(ElementModel elementModel) {
 		this.elementModel = elementModel;
 		nContainers = elementModel.getsubContainers().size();
 		nElements = elementModel.getElements().size();
-		elementIDToIndex = new LinkedHashMap<>(nElements);
-		indexToElementID = new LinkedHashMap<>(nElements);
-		initializeelementIndexMaps();
+		initialize();
 	}
 
+	private void initialize() {
+		elementIDToIndex = new LinkedHashMap<>(nElements);
+		indexToElementID = new LinkedHashMap<>(nElements);
+		initializeElementIndexMaps();
 
-	private void initializeelementIndexMaps() {
+		this.element4CSPs = new Element4Csp[nElements];
+
+
+		generateCSP();
+
+		initializeReleaseStates();
+
+	}
+
+	private Element4Csp getElement4Csp(String elementId) {
+		Integer index = elementIDToIndex.get(elementId);
+		if (index == null)
+			return null;
+		return element4CSPs[index.intValue()];
+
+	}
+
+	private void initializeElementIndexMaps() {
 		int index1 = 0;
 		for (Element element : elementModel.getElements().values()) {
 			Integer index2 = Integer.valueOf(index1++);
@@ -74,11 +108,11 @@ public class CSPPlanner {
 	 */
 	public void generateCSP() {
 		model = new Model("ReleasePlanner"); // NOTE change this?
-		this.elementCSPs = new Element4Csp[nElements];
 
 		initializeElementCSPs();
-		setConstraints();
-		addAllRelationships();
+		setEffortConstraints();
+		initializeRelationship4CSPs();
+		//solution = new Solution(model);
 		//TODO: modify so that it can be controlled if efforts and capacities are used. 
 		//If they are not, the mode check boils down to checking dependencies, 
 		//which should be more straightforward. Byt maybe it is just easier to make minor modifications
@@ -93,19 +127,113 @@ public class CSPPlanner {
 	private void initializeElementCSPs() {
 		for (Element element : elementModel.getElements().values()) {
 			Element4Csp element4csp = new Element4Csp(element, this, model, this.elementModel);
-			elementCSPs[elementIDToIndex.get(element.getNameID())] = element4csp;
+			element4CSPs[elementIDToIndex.get(element.getNameID())] = element4csp;
 		}
 	}
+
+	/**
+	 * Initialize Element4Csp[] elementCSPs
+	 */
+	private void initializeReleaseStates() {
+		ReleasePlanInfo submittedReleasePlan = createInitialState();
+		allocateOriginallyAsssignedElements(submittedReleasePlan);
+		releaseStates.put("submitted", submittedReleasePlan);
+		ReleasePlanInfo diagnosedReleasePlan = createInitialState();
+		releaseStates.put("diagnosed", diagnosedReleasePlan);
+
+	}
+
+	private void initializeRelationship4CSPs() {
+
+		for (Relationship relation : this.elementModel.getRelations()) {
+			if (isSupported(relation.getNameType())) {
+				Element4Csp from = getElement4Csp(relation.getFromID());
+				Element4Csp to = getElement4Csp(relation.getToID());
+				if ((from!= null) && (to != null)) {
+					switch(relation.getNameType()) {
+					case REQUIRES:
+						relationship4Csps.add(
+								new RequiresRelationship4Csp(from, to, model));
+						break;
+					case INCOMPATIBLE:
+						relationship4Csps.add(
+								new IncompatibleRelationship4Csp(from, to, model));
+						break;
+					case CONTRIBUTES:
+					case DAMAGES:
+					case DUPLICATES:
+					case REFINES:
+					case REPLACES:
+					case SIMILAR:
+						break;
+
+					}
+				}
+			}
+		}
+	}
+
+
+	protected ReleasePlanInfo createInitialState () {
+
+		ReleasePlanInfo releasePlanInfo = new ReleasePlanInfo();
+		ReleaseInfo unAllocatedRelease = new ReleaseInfo(CSPPlanner.UNASSIGNED, "unassigned");
+		releasePlanInfo.addReleaseInfo(unAllocatedRelease);
+
+		int index = 0;
+		for (Container container : elementModel.getsubContainers()) {
+			ReleaseInfo releaseInfo = new ReleaseInfo(index++, container.getNameID());
+			int capacityOfRelease = determineCapacityAvailable(container);
+			releaseInfo.setCapacityAvailable(capacityOfRelease);
+			releasePlanInfo.addReleaseInfo(releaseInfo);
+		}
+		return releasePlanInfo;
+	}
+
+	protected void allocateOriginallyAsssignedElements(ReleasePlanInfo releasePlanInfo) {
+		for (Element4Csp element4Csp:element4CSPs) {
+			int originalRelease= element4Csp.getOriginallyAssignedRelease() +1;
+			ReleaseInfo assignedRelease = releasePlanInfo.getReleaseInfo(originalRelease);
+			releasePlanInfo.assignElementToRelease(element4Csp, assignedRelease);
+			//assignedRelease.addAssignedElement(element4Csp);
+		}
+	}
+
+	protected void setOriginallyEnabledReleases(ReleasePlanInfo releasePlanInfo) {
+		for (Relationship4Csp relationship4Csp: relationship4Csps) {
+			releasePlanInfo.addEnabledRelationsShip(relationship4Csp);
+		}
+	}
+
+
+	protected void allocateDiagnosed(ReleasePlanInfo releasePlanInfo) {
+		for (Element4Csp element4Csp:element4CSPs) {
+			int allocatedRelease= element4Csp.getAssignedContainer().getValue()+1;
+			ReleaseInfo assignedRelease;
+			if (element4Csp.getIsIncluded().getValue() != 0) 
+				assignedRelease = releasePlanInfo.getReleaseInfo(allocatedRelease);
+			else 
+				assignedRelease = releasePlanInfo.getReleaseInfo(0);
+			releasePlanInfo.assignElementToRelease(element4Csp, assignedRelease);
+			//assignedRelease.addAssignedElement(element4Csp);
+		}
+
+		for (Relationship4Csp relationship4Csp: relationship4Csps) {
+			if (relationship4Csp.getIsIncluded().getValue() != 0) 
+				releasePlanInfo.addEnabledRelationsShip(relationship4Csp);
+		}
+	}
+
 
 
 	/**
 	 * Set constraints for ensuring enough effort per release
 	 */
-	private void setConstraints() {
+	private void setEffortConstraints() {
 		for (Container container : elementModel.getsubContainers()) {
 			ArrayList<IntVar> containerEffortVars = new ArrayList<>();
 			for (Element element : elementModel.getElements().values()) {
-				Element4Csp element4Csp = elementCSPs[elementIDToIndex.get(element.getNameID())];
+				Element4Csp element4Csp = element4CSPs[elementIDToIndex.get(element.getNameID())];
 
 				IntVar effortVar = element4Csp.getEffortOfContainer(container.getID() - 1);
 
@@ -123,126 +251,126 @@ public class CSPPlanner {
 	}
 
 
-	/**
-	 * Add different dependency types to the model
-	 */
-	private void addAllRelationships() {
-		for (Element element : elementModel.getElements().values()) {
-			Element4Csp elementFrom = elementCSPs[elementIDToIndex.get(element.getNameID())];
-			addRequiresRelationships(elementFrom, element);
-			addExcludesRelationships(elementFrom, element);
-		}
-	}
-
-
-	/**
-	 * Add requires-relationships, in this version if A requires B, B must be
-	 * included and assigned in the same or earlier sub-container than A
-	 * 
-	 * @param requiring
-	 * @param element
-	 */
-	private void addRequiresRelationships(Element4Csp requiring, Element element) {
-		if (!getRequiresRelationships(element).isEmpty()) {
-			addRelationshipsToModel(requiring, getRequiresRelationships(element), model, 1, "<=");
-		}
-	}
-
-
-	private List<Relationship> getRequiresRelationships(Element element) {
-		List<Relationship> relationships = new ArrayList<>();
-
-		for (Relationship relation : this.elementModel.getRelations()) {
-			if (relation.getFromID().equals(element.getNameID())) {
-				if (relation.getNameType().equals(NameType.REQUIRES)) {
-					relationships.add(relation);
-				}
-			}
-		}
-		return relationships;
-	}
-
-
-	/**
-	 * Add excludes-relationships, in this (global) version if A excludes B, B cannot
-	 * be in the same root container (in any sub-container) as A
-	 * 
-	 * @param excluding
-	 * @param element
-	 */
-	private void addExcludesRelationships(Element4Csp excluding, Element element) {
-		if (!getExcludesRelationships(element).isEmpty()) {
-			addRelationshipsToModel(excluding, getExcludesRelationships(element), model, 0, "!=");
-		}
-	}
-
-
-	private List<Relationship> getExcludesRelationships(Element element) {
-		List<Relationship> relationships = new ArrayList<>();
-
-		for (Relationship relation : this.elementModel.getRelations()) {
-			if (relation.getFromID().equals(element.getNameID())) {
-				if (relation.getNameType().equals(NameType.INCOMPATIBLE)) {
-					relationships.add(relation);
-				}
-			}
-		}
-		return relationships;
-	}
-
-
-	//TODO Unclear semanitcs for parameters of this method
-	/**
-	 * Adds relationships (e.g. requires, excludes) to the model
-	 * 
-	 * @param elementFrom
-	 *            Element4Csp, tells the requiring/excluding element
-	 * @param relationships
-	 *            List containing the elements requiresrelationships or
-	 *            excludesrelationships
-	 * @param model
-	 *            Choco Model
-	 * @param isIncludedValue
-	 *            tells whether the relationship is requiring (1) or excluding (0) (if
-	 *            0, two elements cannot be in the same project)
-	 * @param relation n //TODO this seems to be choco comparison operator, redocument or change. 
-	 * 					
-	 *            String that tells the model if the two elements can or cannot
-	 *            be in the same sub-container (or in a previous etc)
-	 */
-	private void addRelationshipsToModel(Element4Csp elementFrom, List<Relationship> relationships, Model model,
-			int isIncludedValue, String relation) {
-		for (Relationship rel : relationships) {
-			int elementIndex = elementIDToIndex.get(rel.getToID());
-			Element4Csp elementTo = elementCSPs[elementIndex];
-			IntVar size = model.intVar("size", 2); 	// added this and the third model.arithm(), breaks consistency if
-			// a dependent element is missing from sub-containers (in which case it's 
-			// assignedContainer is an array and has domainSize > 1)
-			//JT: there is no array in assignedContainer! the domain size can be >1, yes. 
-			//JT: and why relationships.size() of 'size' variables? could use a constant in arithm!
-			//TODO redo 
-			model.ifThen(elementFrom.getIsIncluded(),
-					model.and(model.arithm(elementTo.getIsIncluded(), "=", isIncludedValue),
-							model.arithm(elementTo.getAssignedContainer(), relation,
-									elementFrom.getAssignedContainer()),
-							model.arithm(size, "!=", elementTo.assignedContainer.getDomainSize())));
-			//If elementFrom.getIsIncluded(), Then model.and(...)
-			//"Example: - ifThen(b1, arithm(v1, "=", 2));: b1 is equal to 1 => v1 = 2, so v1 !"
-		}
-	}
+	//	/**
+	//	 * Add different dependency types to the model
+	//	 */
+	//	private void addAllRelationships() {
+	//		for (Element element : elementModel.getElements().values()) {
+	//			Element4Csp elementFrom = element4CSPs[elementIDToIndex.get(element.getNameID())];
+	//			addRequiresRelationships(elementFrom, element);
+	//			addExcludesRelationships(elementFrom, element);
+	//		}
+	//	}
+	//
+	//
+	//	/**
+	//	 * Add requires-relationships, in this version if A requires B, B must be
+	//	 * included and assigned in the same or earlier sub-container than A
+	//	 * 
+	//	 * @param requiring
+	//	 * @param element
+	//	 */
+	//	private void addRequiresRelationships(Element4Csp requiring, Element element) {
+	//		if (!getRequiresRelationships(element).isEmpty()) {
+	//			addRelationshipsToModel(requiring, getRequiresRelationships(element), model, 1, "<=");
+	//		}
+	//	}
+	//
+	//
+	//	private List<Relationship> getRequiresRelationships(Element element) {
+	//		List<Relationship> relationships = new ArrayList<>();
+	//
+	//		for (Relationship relation : this.elementModel.getRelations()) {
+	//			if (relation.getFromID().equals(element.getNameID())) {
+	//				if (relation.getNameType().equals(NameType.REQUIRES)) {
+	//					relationships.add(relation);
+	//				}
+	//			}
+	//		}
+	//		return relationships;
+	//	}
+	//
+	//
+	//	/**
+	//	 * Add excludes-relationships, in this (global) version if A excludes B, B cannot
+	//	 * be in the same root container (in any sub-container) as A
+	//	 * 
+	//	 * @param excluding
+	//	 * @param element
+	//	 */
+	//	private void addExcludesRelationships(Element4Csp excluding, Element element) {
+	//		if (!getExcludesRelationships(element).isEmpty()) {
+	//			addRelationshipsToModel(excluding, getExcludesRelationships(element), model, 0, "!=");
+	//		}
+	//	}
+	//
+	//
+	//	private List<Relationship> getExcludesRelationships(Element element) {
+	//		List<Relationship> relationships = new ArrayList<>();
+	//
+	//		for (Relationship relation : this.elementModel.getRelations()) {
+	//			if (relation.getFromID().equals(element.getNameID())) {
+	//				if (relation.getNameType().equals(NameType.INCOMPATIBLE)) {
+	//					relationships.add(relation);
+	//				}
+	//			}
+	//		}
+	//		return relationships;
+	//	}
+	//
+	//
+	//	//TODO Unclear semanitcs for parameters of this method
+	//	/**
+	//	 * Adds relationships (e.g. requires, excludes) to the model
+	//	 * 
+	//	 * @param elementFrom
+	//	 *            Element4Csp, tells the requiring/excluding element
+	//	 * @param relationships
+	//	 *            List containing the elements requiresrelationships or
+	//	 *            excludesrelationships
+	//	 * @param model
+	//	 *            Choco Model
+	//	 * @param isIncludedValue
+	//	 *            tells whether the relationship is requiring (1) or excluding (0) (if
+	//	 *            0, two elements cannot be in the same project)
+	//	 * @param relation n //TODO this seems to be choco comparison operator, redocument or change. 
+	//	 * 					
+	//	 *            String that tells the model if the two elements can or cannot
+	//	 *            be in the same sub-container (or in a previous etc)
+	//	 */
+	//	private void addRelationshipsToModel(Element4Csp elementFrom, List<Relationship> relationships, Model model,
+	//			int isIncludedValue, String relation) {
+	//		for (Relationship rel : relationships) {
+	//			int elementIndex = elementIDToIndex.get(rel.getToID());
+	//			Element4Csp elementTo = element4CSPs[elementIndex];
+	//			IntVar size = model.intVar("size", 2); 	// added this and the third model.arithm(), breaks consistency if
+	//			// a dependent element is missing from sub-containers (in which case it's 
+	//			// assignedContainer is an array and has domainSize > 1)
+	//			//JT: there is no array in assignedContainer! the domain size can be >1, yes. 
+	//			//JT: and why relationships.size() of 'size' variables? could use a constant in arithm!
+	//			//TODO redo 
+	//			model.ifThen(elementFrom.getIsIncluded(),
+	//					model.and(model.arithm(elementTo.getIsIncluded(), "=", isIncludedValue),
+	//							model.arithm(elementTo.getAssignedContainer(), relation,
+	//									elementFrom.getAssignedContainer()),
+	//							model.arithm(size, "!=", elementTo.getAssignedContainer().getDomainSize())));
+	//			//If elementFrom.getIsIncluded(), Then model.and(...)
+	//			//"Example: - ifThen(b1, arithm(v1, "=", 2));: b1 is equal to 1 => v1 = 2, so v1 !"
+	//		}
+	//	}
 
 
 	public boolean isReleasePlanConsistent() {
+		requireAllElements();
+		requireAllRelations();
 
-		for (int index = 0; index < nElements; index++) {
-			elementCSPs[index].require(true);
-		}
 		model.getSolver().reset();
 
 		Solver solver = model.getSolver();
-		boolean solution = solver.solve();
-
-		return solution;
+		boolean solvable = solver.solve();
+		//		if (solvable)
+		//			solution.record();
+		return solvable;
 	}
 
 
@@ -253,47 +381,131 @@ public class CSPPlanner {
 	 * @return
 	 */
 	public String getDiagnosis() {
-		List<Element4Csp> allElements = new ArrayList<>();
 
-		for (int req = 0; req < nElements; req++) {
-			allElements.add(elementCSPs[req]);
-		}
-		List<Element4Csp> diagnosis = fastDiag(allElements, allElements);
+		//List<Element4Csp> diagnosis = fastDiag(allElements, allElements);
+		List<Diagnosable> diagnosis = getDiagnosis(true, false);
 		StringBuffer sb = new StringBuffer(); 
 		if (diagnosis.isEmpty()) {
 			sb.append("(No Diagnosis found.)");
 		} 
 		else {
 			for (int i = 0; i < diagnosis.size(); i++) {
-				Element4Csp reqB = diagnosis.get(i);
-				String reqId = reqB.getId();
+				Diagnosable reqB = diagnosis.get(i);
+				if (!(reqB instanceof Element4Csp))
+					continue;
+				Element4Csp elem = (Element4Csp) reqB;
+				String reqId = elem.getId();
 				sb.append(reqId);
 				if (diagnosis.size() > 1 && i < diagnosis.size() - 1) {
-					sb.append(",");
+					sb.append(","); //TODO modify; all not included anymore
 				}
 			}
+			getDiagnosedSolution(true, false);
 		}
 		return sb.toString();
 	}
 
+	protected void getDiagnosedSolution(boolean diagnoseElements, boolean diagnoseRelationships) {
 
-	private void setElementsToList(List<Element4Csp> elementsToSet) {
-		for (int i = 0; i < nElements; i++) {
-			elementCSPs[i].unRequire();
+		List<Diagnosable> all= new ArrayList<>();
+		for (int req = 0; req < nElements; req++) {
+			all.add(element4CSPs[req]);
 		}
-		for (Element4Csp element : elementsToSet) {
+
+		for (Relationship4Csp relationship4Csp: relationship4Csps)
+			all.add(relationship4Csp);
+
+
+		List<Diagnosable> diagnosis = getDiagnosis(diagnoseElements, diagnoseRelationships);
+
+		List<Diagnosable> included = diffListsAsSets(all, diagnosis);
+
+
+		setRequirementsToList(included);
+		boolean OK = consistent(included);
+		ReleasePlanInfo diagnosedPlan = releaseStates.get("diagnosed");
+		if ((diagnosedPlan != null) && OK ) {
+			allocateDiagnosed(diagnosedPlan);
+		}
+
+	}
+
+	public String getDiagnosisStr(boolean diagnoseElements, boolean diagnoseRelationships) {
+
+		//List<Element4Csp> diagnosis = fastDiag(allElements, allElements);
+		List<Diagnosable> diagnosis = getDiagnosis(diagnoseElements, diagnoseRelationships);
+		StringBuffer sb = new StringBuffer(); 
+		if (diagnosis.isEmpty()) {
+			sb.append("(No Diagnosis found.)");
+		} 
+		else {
+			for (int i = 0; i < diagnosis.size(); i++) {
+				Diagnosable reqB = diagnosis.get(i);
+				if (reqB instanceof Element4Csp) {
+					Element4Csp elem = (Element4Csp) reqB;
+					String reqId = elem.getId();
+					sb.append(reqId);
+				}
+				else 
+					if (reqB instanceof Relationship4Csp) {
+						sb.append(reqB.toString());
+					}
+				if (diagnosis.size() > 1 && i < diagnosis.size() - 1) {
+					sb.append(","); //TODO modify; all not included anymore
+				}
+			}
+			getDiagnosedSolution(diagnoseElements, diagnoseRelationships);
+		}
+		return sb.toString();
+	}
+
+	protected List<Diagnosable> getDiagnosis(boolean diagnoseElements, boolean diagnoseRelations) {
+		List<Diagnosable> allElements = new ArrayList<>();
+		this.diagnoseElements = diagnoseElements;
+		this.diagnoseRelations = diagnoseRelations;
+
+		if (diagnoseElements)
+			for (int req = 0; req < nElements; req++) 
+				allElements.add(element4CSPs[req]);
+		else
+			requireAllElements();
+
+
+		if (diagnoseRelations)
+			for (Relationship4Csp relationship4Csp: relationship4Csps)
+				allElements.add(relationship4Csp);
+		else
+			requireAllRelations();
+
+		return fastDiag(allElements, allElements);
+	}
+
+	private void setRequirementsToList(List<Diagnosable> elementsToSet) {
+		if (diagnoseElements)
+			for (int i = 0; i < nElements; i++) {
+				element4CSPs[i].unRequire();
+			}
+		if (diagnoseRelations)
+			for (Relationship4Csp relationship4Csp: relationship4Csps)
+				relationship4Csp.unRequire();
+
+		for (Diagnosable element : elementsToSet) {
 			element.require(true);
 		}
 	}
 
-	private boolean consistent(List<Element4Csp> constraints) {
+
+
+	private boolean consistent(List<Diagnosable> constraints) {
 		if (constraints.size() == 0) {
 			return true;
 		}
-		setElementsToList(constraints);
+		setRequirementsToList(constraints);
 		Solver solver = model.getSolver();
 		solver.reset();
 		boolean result = solver.solve();
+		//		if (result)
+		//			solution.record();
 		return result;
 	}
 
@@ -306,7 +518,7 @@ public class CSPPlanner {
 	 * @param AC
 	 * @return
 	 */
-	private List<Element4Csp> fastDiag(List<Element4Csp> C, List<Element4Csp> AC) {
+	private List<Diagnosable> fastDiag(List<Diagnosable> C, List<Diagnosable> AC) {
 
 		if (C.isEmpty()) {
 			return Collections.emptyList();
@@ -315,7 +527,7 @@ public class CSPPlanner {
 			return Collections.emptyList();
 		}
 
-		List<Element4Csp> ACWithoutC = diffListsAsSets(AC, C);
+		List<Diagnosable> ACWithoutC = diffListsAsSets(AC, C);
 		Boolean searchForDiagnosis = consistent(ACWithoutC);
 		if (!searchForDiagnosis) {
 			return Collections.emptyList();
@@ -336,7 +548,7 @@ public class CSPPlanner {
 	 *            user constraints
 	 * @return a diagnose
 	 */
-	private List<Element4Csp> fd(List<Element4Csp> D, List<Element4Csp> C, List<Element4Csp> AC) {
+	private List<Diagnosable> fd(List<Diagnosable> D, List<Diagnosable> C, List<Diagnosable> AC) {
 
 		boolean isConsistent = consistent(AC);
 		int q = C.size();
@@ -348,29 +560,29 @@ public class CSPPlanner {
 		}
 
 		if (q == 1) {
-			return new LinkedList<Element4Csp>(C);
+			return new LinkedList<Diagnosable>(C);
 		}
 
 		int k = q / 2;
-		List<Element4Csp> C1 = C.subList(0, k);
-		List<Element4Csp> C2 = C.subList(k, q);
+		List<Diagnosable> C1 = C.subList(0, k);
+		List<Diagnosable> C2 = C.subList(k, q);
 
-		List<Element4Csp> ACWithoutC2 = diffListsAsSets(AC, C2);
-		List<Element4Csp> D1 = fd(C2, C1, ACWithoutC2);
+		List<Diagnosable> ACWithoutC2 = diffListsAsSets(AC, C2);
+		List<Diagnosable> D1 = fd(C2, C1, ACWithoutC2);
 
-		List<Element4Csp> ACWithoutD1 = diffListsAsSets(AC, D1);
-		List<Element4Csp> D2 = fd(D1, C2, ACWithoutD1);
+		List<Diagnosable> ACWithoutD1 = diffListsAsSets(AC, D1);
+		List<Diagnosable> D2 = fd(D1, C2, ACWithoutD1);
 
 		return appendListsAsSets(D1, D2);
 	}
 
 
-	public static List<Element4Csp> appendListsAsSets(List<Element4Csp> CS1, List<Element4Csp> CS2) {
-		List<Element4Csp> union = new ArrayList<>(CS1);
+	public static List<Diagnosable> appendListsAsSets(List<Diagnosable> CS1, List<Diagnosable> CS2) {
+		List<Diagnosable> union = new ArrayList<>(CS1);
 		if (CS2 == null)
 			return union;
 
-		for (Element4Csp c : CS2) {
+		for (Diagnosable c : CS2) {
 			if (!union.contains(c)) {
 				union.add(c);
 			}
@@ -379,9 +591,9 @@ public class CSPPlanner {
 	}
 
 
-	public static List<Element4Csp> diffListsAsSets(List<Element4Csp> ac, List<Element4Csp> c2) {
-		List<Element4Csp> diff = new ArrayList<Element4Csp>();
-		for (Element4Csp element : ac) {
+	public static List<Diagnosable> diffListsAsSets(List<Diagnosable> ac, List<Diagnosable> c2) {
+		List<Diagnosable> diff = new ArrayList<>();
+		for (Diagnosable element : ac) {
 			if (!c2.contains(element)) {
 				diff.add(element);
 			}
@@ -389,221 +601,37 @@ public class CSPPlanner {
 		return diff;
 	}
 
+	public static boolean isSupported(NameType nameType) {
+		switch (nameType) {
+		case CONTRIBUTES:
+		case DAMAGES:
+		case DUPLICATES:
+		case REFINES:
+		case REPLACES:
+		case SIMILAR:
+		default:
+			return false;
 
-	/*
-	 * Element is transformed so that Choco solver can understand it.
-	 * 
-	 */
-	public static class Element4Csp {
-		private BoolVar isIncluded;
-		private IntVar assignedContainer;
-		private int originalContainerAssigment;
-		private IntVar[] effortInContainer;
-		private boolean denyPosted = false;
-		private boolean requirePosted = false;
-		private Constraint requireCstr;
-		private Constraint denyCstr;
-		private Model model;
-		private String id;
-		private ElementModel elementModel;
-		private Element element = null;
-
-		Element4Csp(Element element, CSPPlanner planner, Model model, ElementModel elementModel) {
-			this.model = model;
-			this.elementModel = elementModel;
-			this.element = element;
-			id = element.getNameID();
-
-			isIncluded = model.boolVar(element.getNameID() + "_in");
-
-			requireCstr = model.arithm(isIncluded, "=", 1);
-			denyCstr = model.arithm(isIncluded, "=", 0);
-			model.post(requireCstr);
-			requirePosted = true;
-			//in terms of Index. Container 1 =0, Container 0 = UNASSIGNED
-			originalContainerAssigment = getElementsContainer(element) -1;
-
-			setAssignedContainer(planner);
-			createEffortVariables(planner);
-			createConstraints(planner);
-		}
-
-		
-		/**
-		 * 
-		 * @param element
-		 * @param planner
-		 */
-		private void setAssignedContainer(CSPPlanner planner) {
-			if (getOriginallyAssignedRelease() == UNASSIGNED) {
-				assignedContainer = model.intVar(id + "_assignedTo", 
-						-1, planner.getNReleases() - 1);
-			} else {
-				assignedContainer = model.intVar(id + "_assignedTo",
-						getOriginallyAssignedRelease());
-			}
-		}
-
-
-		private int getOriginallyAssignedRelease() {
-			return this.originalContainerAssigment;
-		}
-
-
-		private int getElementsContainer(Element element) {
-			for (Container container : this.elementModel.getsubContainers()) {
-				if (container.getElements().contains(element.getNameID())) {
-					return container.getID();
-				}
-			}
-			return 0;
-		}
-
-
-		//TODO JT: remove doubles? Or is there some reason
-		private int getEffortOfElement() {
-			Double d = (Double) elementModel.getAttributeValues().get(element.getAttributes().get("effort")).getValue();
-			return d.intValue();
-		}
-
-
-		/**
-		 * Create choco variables for representing effort in each container
-		 * 
-		 * @param element
-		 * @param planner
-		 */
-		private void createEffortVariables(CSPPlanner planner) {
-			//effortInContainer = new IntVar[planner.getNReleases()+1]; why +1? Not used now? There could be an overflow release
-			effortInContainer = new IntVar[planner.getNReleases()];
-			int[] effortDomain = new int[2];
-			effortDomain[0] = 0;
-			effortDomain[1] = getEffortOfElement(); 
-
-			for (int releaseIndex = 0; releaseIndex < planner.getNReleases(); releaseIndex++) {
-				String varName = "req_" + element.getNameID() + "_" + (releaseIndex); //e.g req_REQ1_1 (element 1 in release 1)
-
-				if (getOriginallyAssignedRelease() == UNASSIGNED) { // not assigned
-					effortInContainer[releaseIndex] = model.intVar(varName, effortDomain); // effort in each release is 0 or the effort	(bever divided to several releases)																		
-				} else { // assigned to release
-					if (getOriginallyAssignedRelease() == releaseIndex) {
-						effortInContainer[releaseIndex] = model.intVar(varName, effortDomain); //e.g for REQ2_1 (meaning REQ2 in release 1) effortInRelease is req_REQ2_1 = {0,2}
-					} else {
-						effortInContainer[releaseIndex] = model.intVar(varName, 0); // domain is fixed 0 in other releases (e.g for REQ2_2 (meaning REQ2 in release 2) effortInRelease is req_REQ2_2 = 0
-					}
-				}
-			}
-		}
-
-
-		/**
-		 * Create constraints that enforce If the effort in assigned release if release
-		 * is assigned, connect only the affected release
-		 * 
-		 * @param element
-		 * @param planner
-		 */
-		private void createConstraints(CSPPlanner planner) {
-			if (getEffortOfElement() == 0) { 
-				// effort of element is not specified (=0). 
-				// Require effort allocated to a release is 0 in every release.
-				// No need for constraint, if capacity of rfelease is already 0
-				for (int releaseIndex = 0; releaseIndex < planner.getNReleases(); releaseIndex++) {
-					IntVar effortInRelease= effortInContainer[releaseIndex];
-					if (effortInRelease.getUB() > 0) {
-						model.arithm(effortInRelease, "=", 0);
-					}
-				}
-			}
-			else {
-				if (getOriginallyAssignedRelease() == UNASSIGNED) { //not assigned to any release
-					for (int releaseIndex = 0; releaseIndex < planner.getNReleases(); releaseIndex++) {
-						// effectively forces others to 0 because domain size is 2, and the non-0 gets
-						// forbidden //?????????????????????????????
-						// Could try if adding explicit constraints would be faster
-						model.ifOnlyIf(
-								model.and(model.arithm(isIncluded, "=", 1), model.arithm(assignedContainer, "=", releaseIndex)),
-								model.arithm(effortInContainer[releaseIndex], "=", getEffortOfElement()));
-						// "ifOnlyIf(Constraint cstr1, Constraint cstr2)"
-						// "Posts an equivalence constraint stating that cstr1 is satisfied <=> cstr2 is satisfied, BEWARE : it is automatically posted (it cannot be reified)"
-						// Source: http://www.choco-solver.org/apidocs/org/chocosolver/solver/constraints/IReificationFactory.html
-					}
-				} else { //aasigned to a release
-					model.ifThenElse(model.arithm(isIncluded, "=", 1),
-							model.arithm(effortInContainer[getOriginallyAssignedRelease()], "=", getEffortOfElement()),
-							model.arithm(effortInContainer[getOriginallyAssignedRelease()], "=", 0));
-					// if isIncluded, Then model.arithm(effortInRelease[element.getAssignedRelease() - 1], "=",element.getEffort()),
-					// and if Not isIncluded, Then model.arithm(effortInRelease[element.getAssignedRelease() - 1], "=", 0)
-					// "IReificationFactory.ifThenElse(BoolVar ifVar, Constraint thenCstr, Constraint elseCstr)"
-					// "Posts an implication constraint: ifVar => thenCstr && not(ifVar) => elseCstr."
-					// See http://www.choco-solver.org/apidocs/org/chocosolver/solver/variables/class-use/BoolVar.html
-
-				}
-			}
-		}
-
-
-		protected IntVar getEffortOfContainer(int releaseIndex) {
-			return effortInContainer[releaseIndex]; 
-		}
-
-
-		protected IntVar getAssignedContainer() {
-			return assignedContainer;
-		}
-
-
-		protected BoolVar getIsIncluded() {
-			return isIncluded;
-		}
-
-
-		protected void require(boolean include) {
-			if (include) {
-				if (requirePosted) {
-					return;
-				}
-				requireCstr.post();
-				requirePosted = true;
-				if (denyPosted) {
-					model.unpost(denyCstr);
-					denyPosted = false;
-				}
-			} else { // not include = deny
-				if (denyPosted) {
-					return;
-				}
-				denyCstr.post();
-				denyPosted = true;
-				if (requirePosted) {
-					model.unpost(requireCstr);
-					requirePosted = false;
-				}
-
-			}
-		}
-
-
-		protected void unRequire() {
-			if (denyPosted) {
-				model.unpost(denyCstr);
-				denyPosted = false;
-			}
-			if (requirePosted) {
-				model.unpost(requireCstr);
-				requirePosted = false;
-			}
-		}
-
-
-		public String getId() {
-			return id;
-		}
-
-
-		public String toString() {
-			return id;
+		case INCOMPATIBLE:
+		case REQUIRES:
+			return true;
 		}
 	}
 
+	public void requireAllElements() {
+		for (Element4Csp element4Csp : element4CSPs)
+			element4Csp.require(true);
+	}
+
+	public void requireAllRelations() {
+		for (Relationship4Csp relationship4Csp : relationship4Csps)
+			relationship4Csp.require(true);
+	}
+
+
+	//TODO JT: remove doubles? Or is there some reason
+	public int determineCapacityAvailable(Container container) {
+		Double d = (Double) this.elementModel.getAttributeValues().get(container.getAttributes().get("capacity")).getValue();
+		return d.intValue();
+	}
 }
