@@ -211,6 +211,10 @@ public class TransitiveClosureService {
 		this.addElementsAndRelationsToModel(model, queue, new LinkedList<ElementRelationTuple>(), depth, 1, graph,
 				layers);
 
+		List<String> layer = new ArrayList<String>();
+		layer.add(id);
+		layers.put(0, layer);
+		
 		TransitiveClosure closure = new TransitiveClosure();
 		closure.setLayers(layers);
 		closure.setModel(model);
