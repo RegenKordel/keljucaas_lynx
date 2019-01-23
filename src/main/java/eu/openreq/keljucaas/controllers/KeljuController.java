@@ -1,5 +1,6 @@
 package eu.openreq.keljucaas.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,8 +110,15 @@ public class KeljuController {
 
 			newModel = service.getTransitiveClosure(graph, reqId, depth);
 			if (newModel.getModel().getElements().isEmpty()) {
-				if (findRequestedFromModels(reqId) != null) {
-					newModel.getModel().addElement(findRequestedFromModels(reqId));
+				
+				Element requested = findRequestedFromModels(reqId); 
+				
+				if (requested != null) {
+					newModel.getModel().addElement(requested);
+					
+					List<String> layer = new ArrayList<String>();
+					layer.add(reqId);
+					newModel.getLayers().put(0, layer);
 				}
 			}
 
