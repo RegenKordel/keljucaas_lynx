@@ -2,6 +2,7 @@ package eu.openreq.keljucaas.controllers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,10 +18,13 @@ import com.google.gson.Gson;
 
 import eu.openreq.keljucaas.domain.ElementRelationTuple;
 import eu.openreq.keljucaas.domain.TransitiveClosure;
+import eu.openreq.keljucaas.domain.release.ReleasePlanInfo;
 import eu.openreq.keljucaas.services.ConsistencyCheckService;
 import eu.openreq.keljucaas.services.TransitiveClosureService;
 import eu.openreq.keljucaas.services.MurmeliModelParser;
 import eu.openreq.keljucaas.services.CSPPlanner;
+import eu.openreq.keljucaas.services.CSPPlanner.OutputDefinition;
+import eu.openreq.keljucaas.services.CSPPlanner.ReleasePlanAnalysisDefinition;
 import fi.helsinki.ese.murmeli.*;
 
 import io.swagger.annotations.ApiOperation;
@@ -153,10 +157,16 @@ public class KeljuController {
 
 		MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
+		
+		ReleasePlanAnalysisDefinition wanted = new ReleasePlanAnalysisDefinition("original", false, false);
+		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>(); 
+		wanteds.add(wanted);
 
-		CSPPlanner rcspGen = new CSPPlanner(model);
+		CSPPlanner rcspGen = new CSPPlanner(model, wanteds);
+		rcspGen.performDiagnoses();
+		ReleasePlanInfo releasePlanInfo = rcspGen.getReleasePlan("original");
 
-		boolean isConsistent = rcspGen.isReleasePlanConsistent();
+		boolean isConsistent = releasePlanInfo.isConsistent();
 		if (isConsistent) {
 			return new ResponseEntity<>(transform.generateProjectJsonResponse(true, "Consistent", true), HttpStatus.OK);
 		}
@@ -180,45 +190,113 @@ public class KeljuController {
 		MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 
-		CSPPlanner rcspGen = new CSPPlanner(model);
+		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>();
+		
+		wanteds.add(new ReleasePlanAnalysisDefinition("original", false, false));
+		ReleasePlanAnalysisDefinition wanted = new ReleasePlanAnalysisDefinition("diagnosed", true, false);
+		wanted.setAnalyzeOnlyIfIncosistentPlan("original");
+		wanteds.add(wanted);
 
-		boolean isConsistent = rcspGen.isReleasePlanConsistent();
+		CSPPlanner rcspGen = new CSPPlanner(model, wanteds);
+		rcspGen.performDiagnoses();
+		ReleasePlanInfo originalReleasePlanInfo = rcspGen.getReleasePlan("original");
+
+		boolean isConsistent = originalReleasePlanInfo.isConsistent();
 		if (isConsistent) {
 			return new ResponseEntity<>(transform.generateProjectJsonResponse(true, "Consistent", true), HttpStatus.OK);
 		}
 
-		String diagnosis = rcspGen.getDiagnosis();
+		ReleasePlanInfo diagnosedReleasePlanInfo = rcspGen.getReleasePlan("diagnosed");
+
+		String diagnosis = diagnosedReleasePlanInfo.getDiagnosis();
 
 		return new ResponseEntity<>(transform.generateProjectJsonResponse(false, diagnosis, true), HttpStatus.OK);
 	}
 	//TODO enable this functionality, 
-	/** 
-	@ApiOperation(value = "Returns consistency and diagnosis of received model", notes = "Import a model in OpenReq JSON format", response = String.class)
-	@ApiResponses(value = { @ApiResponse(code = 201, message = "Returns consistency and diagnosis of received model"),
-			@ApiResponse(code = 400, message = "Failure ex. malformed input"),
-			@ApiResponse(code = 409, message = "Failure") })
-	@RequestMapping(value = "/uploadDataCheckForConsistencyAndDoDiagnosis2", method = RequestMethod.POST)
-	public ResponseEntity<?> uploadDataCheckForConsistencyAndDoDiagnosis2(@RequestBody String json) throws Exception {
+ 
+//	@ApiOperation(value = "Returns consistency and diagnosis of received model", notes = "Import a model in OpenReq JSON format", response = String.class)
+//	@ApiResponses(value = { @ApiResponse(code = 201, message = "Returns consistency and extended diagnosis of received model"),
+//			@ApiResponse(code = 400, message = "Failure ex. malformed input"),
+//			@ApiResponse(code = 409, message = "Failure") })
+//	@RequestMapping(value = "/uploadDataCheckForConsistencyAndDoDiagnosisExtended", method = RequestMethod.POST)
+//	public ResponseEntity<?> uploadDataCheckForConsistencyAndDoDiagnosisExtended(@RequestBody String json) throws Exception {
+//
+//		 //System.out.println("Requirements received from Mulperi");
+//		 //System.out.println(json);
+//		 
+//
+//		MurmeliModelParser parser = new MurmeliModelParser();
+//		ElementModel model = parser.parseMurmeliModel(json);
+//		
+//		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>();
+//		
+//		wanteds.add(new ReleasePlanAnalysisDefinition("original", false, false)); 
+//		wanteds.add(new ReleasePlanAnalysisDefinition("diagnose requirements", true, false));
+//		wanteds.add(new ReleasePlanAnalysisDefinition("diagnose relationships", false, true));
+//		wanteds.add(new ReleasePlanAnalysisDefinition("diagnose requirements and relationships", true, true));
+//
+//		for (ReleasePlanAnalysisDefinition wanted : wanteds) {
+//			if (!wanted.getPlanName().equals("original")) 
+//				wanted.setAnalyzeOnlyIfIncosistentPlan("original");
+//			OutputDefinition jsonDef = new OutputDefinition();
+//			jsonDef.setDiagnosisWanted(true);
+//			wanted.setStructuredOutputDef(jsonDef);
+//			
+//			OutputDefinition textDef = new OutputDefinition();
+//			jsonDef.setDiagnosisWanted(true);
+//
+//			wanted.setTextOutputDef(textDef);
+//		}
+//
+//
+//		CSPPlanner rcspGen = new CSPPlanner(model, wanteds);
+//		rcspGen.performDiagnoses();
+//		ReleasePlanInfo originalReleasePlanInfo = rcspGen.getReleasePlan("original");
+//		
+//		List<ReleasePlanInfo> releasePlanstoReport = new LinkedList<>();
+//		releasePlanstoReport.add(originalReleasePlanInfo);
+//		
+//
+//		boolean isConsistent = originalReleasePlanInfo.isConsistent();
+//		if (isConsistent) {
+//			//TODO add reporting of resources if needed
+//			//return new ResponseEntity<>(transform.generateProjectJsonResponse(true, "Consistent", true), HttpStatus.OK);
+//			return new ResponseEntity<>(transform.generateProjectJsonResponseDetailed(releasePlanstoReport), HttpStatus.OK);
+//		}
+//		
+//		releasePlanstoReport.add(rcspGen.getReleasePlan("diagnose requirements"));
+//		releasePlanstoReport.add(rcspGen.getReleasePlan("diagnose relationships"));
+//		releasePlanstoReport.add(rcspGen.getReleasePlan("diagnose requirements and relationships"));
+//				
+//		return new ResponseEntity<>(transform.generateProjectJsonResponseDetailed(releasePlanstoReport), HttpStatus.OK);
+//		
+////		generateProjectJsonResponseDetailed(releasePlanstoReport)
+////		
+////		StringBuilder responseStr = new StringBuilder();
+////		for (ReleasePlanAnalysisDefinition wanted : wanteds) {
+////			//if (!wanted.getPlanName().equals("original")) {
+////				ReleasePlanInfo diagnosedReleasePlanInfo = rcspGen.getReleasePlan(wanted.getPlanName());
+////				if (diagnosedReleasePlanInfo != null) {
+////					responseStr.append(diagnosedReleasePlanInfo.getIdString());
+////					responseStr.append (" :");
+////					if (wanted.isDiagnosisWanted())
+////							responseStr.append(diagnosedReleasePlanInfo.getDiagnosis());
+////					responseStr.append (ConsistencyCheckService.topicSeparator);
+////					responseStr.append(diagnosedReleasePlanInfo.getDisabledRelationShipsMsg());
+////					responseStr.append (ConsistencyCheckService.topicSeparator);
+////					responseStr.append(diagnosedReleasePlanInfo.getFailedRelationShipsMsg());
+////					responseStr.append (ConsistencyCheckService.topicSeparator);
+////					responseStr.append(diagnosedReleasePlanInfo.getReleasePlanMessage());
+////					responseStr.append (ConsistencyCheckService.topicSeparator);
+////				}
+////				
+////			//}
+////		}
+////
+////		String diagnosis = responseStr.toString();
+////		//TODO change to more advanced
+////		return new ResponseEntity<>(transform.generateProjectJsonResponse(false, diagnosis, true), HttpStatus.OK);
+//	}
 
-		 //System.out.println("Requirements received from Mulperi");
-		 //System.out.println(json);
-		 
-
-		MurmeliModelParser parser = new MurmeliModelParser();
-		ElementModel model = parser.parseMurmeliModel(json);
-
-		CSPPlanner rcspGen = new CSPPlanner(model);
-
-		boolean isConsistent = rcspGen.isReleasePlanConsistent();
-		if (isConsistent) {
-			return new ResponseEntity<>(transform.generateProjectJsonResponse(true, "Consistent", true), HttpStatus.OK);
-		}
-
-		//note me parameter: whether to diagnose out requirements, relationships or both
-		String diagnosis = rcspGen.getDiagnosisStr(false, true);
-
-		return new ResponseEntity<>(transform.generateProjectJsonResponse(false, diagnosis, true), HttpStatus.OK);
-	}
-**/
 
 }
