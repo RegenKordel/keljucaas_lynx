@@ -15,6 +15,7 @@ import eu.openreq.keljucaas.domain.release.Element4Csp;
 import eu.openreq.keljucaas.domain.release.IncompatibleRelationship4Csp;
 import eu.openreq.keljucaas.domain.release.Relationship4Csp;
 import eu.openreq.keljucaas.domain.release.ReleaseInfo;
+import eu.openreq.keljucaas.domain.release.ReleasePlanAnalysisDefinition;
 import eu.openreq.keljucaas.domain.release.ReleasePlanInfo;
 import eu.openreq.keljucaas.domain.release.RequiresRelationship4Csp;
 import fi.helsinki.ese.murmeli.Container;
@@ -345,7 +346,7 @@ public class CSPPlanner {
 			this.diagnoseElements = wanted.isDiagnoseRequirements();
 			this.diagnoseRelations= wanted.isDiagnoseRelationships();
 			boolean isAnalysisRequired = diagnoseElements || diagnoseRelations;
-			ReleasePlanInfo requireFailedForDiagnosis = releaseStates.get(wanted.analyzeOnlyIfIncosistentPlan);
+			ReleasePlanInfo requireFailedForDiagnosis = releaseStates.get(wanted.getAnalyzeOnlyIfIncosistentPlan());
 			if ((requireFailedForDiagnosis != null) && requireFailedForDiagnosis.isConsistent())
 					isAnalysisRequired = false;
 			if (isAnalysisRequired) {
@@ -661,51 +662,51 @@ public class CSPPlanner {
 		return d.intValue();
 	}
 
-	public static class ReleasePlanAnalysisDefinition {
-		private final String planName;
-		private String analyzeOnlyIfIncosistentPlan;
-
-		private  boolean diagnoseRequirements;
-		private boolean diagnoseRelationships;
-		
-
-
-		public ReleasePlanAnalysisDefinition(String planName, boolean diagnoseRequirements,
-				boolean diagnoseRelationships) {
-			super();
-			this.planName = planName;
-			this.diagnoseRequirements = diagnoseRequirements;
-			this.diagnoseRelationships = diagnoseRelationships;
-		}
-
-
-		public String getAnalyzeOnlyIfIncosistentPlan() {
-			return analyzeOnlyIfIncosistentPlan;
-		}
-
-
-		public void setAnalyzeOnlyIfIncosistentPlan(String analyzeOnlyIfIncosistentPlan) {
-			this.analyzeOnlyIfIncosistentPlan = analyzeOnlyIfIncosistentPlan;
-		}
-
-
-		public String getPlanName() {
-			return planName;
-		}
-
-		public boolean isDiagnoseRequirements() {
-			return diagnoseRequirements;
-		}
-
-
-		public boolean isDiagnoseRelationships() {
-			return diagnoseRelationships;
-		}
-		
-		public boolean isDiagnoseDesired() {
-			return diagnoseRequirements || diagnoseRelationships;
-		}
-		
-
-	}
+//	public static class ReleasePlanAnalysisDefinition {
+//		private final String planName;
+//		private String analyzeOnlyIfIncosistentPlan;
+//
+//		private  boolean diagnoseRequirements;
+//		private boolean diagnoseRelationships;
+//		
+//
+//
+//		public ReleasePlanAnalysisDefinition(String planName, boolean diagnoseRequirements,
+//				boolean diagnoseRelationships) {
+//			super();
+//			this.planName = planName;
+//			this.diagnoseRequirements = diagnoseRequirements;
+//			this.diagnoseRelationships = diagnoseRelationships;
+//		}
+//
+//
+//		public String getAnalyzeOnlyIfIncosistentPlan() {
+//			return analyzeOnlyIfIncosistentPlan;
+//		}
+//
+//
+//		public void setAnalyzeOnlyIfIncosistentPlan(String analyzeOnlyIfIncosistentPlan) {
+//			this.analyzeOnlyIfIncosistentPlan = analyzeOnlyIfIncosistentPlan;
+//		}
+//
+//
+//		public String getPlanName() {
+//			return planName;
+//		}
+//
+//		public boolean isDiagnoseRequirements() {
+//			return diagnoseRequirements;
+//		}
+//
+//
+//		public boolean isDiagnoseRelationships() {
+//			return diagnoseRelationships;
+//		}
+//		
+//		public boolean isDiagnoseDesired() {
+//			return diagnoseRequirements || diagnoseRelationships;
+//		}
+//		
+//
+//	}
 }

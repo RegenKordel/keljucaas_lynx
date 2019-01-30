@@ -9,16 +9,24 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
+import eu.openreq.keljucaas.domain.release.Diagnosable;
+import eu.openreq.keljucaas.domain.release.ReleaseInfo;
+import eu.openreq.keljucaas.domain.release.ReleasePlanAnalysisDefinition;
 import eu.openreq.keljucaas.domain.release.ReleasePlanInfo;
-import eu.openreq.keljucaas.services.CSPPlanner.ReleasePlanAnalysisDefinition;
+import eu.openreq.keljucaas.services.OutputFormatter.OutputElement;
 
 @Service
 public class ConsistencyCheckService {
 
 	public static final String fieldSeparator = ","; 
 	public static final String topicSeparator = "@"; 
-
+	
+	public static final String submitted = "submitted";
+	public static final String diagnoseRequirements = "diagnose requirements";
+	public static final String diagnoseRelationships= "diagnose relationships";
+	public static final String diagnoseRequirementsAndRelationships= "diagnose requirements and relationships";
 	/**
 	 * Generate response (consistency and diagnosis) as JSON String
 	 * @param isCOnsistent
@@ -31,8 +39,8 @@ public class ConsistencyCheckService {
 		if (diagnosisWanted) { 
 			try {
 				JsonObject responseObject = new JsonObject();
-				
-				
+
+
 				JsonObject diagnosis = new JsonObject();
 				diagnosis.addProperty("consistent", isCOnsistent);
 
@@ -98,22 +106,43 @@ public class ConsistencyCheckService {
 			JsonArray releasePlanArrays = new JsonArray();
 			OutputFormatter ofmt = ReleasePlanOutputFormatter.intitializeOutputFormats();
 			ReleasePlanOutputFormatter relof = new ReleasePlanOutputFormatter(); 
-			
+
 
 			for (ReleasePlanInfo releasePlanInfo : releasePlanInfosToReport ) {
 				ReleasePlanAnalysisDefinition wanted = releasePlanInfo.getWantedAnalysis();
 				List <String> releasePlanTopics;
 				if (wanted.isDiagnoseDesired())
-					releasePlanTopics = getOriginalReleasePlanTopics();
-				else
 					releasePlanTopics = getDiagnosedReleasePlanCommonTopics();
+				else
+					releasePlanTopics = getOriginalReleasePlanTopics();
 				JsonObject releasePlanJson = new JsonObject();
 
 				for (String topic: releasePlanTopics) {
-					System.out.println(topic);
 					relof.buildJsonCombinedOutput(releasePlanInfo, null, topic, ofmt, releasePlanJson);
-					
 				}
+
+				List<String> releaseTopics;
+				OutputElement releases = ofmt.getFormat(ReleasePlanOutputFormatter.topic_releases_element);
+
+				JsonArray releaseArray = new JsonArray();
+
+				for (ReleaseInfo releaseInfo : releasePlanInfo.getReleases()) {
+					JsonObject releaseJson = new JsonObject();
+					if (releaseInfo.getReleaseNr() <1)
+						releaseTopics = getUnassignedReleaseTopics();
+					else
+						releaseTopics = getNormalReleaseTopics();
+					for (String releaseTopic: releaseTopics) {
+						relof.buildJsonCombinedOutput(releasePlanInfo, releaseInfo, releaseTopic, ofmt, releaseJson);
+					}
+					releaseArray.add(releaseJson);
+
+				}
+				releasePlanJson.add(
+						releases.getDataKey(),
+						releaseArray);
+			
+
 				//OutputDefinition jsonDef = wanted.getStructuredOutputDef();
 				releasePlanArrays.add(releasePlanJson);
 				StringBuffer sb = new StringBuffer();
@@ -130,26 +159,27 @@ public class ConsistencyCheckService {
 		catch (Exception ex) {
 			return null;
 		}
-	
-		}
+
+	}
 
 
 	List<String> getUnassignedReleaseTopics() {
 		String[] topicsToGet = {
-		
-				ReleasePlanOutputFormatter.topic_capacity_all,
-				ReleasePlanOutputFormatter.topic_releases_requirements_not_assigned};
+				ReleasePlanOutputFormatter.topic_release_number,
+				ReleasePlanOutputFormatter.topic_release_requirements_assigned,
+				ReleasePlanOutputFormatter.topic_release_capacity_used
+				};
 		List<String> topicList = new LinkedList<>();
 		for (String s: topicsToGet)
 			topicList.add(s);
 		return topicList;
 	}
-	
+
 	List<String> getNormalReleaseTopics() {
 		String[] topicsToGet = {
 				ReleasePlanOutputFormatter.topic_release_number,
 				ReleasePlanOutputFormatter.topic_release_requirements_assigned,
-				ReleasePlanOutputFormatter.topic_capacity_all
+				ReleasePlanOutputFormatter.topic_release_capacity_all
 		};
 		List<String> topicList = new LinkedList<>();
 		for (String s: topicsToGet)
@@ -174,8 +204,7 @@ public class ConsistencyCheckService {
 		String[] topicsToGet = {
 				ReleasePlanOutputFormatter.topic_release_plan_name,
 				ReleasePlanOutputFormatter.topic_release_plan_consistent,
-				ReleasePlanOutputFormatter.topic_relationships_broken,
-				ReleasePlanOutputFormatter.topic_capacity_all
+				ReleasePlanOutputFormatter.topic_relationships_broken
 		};
 		List<String> topicList = new LinkedList<>();
 		for (String s: topicsToGet)

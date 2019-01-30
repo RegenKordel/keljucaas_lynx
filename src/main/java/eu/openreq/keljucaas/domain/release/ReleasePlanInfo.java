@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import eu.openreq.keljucaas.services.CSPPlanner.ReleasePlanAnalysisDefinition;
 import eu.openreq.keljucaas.services.ConsistencyCheckService;
 
 public class ReleasePlanInfo {
@@ -33,6 +32,10 @@ public class ReleasePlanInfo {
 
 	public ReleaseInfo getReleaseInfo(int index) {
 		return releases.get(index);
+	}
+	
+	public ArrayList<ReleaseInfo> getReleases() {
+		return releases;
 	}
 
 	public void addEnabledRelationsShip(Relationship4Csp relationship4Csp) {

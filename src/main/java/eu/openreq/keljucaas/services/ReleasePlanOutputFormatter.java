@@ -18,11 +18,9 @@ import eu.openreq.keljucaas.domain.release.ReleasePlanInfo;
 import eu.openreq.keljucaas.services.OutputFormatter.OutputElement;
 
 public class ReleasePlanOutputFormatter {
-	public static final String topic_capacity_all = "capacity.all";
-	public static final String topic_capacity_available = "capacity.available";
-	public static final String topic_capacity_balance = "capacity.balance";
-	public static final String topic_capacity_used = "capacity.used";
 	public static final String topic_default = "default";
+	public static final String topic_empty_list = "empty.list";
+
 	public static final String topic_diagnosis_combined = "diagnosis.combined";
 	public static final String topic_diagnosis_relationships = "diagnosis.relationships";
 	public static final String topic_diagnosis_requirements = "diagnosis.requirements";
@@ -32,6 +30,12 @@ public class ReleasePlanOutputFormatter {
 	public static final String topic_relationhips_exluded = "relationhips.exluded";
 	public static final String topic_relationships_broken = "relationships.broken";
 	public static final String topic_relationships_ok = "relationships.ok";
+	public static final String topic_releases_element = "releases.element";
+	public static final String topic_release_capacity_all = "release.capacity.all";
+	public static final String topic_release_capacity_available = "release.capacity.available";
+	public static final String topic_release_capacity_balance = "release.capacity.balance";
+	public static final String topic_release_capacity_used = "release.capacity.used";
+
 	public static final String topic_release_number = "release.number";
 	public static final String topic_release_plan_consistent = "release.plan.consistent";
 	public static final String topic_release_plan_inconsistent = "release.plan.inconsistent";
@@ -40,11 +44,8 @@ public class ReleasePlanOutputFormatter {
 	public static final String topic_releases_requirements_not_assigned = "releases.requirements.not.assigned";
 
 	public static String availableTopics[] = {
-			topic_capacity_all,
-			topic_capacity_available,
-			topic_capacity_balance,
-			topic_capacity_used,
 			topic_default,
+			topic_empty_list,
 			topic_diagnosis_combined,
 			topic_diagnosis_relationships,
 			topic_diagnosis_requirements,
@@ -54,6 +55,11 @@ public class ReleasePlanOutputFormatter {
 			topic_relationhips_exluded,
 			topic_relationships_broken,
 			topic_relationships_ok,
+			topic_releases_element,
+			topic_release_capacity_all,
+			topic_release_capacity_available,
+			topic_release_capacity_balance,
+			topic_release_capacity_used,
 			topic_release_number,
 			topic_release_plan_consistent,
 			topic_release_plan_inconsistent,
@@ -63,30 +69,39 @@ public class ReleasePlanOutputFormatter {
 
 	void buildFormattedTextOutput (ReleasePlanInfo currentRelPlan, ReleaseInfo currentRelease , String topic ,OutputFormatter ofmt, StringBuffer out) {
 
-		OutputElement listSeparatorFormat = ofmt.getFormat("list.element.separator");
+		OutputElement listSeparatorFormat = ofmt.getFormat(topic_list_element_separator);
+		String emptylistStr = ofmt.getFormat(topic_empty_list).getFormat();
 		String listSeparator = listSeparatorFormat.getFormat();
 		StringBuffer sb= new StringBuffer();
 
 		switch (topic) {
 
-		case topic_capacity_all: {
-
+		case topic_release_capacity_all: {
+			int capacityAvail = currentRelease.getCapacityAvailable();
+			int capacityUsed = currentRelease.getCapacityUsed();
+			int capacityBalance = currentRelease.getCapacityAvailable() - currentRelease.getCapacityUsed();
+			Object[] capacities = {
+					Integer.valueOf(capacityAvail),
+					Integer.valueOf(capacityUsed),
+					Integer.valueOf(capacityBalance)
+			};
+			ofmt.appendArgs(capacities, topic, out);
 		}
 		break;
 		
-		case topic_capacity_available: {
+		case topic_release_capacity_available: {
 			int capacity = currentRelease.getCapacityAvailable();
 			ofmt.appendString(Integer.toString(capacity), topic, out);
 		}
 		break;
 
-		case topic_capacity_balance: {
+		case topic_release_capacity_balance: {
 			int capacity = currentRelease.getCapacityAvailable() - currentRelease.getCapacityUsed();
 			ofmt.appendString(Integer.toString(capacity), topic, out);
 		}
 		break;
 
-		case topic_capacity_used: {
+		case topic_release_capacity_used: {
 			int capacity = currentRelease.getCapacityUsed();
 			ofmt.appendString(Integer.toString(capacity), topic, out);
 		}
@@ -103,7 +118,7 @@ public class ReleasePlanOutputFormatter {
 				ofmt.appendString(sb.toString(), topic, out);
 			}
 			else {
-				ofmt.appendString(null, "diagnosis.nodiagnosis", out);
+				ofmt.appendString(null, topic_diagnosis_nodiagnosis, out);
 			}
 		}
 
@@ -120,7 +135,7 @@ public class ReleasePlanOutputFormatter {
 				ofmt.appendString(sb.toString(), topic, out);
 			}
 			else {
-				ofmt.appendString(null, "diagnosis.nodiagnosis", out);
+				ofmt.appendString(null, topic_diagnosis_nodiagnosis, out);
 			}
 		}
 		break;
@@ -136,7 +151,7 @@ public class ReleasePlanOutputFormatter {
 				ofmt.appendString(sb.toString(), topic, out);
 			}
 			else {
-				ofmt.appendString(null, "diagnosis.nodiagnosis", out);
+				ofmt.appendString(null, topic_diagnosis_nodiagnosis, out);
 			}
 
 		}
@@ -157,6 +172,9 @@ public class ReleasePlanOutputFormatter {
 				}
 				sb.setLength(sb.length() - listSeparator.length());
 			}
+			else
+				sb.append(emptylistStr);
+			
 			ofmt.appendString(sb.toString(), topic, out);
 		}
 		break;
@@ -170,6 +188,9 @@ public class ReleasePlanOutputFormatter {
 				}
 				sb.setLength(sb.length() - listSeparator.length());
 			}
+			else
+				sb.append(emptylistStr);
+
 			ofmt.appendString(sb.toString(), topic, out);
 		}
 		break;
@@ -183,6 +204,9 @@ public class ReleasePlanOutputFormatter {
 				}
 				sb.setLength(sb.length() - listSeparator.length());
 			}
+			else
+				sb.append(emptylistStr);
+
 			ofmt.appendString(sb.toString(), topic, out);
 		}
 		break;
@@ -216,6 +240,9 @@ public class ReleasePlanOutputFormatter {
 				}
 				sb.setLength(sb.length() - listSeparator.length());
 			}
+			else
+				sb.append(emptylistStr);
+
 			ofmt.appendString(sb.toString(), topic, out);
 		}
 		break;
@@ -234,8 +261,15 @@ public class ReleasePlanOutputFormatter {
 
 
 		switch (topic) {
+		
+		case topic_release_capacity_all: {
+			buildJsonOutput (currentRelPlan, currentRelease, topic_release_capacity_available, ofmt, jsonObject);
+			buildJsonOutput (currentRelPlan, currentRelease, topic_release_capacity_used, ofmt, jsonObject);
+			buildJsonOutput (currentRelPlan, currentRelease, topic_release_capacity_balance, ofmt, jsonObject);
+		}
+		break;
 
-		case topic_capacity_available: {
+		case topic_release_capacity_available: {
 			int capacity = currentRelease.getCapacityAvailable();
 			jsonObject.add(
 					ofmt.getDataKey(topic),
@@ -243,7 +277,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_capacity_balance: {
+		case topic_release_capacity_balance: {
 			int capacity = currentRelease.getCapacityAvailable() - currentRelease.getCapacityUsed();
 			jsonObject.add(
 					ofmt.getDataKey(topic),
@@ -251,7 +285,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_capacity_used: {
+		case topic_release_capacity_used: {
 			int capacity = currentRelease.getCapacityUsed();
 			jsonObject.add(
 					ofmt.getDataKey(topic),
@@ -424,8 +458,6 @@ public class ReleasePlanOutputFormatter {
 
 			OutputElement topicElement = new OutputElement(textFormat, jsonName);
 			ofmt.setFormat(topic, topicElement);
-
-			System.out.println(topicElement);
 		}
 
 		return ofmt;
