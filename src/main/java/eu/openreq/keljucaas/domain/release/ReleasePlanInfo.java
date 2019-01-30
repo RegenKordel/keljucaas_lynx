@@ -85,24 +85,24 @@ public class ReleasePlanInfo {
 		return appliedDiagnosis;
 	}
 	
-	public List<Diagnosable> getAppliedDiagnosisElements() {
+	public List<Element4Csp> getAppliedDiagnosisElements() {
 		if (appliedDiagnosis == null)
 			return null;
-		List<Diagnosable> retVal = new LinkedList<>();
+		List<Element4Csp> retVal = new LinkedList<>();
 		for (Diagnosable diagnosed:appliedDiagnosis )
 			if (diagnosed instanceof Element4Csp)
-				retVal.add(diagnosed);
+				retVal.add((Element4Csp)diagnosed);
 		
 		return retVal;
 	}
 	
-	public List<Diagnosable> getAppliedDiagnosisRelations() {
+	public List<Relationship4Csp> getAppliedDiagnosisRelations() {
 		if (appliedDiagnosis == null)
 			return null;
-		List<Diagnosable> retVal = new LinkedList<>();
+		List<Relationship4Csp> retVal = new LinkedList<>();
 		for (Diagnosable diagnosed:appliedDiagnosis )
 			if (diagnosed instanceof Relationship4Csp)
-				retVal.add(diagnosed);
+				retVal.add((Relationship4Csp)diagnosed);
 		
 		return retVal;
 	}

@@ -77,7 +77,7 @@ public abstract class Relationship4Csp implements Diagnosable {
 
 	protected abstract void makeConstraint();
 	
-	protected abstract String getRelationShipName();
+	public abstract String getRelationShipName();
 	
 	protected abstract boolean isSatisfiedWithAssignment(int releaseOfFrom, int ReleaseOfTo);
 

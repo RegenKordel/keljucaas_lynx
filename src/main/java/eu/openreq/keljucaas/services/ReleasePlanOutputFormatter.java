@@ -21,6 +21,13 @@ public class ReleasePlanOutputFormatter {
 	public static final String topic_default = "default";
 	public static final String topic_empty_list = "empty.list";
 
+	public static final String topic_relationship_from = "relationship.from";
+	public static final String topic_relationship_to = "relationship.to";
+	public static final String topic_relationship_type = "relationship.type";
+	public static final String topic_relationhip = "relationhip";
+
+
+
 	public static final String topic_diagnosis_combined = "diagnosis.combined";
 	public static final String topic_diagnosis_relationships = "diagnosis.relationships";
 	public static final String topic_diagnosis_requirements = "diagnosis.requirements";
@@ -46,6 +53,10 @@ public class ReleasePlanOutputFormatter {
 	public static String availableTopics[] = {
 			topic_default,
 			topic_empty_list,
+			topic_relationship_from,
+			topic_relationship_to,
+			topic_relationship_type,
+			topic_relationhip,
 			topic_diagnosis_combined,
 			topic_diagnosis_relationships,
 			topic_diagnosis_requirements,
@@ -67,7 +78,7 @@ public class ReleasePlanOutputFormatter {
 			topic_release_requirements_assigned,
 			topic_releases_requirements_not_assigned};
 
-	void buildFormattedTextOutput (ReleasePlanInfo currentRelPlan, ReleaseInfo currentRelease , String topic ,OutputFormatter ofmt, StringBuffer out) {
+	void buildFormattedTextOutput (ReleasePlanInfo currentRelPlan, ReleaseInfo currentRelease, String topic ,OutputFormatter ofmt, StringBuffer out) {
 
 		OutputElement listSeparatorFormat = ofmt.getFormat(topic_list_element_separator);
 		String emptylistStr = ofmt.getFormat(topic_empty_list).getFormat();
@@ -88,7 +99,7 @@ public class ReleasePlanOutputFormatter {
 			ofmt.appendArgs(capacities, topic, out);
 		}
 		break;
-		
+
 		case topic_release_capacity_available: {
 			int capacity = currentRelease.getCapacityAvailable();
 			ofmt.appendString(Integer.toString(capacity), topic, out);
@@ -108,24 +119,47 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_diagnosis_combined: {
-			List <Diagnosable> diagnosis = currentRelPlan.getAppliedDiagnosis();
-			if (diagnosis != null && diagnosis.size() >0) {
-				for (Diagnosable diagElem : diagnosis) {
-					sb.append(diagElem.getNameId());
-					sb.append(listSeparator);
+			if (currentRelPlan.getAppliedDiagnosis() != null) {
+				List <Element4Csp> req_diagnosis = currentRelPlan.getAppliedDiagnosisElements();
+				StringBuffer reqDiags = new StringBuffer();
+				if (req_diagnosis != null && req_diagnosis.size() >0) {
+					for (Diagnosable diagElem : req_diagnosis) {
+						reqDiags.append(diagElem.getNameId());
+						reqDiags.append(listSeparator);
+					}
+					reqDiags.setLength(reqDiags.length() - listSeparator.length());
 				}
-				sb.setLength(sb.length() - listSeparator.length());
-				ofmt.appendString(sb.toString(), topic, out);
+				else 
+					reqDiags.append(emptylistStr);
+
+				List <Relationship4Csp> rel_diagnosis = currentRelPlan.getAppliedDiagnosisRelations();
+				StringBuffer relDiags = new StringBuffer();
+				if (rel_diagnosis != null && rel_diagnosis.size() >0) {
+					for (Diagnosable diagElem : rel_diagnosis) {
+						relDiags.append(diagElem.getNameId());
+						relDiags.append(listSeparator);
+					}
+					relDiags.setLength(relDiags.length() - listSeparator.length());
+				}
+				else
+					relDiags.append(emptylistStr);
+				
+				Object[] diagnoses = new Object[] {
+						reqDiags.toString(),
+						relDiags.toString()
+				};
+				  ofmt.appendArgs(diagnoses, topic, out);
+				
 			}
-			else {
+			else
 				ofmt.appendString(null, topic_diagnosis_nodiagnosis, out);
-			}
+			
 		}
 
 		break;
 
 		case topic_diagnosis_relationships: {
-			List <Diagnosable> diagnosis = currentRelPlan.getAppliedDiagnosisRelations();
+			List <Relationship4Csp> diagnosis = currentRelPlan.getAppliedDiagnosisRelations();
 			if (diagnosis != null && diagnosis.size() >0) {
 				for (Diagnosable diagElem : diagnosis) {
 					sb.append(diagElem.getNameId());
@@ -141,7 +175,7 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_diagnosis_requirements: {
-			List <Diagnosable> diagnosis = currentRelPlan.getAppliedDiagnosisElements();
+			List <Element4Csp> diagnosis = currentRelPlan.getAppliedDiagnosisElements();
 			if (diagnosis != null && diagnosis.size() >0) {
 				for (Diagnosable diagElem : diagnosis) {
 					sb.append(diagElem.getNameId());
@@ -162,7 +196,7 @@ public class ReleasePlanOutputFormatter {
 		case topic_default: {
 			ofmt.appendString(null, topic, out);
 		}
-		
+
 		case topic_relationhips_exluded: {
 			ArrayList <Relationship4Csp> relationships = currentRelPlan.getDisabledRelationsShips();
 			if (relationships != null && relationships.size() >0) {
@@ -174,7 +208,7 @@ public class ReleasePlanOutputFormatter {
 			}
 			else
 				sb.append(emptylistStr);
-			
+
 			ofmt.appendString(sb.toString(), topic, out);
 		}
 		break;
@@ -225,7 +259,7 @@ public class ReleasePlanOutputFormatter {
 				ofmt.appendString(null, topic_release_plan_inconsistent, out);
 		}
 		break;
-		
+
 		case topic_release_plan_name: {
 			ofmt.appendString(currentRelPlan.getIdString(), topic, out);
 		}
@@ -257,11 +291,11 @@ public class ReleasePlanOutputFormatter {
 		}
 	}
 
-	void buildJsonOutput (ReleasePlanInfo currentRelPlan, ReleaseInfo currentRelease, String topic ,OutputFormatter ofmt, JsonObject jsonObject) {
+	void buildJsonOutput (ReleasePlanInfo currentRelPlan, ReleaseInfo currentRelease, String topic, OutputFormatter ofmt, JsonObject jsonObject) {
 
 
 		switch (topic) {
-		
+
 		case topic_release_capacity_all: {
 			buildJsonOutput (currentRelPlan, currentRelease, topic_release_capacity_available, ofmt, jsonObject);
 			buildJsonOutput (currentRelPlan, currentRelease, topic_release_capacity_used, ofmt, jsonObject);
@@ -294,26 +328,34 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_diagnosis_combined: {
-			List <Diagnosable> diagnosis = currentRelPlan.getAppliedDiagnosis();
-			JsonArray diagnosisArray = new JsonArray();
-			if (diagnosis != null) {
-				for (Diagnosable diagnosed :diagnosis) {
-					diagnosisArray.add(diagnosed.getNameId());
-				}
+			String reqKey= ofmt.getFormat(topic_diagnosis_requirements).getDataKey();
+			String  relKey = ofmt.getFormat(topic_diagnosis_relationships).getDataKey();
+			//JsonObject requirementDiagJson = new JsonObject();
+			//JsonObject relationshipDiagJson = new JsonObject();
+			JsonObject dianosisJson = new JsonObject();
+			if (currentRelPlan.getAppliedDiagnosis() != null) {
+				buildJsonOutput (currentRelPlan, currentRelease, topic_diagnosis_requirements, ofmt, dianosisJson);
+				buildJsonOutput (currentRelPlan, currentRelease, topic_diagnosis_relationships, ofmt, dianosisJson);
 			}
+			//			dianosisJson.add(reqKey, requirementDiagJson);
+			//			dianosisJson.add(relKey, relationshipDiagJson);
+
+
 			jsonObject.add(
 					ofmt.getDataKey(topic),
-					diagnosisArray);
+					dianosisJson);
 		}
 
 		break;
 
 		case topic_diagnosis_relationships: {
-			List <Diagnosable> diagnosis = currentRelPlan.getAppliedDiagnosisRelations();
+			List <Relationship4Csp> diagnosis = currentRelPlan.getAppliedDiagnosisRelations();
 			JsonArray diagnosisArray = new JsonArray();
 			if (diagnosis != null) {
-				for (Diagnosable diagnosed :diagnosis) {
-					diagnosisArray.add(diagnosed.getNameId());
+				JsonObject relationshipJson = new JsonObject();
+				for (Relationship4Csp relationship :diagnosis) {
+					buildRelationShipJson(relationship, ofmt, relationshipJson);
+					diagnosisArray.add(relationshipJson);
 				}
 			}
 			jsonObject.add(
@@ -323,7 +365,7 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_diagnosis_requirements: {
-			List <Diagnosable> diagnosis = currentRelPlan.getAppliedDiagnosisElements();
+			List <Element4Csp> diagnosis = currentRelPlan.getAppliedDiagnosisElements();
 			JsonArray diagnosisArray = new JsonArray();
 			if (diagnosis != null) {
 				for (Diagnosable diagnosed :diagnosis) {
@@ -342,7 +384,9 @@ public class ReleasePlanOutputFormatter {
 			JsonArray relArray = new JsonArray();
 			if (relationships != null) {
 				for (Relationship4Csp rel :relationships) {
-					relArray.add(rel.getNameId());
+					JsonObject relationshipJson = new JsonObject();
+					buildRelationShipJson(rel, ofmt, relationshipJson);
+					relArray.add(relationshipJson);
 				}
 			}
 			jsonObject.add(
@@ -356,7 +400,9 @@ public class ReleasePlanOutputFormatter {
 			JsonArray relArray = new JsonArray();
 			if (relationships != null) {
 				for (Relationship4Csp rel :relationships) {
-					relArray.add(rel.getNameId());
+					JsonObject relationshipJson = new JsonObject();
+					buildRelationShipJson(rel, ofmt, relationshipJson);
+					relArray.add(relationshipJson);
 				}
 			}
 			jsonObject.add(
@@ -370,7 +416,8 @@ public class ReleasePlanOutputFormatter {
 			JsonArray relArray = new JsonArray();
 			if (relationships != null) {
 				for (Relationship4Csp rel :relationships) {
-					relArray.add(rel.getNameId());
+					JsonObject relationshipJson = new JsonObject();
+					buildRelationShipJson(rel, ofmt, relationshipJson);
 				}
 			}
 			jsonObject.add(
@@ -426,7 +473,28 @@ public class ReleasePlanOutputFormatter {
 		default:
 		}
 	}
-	
+
+	void buildRelationShipJson(Relationship4Csp relationship, OutputFormatter ofmt, JsonObject jsonObject) {
+		String fromKey= ofmt.getFormat(topic_relationship_from).getDataKey();
+		String  toKey = ofmt.getFormat(topic_relationship_to).getDataKey();
+		String  relKey = ofmt.getFormat(topic_relationship_type).getDataKey();
+		jsonObject.addProperty(fromKey, relationship.getFrom().getNameId());
+		jsonObject.addProperty(toKey, relationship.getTo().getNameId());
+		jsonObject.addProperty(relKey, relationship.getRelationShipName());
+	}
+
+	private void appendDiagnosisElements(List <Diagnosable>  diagnosis, StringBuffer sb, String listSeparator) {
+
+		if (diagnosis != null && diagnosis.size() >0) {
+			for (Diagnosable diagElem : diagnosis) {
+				sb.append(diagElem.getNameId());
+				sb.append(listSeparator);
+			}
+			sb.setLength(sb.length() - listSeparator.length());
+		}
+	}
+
+
 	void buildJsonCombinedOutput (ReleasePlanInfo currentRelPlan, ReleaseInfo currentRelease, String topic,OutputFormatter ofmt, JsonObject jsonObject) {
 		buildJsonOutput (currentRelPlan, currentRelease, topic, ofmt, jsonObject);
 		StringBuffer sb= new StringBuffer();
