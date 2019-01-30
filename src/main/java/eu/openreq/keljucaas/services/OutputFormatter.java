@@ -7,14 +7,15 @@ import java.util.Locale;
 public class OutputFormatter {
 
 	public static class OutputElement {
-		private String format;
-		private String dataKey;
-
+		private String format; //for formatting text for message
+		private String dataKey; //for data in Json
+		private String messageKey; //for dataKey of message as Json
 		
 		public OutputElement(String format, String dataKey) {
 			super();
 			this.format = format;
 			this.dataKey = dataKey;
+			this.messageKey = dataKey + "_msg";
 		}
 
 		public String getFormat() {
@@ -29,6 +30,15 @@ public class OutputFormatter {
 		public String toString() {
 			return "OutputElement [format=" + format + ", dataKey=" + dataKey + "]";
 		}
+
+		public String getMessageKey() {
+			return messageKey;
+		}
+
+		public void setMessageKey(String messageKey) {
+			this.messageKey = messageKey;
+		}
+		
 		
 		
 	}
@@ -81,6 +91,13 @@ public class OutputFormatter {
 			MessageFormat fmt = getTextMessageFormatter(topic);
 			sb.append (fmt.format(toOutput));
 		}
+	}
+	
+	public String getDataKey(String topic) {
+		OutputElement outputElement = getFormat(topic);
+		if (outputElement == null)
+			return "";
+		return outputElement.getDataKey();
 	}
 
 	

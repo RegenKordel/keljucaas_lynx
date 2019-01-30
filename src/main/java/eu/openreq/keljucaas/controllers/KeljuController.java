@@ -19,14 +19,13 @@ import com.google.gson.Gson;
 import eu.openreq.keljucaas.domain.ElementRelationTuple;
 import eu.openreq.keljucaas.domain.TransitiveClosure;
 import eu.openreq.keljucaas.domain.release.ReleasePlanInfo;
-import eu.openreq.keljucaas.services.ConsistencyCheckService;
-import eu.openreq.keljucaas.services.TransitiveClosureService;
-import eu.openreq.keljucaas.services.MurmeliModelParser;
 import eu.openreq.keljucaas.services.CSPPlanner;
-import eu.openreq.keljucaas.services.CSPPlanner.OutputDefinition;
 import eu.openreq.keljucaas.services.CSPPlanner.ReleasePlanAnalysisDefinition;
-import fi.helsinki.ese.murmeli.*;
-
+import eu.openreq.keljucaas.services.ConsistencyCheckService;
+import eu.openreq.keljucaas.services.MurmeliModelParser;
+import eu.openreq.keljucaas.services.TransitiveClosureService;
+import fi.helsinki.ese.murmeli.Element;
+import fi.helsinki.ese.murmeli.ElementModel;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -238,14 +237,6 @@ public class KeljuController {
 //		for (ReleasePlanAnalysisDefinition wanted : wanteds) {
 //			if (!wanted.getPlanName().equals("original")) 
 //				wanted.setAnalyzeOnlyIfIncosistentPlan("original");
-//			OutputDefinition jsonDef = new OutputDefinition();
-//			jsonDef.setDiagnosisWanted(true);
-//			wanted.setStructuredOutputDef(jsonDef);
-//			
-//			OutputDefinition textDef = new OutputDefinition();
-//			jsonDef.setDiagnosisWanted(true);
-//
-//			wanted.setTextOutputDef(textDef);
 //		}
 //
 //
@@ -259,8 +250,6 @@ public class KeljuController {
 //
 //		boolean isConsistent = originalReleasePlanInfo.isConsistent();
 //		if (isConsistent) {
-//			//TODO add reporting of resources if needed
-//			//return new ResponseEntity<>(transform.generateProjectJsonResponse(true, "Consistent", true), HttpStatus.OK);
 //			return new ResponseEntity<>(transform.generateProjectJsonResponseDetailed(releasePlanstoReport), HttpStatus.OK);
 //		}
 //		
@@ -270,32 +259,6 @@ public class KeljuController {
 //				
 //		return new ResponseEntity<>(transform.generateProjectJsonResponseDetailed(releasePlanstoReport), HttpStatus.OK);
 //		
-////		generateProjectJsonResponseDetailed(releasePlanstoReport)
-////		
-////		StringBuilder responseStr = new StringBuilder();
-////		for (ReleasePlanAnalysisDefinition wanted : wanteds) {
-////			//if (!wanted.getPlanName().equals("original")) {
-////				ReleasePlanInfo diagnosedReleasePlanInfo = rcspGen.getReleasePlan(wanted.getPlanName());
-////				if (diagnosedReleasePlanInfo != null) {
-////					responseStr.append(diagnosedReleasePlanInfo.getIdString());
-////					responseStr.append (" :");
-////					if (wanted.isDiagnosisWanted())
-////							responseStr.append(diagnosedReleasePlanInfo.getDiagnosis());
-////					responseStr.append (ConsistencyCheckService.topicSeparator);
-////					responseStr.append(diagnosedReleasePlanInfo.getDisabledRelationShipsMsg());
-////					responseStr.append (ConsistencyCheckService.topicSeparator);
-////					responseStr.append(diagnosedReleasePlanInfo.getFailedRelationShipsMsg());
-////					responseStr.append (ConsistencyCheckService.topicSeparator);
-////					responseStr.append(diagnosedReleasePlanInfo.getReleasePlanMessage());
-////					responseStr.append (ConsistencyCheckService.topicSeparator);
-////				}
-////				
-////			//}
-////		}
-////
-////		String diagnosis = responseStr.toString();
-////		//TODO change to more advanced
-////		return new ResponseEntity<>(transform.generateProjectJsonResponse(false, diagnosis, true), HttpStatus.OK);
 //	}
 
 

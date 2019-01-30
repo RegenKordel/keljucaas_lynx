@@ -21,7 +21,6 @@ public class ReleasePlanInfo {
 	private boolean consistent;
 
 
-
 	public ReleasePlanInfo(String idString, ReleasePlanAnalysisDefinition wantedAnalysis) {
 		super();
 		this.idString = idString;

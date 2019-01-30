@@ -350,9 +350,6 @@ public class CSPPlanner {
 					isAnalysisRequired = false;
 			if (isAnalysisRequired) {
 				List<Diagnosable> diagnosis = getDiagnosis(diagnoseElements, diagnoseRelations);
-				System.out.println();
-				System.out.println("Diagnosis Directly: "+ diagnosis);
-
 				List<Diagnosable> included = diffListsAsSets(all, diagnosis);
 				setRequirementsToList(included);
 				boolean OK = consistent(included);
@@ -378,7 +375,6 @@ public class CSPPlanner {
 					allocateOriginallyAsssignedElements(releasePlanInfo);
 					setOriginallyEnabledRelationships(releasePlanInfo);
 				}
-				System.out.println("getDiagnosedSolution::" + releasePlanInfo.getReleasePlanMessage());
 			}
 		}
 
@@ -665,87 +661,13 @@ public class CSPPlanner {
 		return d.intValue();
 	}
 
-	public static class OutputDefinition {
-		private boolean diagnosisWanted;
-		private boolean releaseInfoWanted;
-		private boolean releaseUnallocatedWanted; //report also on unalllocated release
-		private boolean release_includedRequirementsWanted;
-		private boolean release_compelteCapacityInfoWanted;
-		private boolean release_onlyFailedCapacityInfoWanted;
-
-		private boolean includedRelationshipsWanted;
-		private boolean excludedRelationshipsWanted;
-		private boolean unsatisfiedRelationshipsWanted;
-		
-		public boolean isDiagnosisWanted() {
-			return diagnosisWanted;
-		}		
-		public void setDiagnosisWanted(boolean diagnosisWanted) {
-			this.diagnosisWanted = diagnosisWanted;
-		}
-		public boolean isReleaseInfoWanted() {
-			return releaseInfoWanted;
-		}
-		public void setReleaseInfoWanted(boolean releaseInfoWanted) {
-			this.releaseInfoWanted = releaseInfoWanted;
-		}
-		public boolean isReleaseUnallocatedWanted() {
-			return releaseUnallocatedWanted;
-		}
-		public void setReleaseUnallocatedWanted(boolean releaseUnallocatedWanted) {
-			this.releaseUnallocatedWanted = releaseUnallocatedWanted;
-		}
-		public boolean isRelease_includedRequirementsWanted() {
-			return release_includedRequirementsWanted;
-		}
-		public void setRelease_includedRequirementsWanted(boolean release_includedRequirementsWanted) {
-			this.release_includedRequirementsWanted = release_includedRequirementsWanted;
-		}
-		public boolean isRelease_compelteCapacityInfoWanted() {
-			return release_compelteCapacityInfoWanted;
-		}
-		public void setRelease_compelteCapacityInfoWanted(boolean release_compelteCapacityInfoWanted) {
-			this.release_compelteCapacityInfoWanted = release_compelteCapacityInfoWanted;
-		}
-		public boolean isRelease_onlyFailedCapacityInfoWanted() {
-			return release_onlyFailedCapacityInfoWanted;
-		}
-		public void setRelease_onlyFailedCapacityInfoWanted(boolean release_onlyFailedCapacityInfoWanted) {
-			this.release_onlyFailedCapacityInfoWanted = release_onlyFailedCapacityInfoWanted;
-		}
-		public boolean isIncludedRelationshipsWanted() {
-			return includedRelationshipsWanted;
-		}
-		public void setIncludedRelationshipsWanted(boolean includedRelationshipsWanted) {
-			this.includedRelationshipsWanted = includedRelationshipsWanted;
-		}
-		public boolean isExcludedRelationshipsWanted() {
-			return excludedRelationshipsWanted;
-		}
-		public void setExcludedRelationshipsWanted(boolean excludedRelationshipsWanted) {
-			this.excludedRelationshipsWanted = excludedRelationshipsWanted;
-		}
-		public boolean isUnsatisfiedRelationshipsWanted() {
-			return unsatisfiedRelationshipsWanted;
-		}
-		public void setUnsatisfiedRelationshipsWanted(boolean unstaitsfiedRelationshipsWanted) {
-			this.unsatisfiedRelationshipsWanted = unstaitsfiedRelationshipsWanted;
-		}
-		
-		
-		
-	}
 	public static class ReleasePlanAnalysisDefinition {
 		private final String planName;
 		private String analyzeOnlyIfIncosistentPlan;
-		private  boolean incudeInResponse; //if results are included
 
 		private  boolean diagnoseRequirements;
 		private boolean diagnoseRelationships;
 		
-		OutputDefinition structuredOutputDef;
-		
-		OutputDefinition textOutputDef;
 
 
 		public ReleasePlanAnalysisDefinition(String planName, boolean diagnoseRequirements,
@@ -767,40 +689,9 @@ public class CSPPlanner {
 		}
 
 
-		public boolean isIncudeInResponse() {
-			return incudeInResponse;
-		}
-
-
-		public void setIncudeInResponse(boolean incudeInResponse) {
-			this.incudeInResponse = incudeInResponse;
-		}
-
-
-		public OutputDefinition getStructuredOutputDef() {
-			return structuredOutputDef;
-		}
-
-
-		public void setStructuredOutputDef(OutputDefinition structuredOutputDef) {
-			this.structuredOutputDef = structuredOutputDef;
-		}
-
-
-		public OutputDefinition getTextOutputDef() {
-			return textOutputDef;
-		}
-
-
-		public void setTextOutputDef(OutputDefinition textOutputDef) {
-			this.textOutputDef = textOutputDef;
-		}
-
-
 		public String getPlanName() {
 			return planName;
 		}
-
 
 		public boolean isDiagnoseRequirements() {
 			return diagnoseRequirements;
@@ -809,6 +700,10 @@ public class CSPPlanner {
 
 		public boolean isDiagnoseRelationships() {
 			return diagnoseRelationships;
+		}
+		
+		public boolean isDiagnoseDesired() {
+			return diagnoseRequirements || diagnoseRelationships;
 		}
 		
 

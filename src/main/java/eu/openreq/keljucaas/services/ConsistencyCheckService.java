@@ -1,5 +1,6 @@
 package eu.openreq.keljucaas.services;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -9,9 +10,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import eu.openreq.keljucaas.domain.release.Diagnosable;
 import eu.openreq.keljucaas.domain.release.ReleasePlanInfo;
-import eu.openreq.keljucaas.services.CSPPlanner.OutputDefinition;
 import eu.openreq.keljucaas.services.CSPPlanner.ReleasePlanAnalysisDefinition;
 
 @Service
@@ -98,35 +97,26 @@ public class ConsistencyCheckService {
 			JsonObject responseObject = new JsonObject();
 			JsonArray releasePlanArrays = new JsonArray();
 			OutputFormatter ofmt = ReleasePlanOutputFormatter.intitializeOutputFormats();
+			ReleasePlanOutputFormatter relof = new ReleasePlanOutputFormatter(); 
 			
 
 			for (ReleasePlanInfo releasePlanInfo : releasePlanInfosToReport ) {
 				ReleasePlanAnalysisDefinition wanted = releasePlanInfo.getWantedAnalysis();
-				OutputDefinition jsonDef = wanted.getStructuredOutputDef();
+				List <String> releasePlanTopics;
+				if (wanted.isDiagnoseDesired())
+					releasePlanTopics = getOriginalReleasePlanTopics();
+				else
+					releasePlanTopics = getDiagnosedReleasePlanCommonTopics();
 				JsonObject releasePlanJson = new JsonObject();
-				releasePlanJson.addProperty("version", releasePlanInfo.getIdString());
-				releasePlanJson.addProperty("consistent", releasePlanInfo.isConsistent());
-				if (jsonDef.isDiagnosisWanted()) {
-					List<Diagnosable> diagnosis = releasePlanInfo.getAppliedDiagnosis();
-					JsonArray diagnosisArray = new JsonArray();
-					if (diagnosis != null) {
-						for (Diagnosable diagnosed :diagnosis) {
-							diagnosisArray.add(diagnosed.getNameId());
-						}
-					}
-					releasePlanJson.add("diagnosis", diagnosisArray);
+
+				for (String topic: releasePlanTopics) {
+					System.out.println(topic);
+					relof.buildJsonCombinedOutput(releasePlanInfo, null, topic, ofmt, releasePlanJson);
+					
 				}
-				
-//				if (jsonDef.isIncludedRequirementsWanted()) {
-//					releasePlanInfo.get
-//				}
+				//OutputDefinition jsonDef = wanted.getStructuredOutputDef();
 				releasePlanArrays.add(releasePlanJson);
 				StringBuffer sb = new StringBuffer();
-				
-				ReleasePlanOutputFormatter relof = new ReleasePlanOutputFormatter(); 
-				relof.buildFormattedTextOutput (releasePlanInfo, null, "diagnosis.combined", ofmt, sb);
-				System.out.println("************ "+ sb.toString());
-
 			}
 
 
@@ -144,7 +134,54 @@ public class ConsistencyCheckService {
 		}
 
 
+	List<String> getUnassignedReleaseTopics() {
+		String[] topicsToGet = {
+		
+				ReleasePlanOutputFormatter.topic_capacity_all,
+				ReleasePlanOutputFormatter.topic_releases_requirements_not_assigned};
+		List<String> topicList = new LinkedList<>();
+		for (String s: topicsToGet)
+			topicList.add(s);
+		return topicList;
+	}
+	
+	List<String> getNormalReleaseTopics() {
+		String[] topicsToGet = {
+				ReleasePlanOutputFormatter.topic_release_number,
+				ReleasePlanOutputFormatter.topic_release_requirements_assigned,
+				ReleasePlanOutputFormatter.topic_capacity_all
+		};
+		List<String> topicList = new LinkedList<>();
+		for (String s: topicsToGet)
+			topicList.add(s);
+		return topicList;
+	}
 
+
+	List<String> getDiagnosedReleasePlanCommonTopics() {
+		String[] topicsToGet = {
+				ReleasePlanOutputFormatter.topic_release_plan_name,
+				ReleasePlanOutputFormatter.topic_release_plan_consistent,
+				ReleasePlanOutputFormatter.topic_diagnosis_combined,
+		};
+		List<String> topicList = new LinkedList<>();
+		for (String s: topicsToGet)
+			topicList.add(s);
+		return topicList;
+	}
+
+	List<String> getOriginalReleasePlanTopics() {
+		String[] topicsToGet = {
+				ReleasePlanOutputFormatter.topic_release_plan_name,
+				ReleasePlanOutputFormatter.topic_release_plan_consistent,
+				ReleasePlanOutputFormatter.topic_relationships_broken,
+				ReleasePlanOutputFormatter.topic_capacity_all
+		};
+		List<String> topicList = new LinkedList<>();
+		for (String s: topicsToGet)
+			topicList.add(s);
+		return topicList;
+	}
 
 
 	// The version that returns all diagnosed requirements as their own one requirement arrays
