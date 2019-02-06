@@ -217,8 +217,8 @@ public class KeljuController {
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Returns consistency and extended diagnosis of received model"),
 			@ApiResponse(code = 400, message = "Failure ex. malformed input"),
 			@ApiResponse(code = 409, message = "Failure") })
-	@RequestMapping(value = "/uploadDataCheckForConsistencyAndDoDiagnosisExtended", method = RequestMethod.POST)
-	public ResponseEntity<?> uploadDataCheckForConsistencyAndDoDiagnosisExtended(@RequestBody String json) throws Exception {
+	@RequestMapping(value = "/consistencyCheckAndDiagnosis", method = RequestMethod.POST)
+	public ResponseEntity<?> consistencyCheckAndDiagnosis(@RequestBody String json) throws Exception {
 
 		 //System.out.println("Requirements received from Mulperi");
 		 //System.out.println(json);

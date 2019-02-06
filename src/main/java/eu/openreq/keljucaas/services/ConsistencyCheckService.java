@@ -23,10 +23,10 @@ public class ConsistencyCheckService {
 	public static final String fieldSeparator = ","; 
 	public static final String topicSeparator = "@"; 
 	
-	public static final String submitted = "submitted";
-	public static final String diagnoseRequirements = "diagnose requirements";
-	public static final String diagnoseRelationships= "diagnose relationships";
-	public static final String diagnoseRequirementsAndRelationships= "diagnose requirements and relationships";
+	public static final String submitted = "Analysis and consistency check";
+	public static final String diagnoseRequirements = "Requirements diagnosis";
+	public static final String diagnoseRelationships= "Relationship diagnosis";
+	public static final String diagnoseRequirementsAndRelationships= "Requirement and relationship diagnosis";
 	/**
 	 * Generate response (consistency and diagnosis) as JSON String
 	 * @param isCOnsistent
@@ -211,66 +211,4 @@ public class ConsistencyCheckService {
 			topicList.add(s);
 		return topicList;
 	}
-
-
-	// The version that returns all diagnosed requirements as their own one requirement arrays
-	//	/**
-	//	 * Generate response (consistency and diagnosis) as JSON String
-	//	 * @param isCOnsistent
-	//	 * @param explanationStr
-	//	 * @return
-	//	 */
-	//	public String generateProjectJsonResponse(boolean isCOnsistent, String explanationStr, boolean diagnosisWanted) {
-	//		if (diagnosisWanted) { 
-	//			try {
-	//				 JsonObject responseObject = new JsonObject();
-	//				 
-	//				 JsonObject diagnosis = new JsonObject();
-	//				 diagnosis.addProperty("consistent", isCOnsistent);
-	//				 
-	//				 String[] parts = explanationStr.split(",");
-	//				 
-	//				 if(!isCOnsistent) {
-	//					 JsonArray allArrays = new JsonArray();
-	//					 for (int i = 0; i < parts.length; i++) {
-	//						JsonArray reqArray = new JsonArray();
-	//						JsonObject part = new JsonObject();
-	//						part.addProperty("requirement", parts[i]);
-	//						reqArray.add(part);
-	//						allArrays.add(reqArray);
-	//					}
-	//					 diagnosis.add("diagnosis", allArrays);
-	//				 }
-	//				 
-	//				 responseObject.add("response", diagnosis);
-	//				 
-	//				 Gson gson = new GsonBuilder().setPrettyPrinting().create();
-	//			     String prettyResponseJson = gson.toJson(responseObject);
-	//	
-	//		         return prettyResponseJson;
-	//			 }
-	//			 catch (Exception ex) {
-	//				 return null;
-	//			 }
-	//		} else {
-	//			try {
-	//				 JsonObject responseObject = new JsonObject();
-	//				 
-	//				 JsonObject diagnosis = new JsonObject();
-	//				 diagnosis.addProperty("consistent", isCOnsistent);
-	//				 
-	//				 responseObject.add("response", diagnosis);
-	//				 
-	//				 Gson gson = new GsonBuilder().setPrettyPrinting().create();
-	//			     String prettyResponseJson = gson.toJson(responseObject);
-	//	
-	//		         return prettyResponseJson;
-	//			 }
-	//			 catch (Exception ex) {
-	//				 return null;
-	//			 }
-	//		}
-	//	}
-
-
 }
