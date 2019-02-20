@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 
@@ -31,12 +33,17 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @SpringBootApplication
-@Controller
+@RestController
 @RequestMapping("/")
 public class KeljuController {
 
-	private TransitiveClosureService service = new TransitiveClosureService();
-	private ConsistencyCheckService transform = new ConsistencyCheckService();
+	@Autowired
+    TransitiveClosureService service;
+	@Autowired
+	ConsistencyCheckService transform;
+	@Autowired
+	MurmeliModelParser parser;
+	
 	private Map<String, List<ElementRelationTuple>> graph = new HashMap<>();
 	private Map<String, ElementModel> savedModels = new HashMap<>();
 	private Gson gson = new Gson();
@@ -53,7 +60,7 @@ public class KeljuController {
 	@RequestMapping(value = "/importModel", method = RequestMethod.POST)
 	public ResponseEntity<?> importModel(@RequestBody String json) throws Exception {
 
-		MurmeliModelParser parser = new MurmeliModelParser();
+	//	MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 
 		savedModels.put(model.getRootContainer().getNameID(), model);
@@ -154,7 +161,7 @@ public class KeljuController {
 
 		// System.out.println("Requirements received from Mulperi");
 
-		MurmeliModelParser parser = new MurmeliModelParser();
+	//	MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 		
 		ReleasePlanAnalysisDefinition wanted = new ReleasePlanAnalysisDefinition(ConsistencyCheckService.submitted, false, false);
@@ -186,7 +193,7 @@ public class KeljuController {
 		 //System.out.println(json);
 		 
 
-		MurmeliModelParser parser = new MurmeliModelParser();
+	//	MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 
 		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>();
@@ -224,7 +231,7 @@ public class KeljuController {
 		 //System.out.println(json);
 		 
 
-		MurmeliModelParser parser = new MurmeliModelParser();
+	//	MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 		
 		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>();
