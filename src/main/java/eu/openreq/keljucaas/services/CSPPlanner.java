@@ -12,6 +12,8 @@ import org.chocosolver.solver.variables.IntVar;
 
 import eu.openreq.keljucaas.domain.release.Diagnosable;
 import eu.openreq.keljucaas.domain.release.Element4Csp;
+import eu.openreq.keljucaas.domain.release.ExcludesRelationship4Csp;
+import eu.openreq.keljucaas.domain.release.ImpliesRelationship4Csp;
 import eu.openreq.keljucaas.domain.release.IncompatibleRelationship4Csp;
 import eu.openreq.keljucaas.domain.release.Relationship4Csp;
 import eu.openreq.keljucaas.domain.release.ReleaseInfo;
@@ -192,6 +194,17 @@ public class CSPPlanner {
 						relationship4Csps.add(
 								new IncompatibleRelationship4Csp(from, to, model,Integer.valueOf(relation.getID())));
 						break;
+
+					case EXCLUDES:
+						relationship4Csps.add(
+								new ExcludesRelationship4Csp(from, to, model, Integer.valueOf(relation.getID())));
+						break;
+					case IMPLIES:
+						relationship4Csps.add(
+								new ImpliesRelationship4Csp(from, to, model, Integer.valueOf(relation.getID())));
+	
+						break;
+					//following not supported	
 					case CONTRIBUTES:
 					case DAMAGES:
 					case DUPLICATES:
@@ -497,6 +510,8 @@ public class CSPPlanner {
 		switch (nameType) {
 		case INCOMPATIBLE:
 		case REQUIRES:
+		case EXCLUDES:
+		case IMPLIES:
 			return true;
 
 		case CONTRIBUTES:
@@ -505,9 +520,9 @@ public class CSPPlanner {
 		case REFINES:
 		case REPLACES:
 		case SIMILAR:
-		default:
 			return false;
 		}
+		return false; //should never be reached
 	}
 
 	public void requireAllElements() {

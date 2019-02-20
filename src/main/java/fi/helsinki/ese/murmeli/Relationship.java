@@ -23,7 +23,9 @@ public class Relationship {
         DUPLICATES,
         REPLACES,
         DAMAGES,
-        CONTRIBUTES
+        CONTRIBUTES,
+        EXCLUDES,
+        IMPLIES
 	}
 	
 	@SerializedName("id")
