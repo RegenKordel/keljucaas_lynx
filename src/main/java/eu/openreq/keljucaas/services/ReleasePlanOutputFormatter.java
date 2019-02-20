@@ -17,6 +17,12 @@ import eu.openreq.keljucaas.domain.release.ReleaseInfo;
 import eu.openreq.keljucaas.domain.release.ReleasePlanInfo;
 import eu.openreq.keljucaas.services.OutputFormatter.OutputElement;
 
+import static eu.openreq.keljucaas.services.ConsistencyCheckService.submitted;
+import static  eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRequirements;
+import static  eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRelationships;
+import static eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRequirementsAndRelationships;
+
+
 public class ReleasePlanOutputFormatter {
 	public static final String topic_default = "default";
 	public static final String topic_empty_list = "empty.list";
@@ -50,6 +56,11 @@ public class ReleasePlanOutputFormatter {
 	public static final String topic_release_requirements_assigned = "release.requirements.assigned";
 	public static final String topic_releases_requirements_not_assigned = "releases.requirements.not.assigned";
 
+	public static final String topic_release_plan_submitted = "release.plan.submitted";
+	public static final String topic_release_plan_diagnoseRequirements = "release.plan.diagnoseRequirements";
+	public static final String topic_release_plan_diagnoseRelationships ="release.plan.diagnoseRelationships";
+	public static final String topic_release_plan_diagnoseRequirementsAndRelationships = "release.plan.diagnoseRequirementsAndRelationships";
+
 	public static String availableTopics[] = {
 			topic_default,
 			topic_empty_list,
@@ -76,7 +87,12 @@ public class ReleasePlanOutputFormatter {
 			topic_release_plan_inconsistent,
 			topic_release_plan_name,
 			topic_release_requirements_assigned,
-			topic_releases_requirements_not_assigned};
+			topic_releases_requirements_not_assigned,
+			topic_release_plan_submitted,
+			topic_release_plan_diagnoseRequirements,
+			topic_release_plan_diagnoseRelationships,
+			topic_release_plan_diagnoseRequirementsAndRelationships
+	};
 
 	void buildFormattedTextOutput (ReleasePlanInfo currentRelPlan, ReleaseInfo currentRelease, String topic ,OutputFormatter ofmt, StringBuffer out) {
 
@@ -143,17 +159,17 @@ public class ReleasePlanOutputFormatter {
 				}
 				else
 					relDiags.append(emptylistStr);
-				
+
 				Object[] diagnoses = new Object[] {
 						reqDiags.toString(),
 						relDiags.toString()
 				};
-				  ofmt.appendArgs(diagnoses, topic, out);
-				
+				ofmt.appendArgs(diagnoses, topic, out);
+
 			}
 			else
 				ofmt.appendString(null, topic_diagnosis_nodiagnosis, out);
-			
+
 		}
 
 		break;
@@ -194,6 +210,13 @@ public class ReleasePlanOutputFormatter {
 		case topic_element_separator:
 		case topic_list_element_separator:
 		case topic_default: {
+			ofmt.appendString(null, topic, out);
+		}
+
+		case topic_release_plan_submitted:
+		case topic_release_plan_diagnoseRequirements:
+		case topic_release_plan_diagnoseRelationships:
+		case topic_release_plan_diagnoseRequirementsAndRelationships: {
 			ofmt.appendString(null, topic, out);
 		}
 
@@ -261,7 +284,22 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_release_plan_name: {
-			ofmt.appendString(currentRelPlan.getIdString(), topic, out);
+			switch (currentRelPlan.getIdString()) {
+			case submitted:
+				ofmt.appendString(null, topic_release_plan_submitted, out);
+				break;
+			case  diagnoseRequirements:
+				ofmt.appendString(null, topic_release_plan_diagnoseRequirements, out);
+				break;
+			case diagnoseRelationships:
+				ofmt.appendString(null, topic_release_plan_diagnoseRelationships, out);
+				break;
+			case diagnoseRequirementsAndRelationships:
+				ofmt.appendString(null, topic_release_plan_diagnoseRequirementsAndRelationships, out);
+				break;
+			default:
+				ofmt.appendString(currentRelPlan.getIdString(), topic, out);
+			}
 		}
 		break;
 

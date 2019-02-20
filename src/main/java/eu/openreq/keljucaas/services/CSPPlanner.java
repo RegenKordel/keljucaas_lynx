@@ -300,37 +300,6 @@ public class CSPPlanner {
 	}
 
 
-	/**
-	 * Get problematic element IDs as a String (elements that have been
-	 * diagnosed as breaking the consistency of the model)
-	 * 
-	 * @return
-	 */
-//	public String getDiagnosis() {
-//
-//		//List<Element4Csp> diagnosis = fastDiag(allElements, allElements);
-//		List<Diagnosable> diagnosis = getDiagnosis(true, false);
-//		StringBuffer sb = new StringBuffer(); 
-//		if (diagnosis.isEmpty()) {
-//			sb.append("(No Diagnosis found.)");
-//		} 
-//		else {
-//			for (int i = 0; i < diagnosis.size(); i++) {
-//				Diagnosable reqB = diagnosis.get(i);
-//				if (!(reqB instanceof Element4Csp))
-//					continue;
-//				Element4Csp elem = (Element4Csp) reqB;
-//				String reqId = elem.getNameId();
-//				sb.append(reqId);
-//				if (diagnosis.size() > 1 && i < diagnosis.size() - 1) {
-//					sb.append(","); //TODO modify; all not included anymore
-//				}
-//			}
-//			getDiagnosedSolution(true, false);
-//		}
-//		return sb.toString();
-//	}
-
 	public void performDiagnoses() {
 
 		List<Diagnosable> all= new ArrayList<>();
@@ -558,51 +527,4 @@ public class CSPPlanner {
 		return d.intValue();
 	}
 
-//	public static class ReleasePlanAnalysisDefinition {
-//		private final String planName;
-//		private String analyzeOnlyIfIncosistentPlan;
-//
-//		private  boolean diagnoseRequirements;
-//		private boolean diagnoseRelationships;
-//		
-//
-//
-//		public ReleasePlanAnalysisDefinition(String planName, boolean diagnoseRequirements,
-//				boolean diagnoseRelationships) {
-//			super();
-//			this.planName = planName;
-//			this.diagnoseRequirements = diagnoseRequirements;
-//			this.diagnoseRelationships = diagnoseRelationships;
-//		}
-//
-//
-//		public String getAnalyzeOnlyIfIncosistentPlan() {
-//			return analyzeOnlyIfIncosistentPlan;
-//		}
-//
-//
-//		public void setAnalyzeOnlyIfIncosistentPlan(String analyzeOnlyIfIncosistentPlan) {
-//			this.analyzeOnlyIfIncosistentPlan = analyzeOnlyIfIncosistentPlan;
-//		}
-//
-//
-//		public String getPlanName() {
-//			return planName;
-//		}
-//
-//		public boolean isDiagnoseRequirements() {
-//			return diagnoseRequirements;
-//		}
-//
-//
-//		public boolean isDiagnoseRelationships() {
-//			return diagnoseRelationships;
-//		}
-//		
-//		public boolean isDiagnoseDesired() {
-//			return diagnoseRequirements || diagnoseRelationships;
-//		}
-//		
-//
-//	}
 }

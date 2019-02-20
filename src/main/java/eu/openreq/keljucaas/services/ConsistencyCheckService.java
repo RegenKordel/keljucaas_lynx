@@ -23,10 +23,10 @@ public class ConsistencyCheckService {
 	public static final String fieldSeparator = ","; 
 	public static final String topicSeparator = "@"; 
 	
-	public static final String submitted = "Analysis and consistency check";
-	public static final String diagnoseRequirements = "Requirements diagnosis";
-	public static final String diagnoseRelationships= "Relationship diagnosis";
-	public static final String diagnoseRequirementsAndRelationships= "Requirement and relationship diagnosis";
+	public static final String submitted = "ANALYSIS";
+	public static final String diagnoseRequirements = "REQDIAG";
+	public static final String diagnoseRelationships= "RELDIAG";
+	public static final String diagnoseRequirementsAndRelationships= "REQRELDIAG";
 	/**
 	 * Generate response (consistency and diagnosis) as JSON String
 	 * @param isCOnsistent
