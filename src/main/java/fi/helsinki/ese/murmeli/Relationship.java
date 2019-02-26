@@ -119,6 +119,8 @@ public class Relationship {
 	public void addAttribute(String name, int id) {
 		this.attributes.put(name, id);
 	}
+	
+	
 
 	public int getID() {
 		return this.id;
@@ -184,5 +186,37 @@ public class Relationship {
 	
 	public void setTo(String to) {
 		this.toID = to;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((fromID == null) ? 0 : fromID.hashCode());
+		result = prime * result + ((toID == null) ? 0 : toID.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+
+		Relationship other = (Relationship) obj;
+		if (fromID == null) {
+			if (other.fromID != null)
+				return false;
+		} else if (!fromID.equals(other.fromID)) {
+			return false;
+		}
+		if (toID == null) {
+			if (other.toID != null)
+				return false;
+		} else if (!toID.equals(other.toID))
+			return false;
+		return true;
 	}
 }

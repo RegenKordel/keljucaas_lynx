@@ -32,4 +32,33 @@ public class ElementRelationTuple {
 	public void setRelationship(Relationship relationship) {
 		this.relationship = relationship;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((relationship == null) ? 0 : relationship.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+
+		ElementRelationTuple other = (ElementRelationTuple) obj;
+		
+		if (this.relationship.equals(other.getRelationship())) {
+			if (this.element.getNameID().equals(other.getElement().getNameID())) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	
 }
