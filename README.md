@@ -28,7 +28,7 @@ KeljuCaaS uses port 9205 that needs to be open to in order that the endpoints an
 
 ## How to Use This Microservice
 
-See [Mulperi]((https://github.com/OpenReqEU/Mulperi).  The swagger page of KeljuCaaS describes all endpoints that can be used for testing purposes. 
+See [Mulperi](https://github.com/OpenReqEU/Mulperi).  The swagger page of KeljuCaaS describes all endpoints that can be used for testing purposes. 
 
 
 # How to Contribute
