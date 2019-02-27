@@ -50,6 +50,7 @@ public class ReleasePlanOutputFormatter {
 	public static final String topic_release_capacity_used = "release.capacity.used";
 
 	public static final String topic_release_number = "release.number";
+	public static final String topic_release_surroundchar ="release.surroundchar";
 	public static final String topic_release_plan_consistent = "release.plan.consistent";
 	public static final String topic_release_plan_inconsistent = "release.plan.inconsistent";
 	public static final String topic_release_plan_name = "release.plan.name";
@@ -83,6 +84,7 @@ public class ReleasePlanOutputFormatter {
 			topic_release_capacity_balance,
 			topic_release_capacity_used,
 			topic_release_number,
+			topic_release_surroundchar,
 			topic_release_plan_consistent,
 			topic_release_plan_inconsistent,
 			topic_release_plan_name,
@@ -209,7 +211,8 @@ public class ReleasePlanOutputFormatter {
 
 		case topic_element_separator:
 		case topic_list_element_separator:
-		case topic_default: {
+		case topic_default:
+		case topic_release_surroundchar: {
 			ofmt.appendString(null, topic, out);
 		}
 
@@ -270,7 +273,13 @@ public class ReleasePlanOutputFormatter {
 
 		case topic_release_number: {
 			int release = currentRelease.getReleaseNr();
-			ofmt.appendString(Integer.toString(release), topic, out);
+			String surroundChar = ofmt.getFormat(topic_release_surroundchar).getFormat();
+
+			String[] releaseToFormat = {
+					Integer.toString(release),
+					surroundChar
+			};
+			ofmt.appendArgs(releaseToFormat, topic, out);
 		}
 		break;
 
