@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.springframework.stereotype.Service;
+
 import eu.openreq.keljucaas.domain.ElementRelationTuple;
 import eu.openreq.keljucaas.domain.TransitiveClosure;
 import fi.helsinki.ese.murmeli.Element;
@@ -21,6 +23,7 @@ import fi.helsinki.ese.murmeli.Relationship;
  * Methods used to handle the graph and transitive closure.
  * 
  */
+@Service
 public class TransitiveClosureService {
 
 	public Map<String, List<ElementRelationTuple>> generateGraph(Collection<ElementModel> models) {

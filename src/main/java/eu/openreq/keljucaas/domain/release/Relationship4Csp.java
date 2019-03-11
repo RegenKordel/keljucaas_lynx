@@ -1,4 +1,4 @@
-package eu.openreq.keljucaas.domain;
+package eu.openreq.keljucaas.domain.release;
 
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
@@ -16,12 +16,14 @@ public abstract class Relationship4Csp implements Diagnosable {
 	private Constraint denyCstr;
 	private Constraint relationShipConstraint = null;
 	private Model model;
-	private String id;
+	private Integer id;
+	private String nameId;
 	
-	public Relationship4Csp(Element4Csp from, Element4Csp to, Model model) {
+	public Relationship4Csp(Element4Csp from, Element4Csp to, Model model, Integer id) {
 		this.from = from;
 		this.to = to;
 		this.model = model;
+		this.id = id;
 	}
 	
 	protected void completeInitialization() {
@@ -75,14 +77,20 @@ public abstract class Relationship4Csp implements Diagnosable {
 
 	protected abstract void makeConstraint();
 	
-	protected abstract String getRelationShipName();
+	public abstract String getRelationShipName();
 	
 	protected abstract boolean isSatisfiedWithAssignment(int releaseOfFrom, int ReleaseOfTo);
 
 	@Override
 	public String toString() {
-		return "Relationship4Csp [from=" + getFrom() + ", relationshipType=" + getRelationShipName() + ", to=" + getTo() + "]";
+		return getFrom() + " " + getRelationShipName() + " "+ getTo();
 	}
+	
+//	@Override
+//	public String toString() {
+//		return "Relationship4Csp [from=" + getFrom() + ", relationshipType=" + getRelationShipName() + ", to=" + getTo() + "]";
+//	}
+
 
 	public Constraint getRelationShipConstraint() {
 		return relationShipConstraint;
@@ -104,24 +112,20 @@ public abstract class Relationship4Csp implements Diagnosable {
 		return to;
 	}
 
+	public Integer getId() {
+		return id;
+	}
 
-//	public class RequiresRelationship4Csp extends Relationship4Csp {
-//		
-//		public RequiresRelationship4Csp(Element4Csp from, Element4Csp to, Model model) {
-//			super (from, to, model);
-//			makeConstraint();
-//			completeInitialization();
-//		}
-//
-//		protected void makeConstraint() {
-//			// from is included implies (to is included and to.assignedRelease <=
-//			// from.assignedrelease
-//			setRelationShipConstraint(getModel().or(
-//					getModel().arithm(getFrom().getIsIncluded(), "=", 0),
-//					getModel().and(getModel().arithm(getTo().getIsIncluded(), "=", 1),
-//							getModel().arithm(getTo().getAssignedContainer(), "<=", getFrom().getAssignedContainer()))));
-//		}
-//	}
-//	
+	public String getNameId() {
+		return nameId;
+	}
+
+	public void setNameId(String nameId) {
+		this.nameId = nameId;
+	}
 	
+	protected void determineNameId() {
+		this.setNameId("rel_" + this.getFrom().getNameId()+"_" + getRelationShipName() + "_" + this.getTo().getNameId());
+	}
+
 }

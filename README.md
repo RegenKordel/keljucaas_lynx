@@ -6,7 +6,7 @@ This service was created as a result of the OpenReq project funded by the Europe
 
 # Technical Description
 
-KeljuCaaS is a generic inference engine for product models. For requirements models, KeljuCaaS is used through the Mulperi service, which  composes a requirements model from  requirements in the OpenReq JSON format and transforms the requirements model to more generic Murmeli product model. For further details, see the [Mulperi]((https://github.com/OpenReqEU/Mulperi) service. That is, in the case of requirements and OpenReq, KeljuCaaS should not be accessed directly.
+KeljuCaaS is a generic inference engine for product models. For requirements models, KeljuCaaS is used through the Mulperi service, which  composes a requirements model from  requirements in the OpenReq JSON format and transforms the requirements model to more generic Murmeli product model. For further details, see the [Mulperi](https://github.com/OpenReqEU/Mulperi) service. That is, in the case of requirements and OpenReq, KeljuCaaS should not be accessed directly.
 
 ## The following technologies are used:
 - Java
@@ -28,7 +28,7 @@ KeljuCaaS uses port 9205 that needs to be open to in order that the endpoints an
 
 ## How to Use This Microservice
 
-See [Mulperi]((https://github.com/OpenReqEU/Mulperi).  The swagger page of KeljuCaaS describes all endpoints that can be used for testing purposes. 
+See [Mulperi](https://github.com/OpenReqEU/Mulperi).  The swagger page of KeljuCaaS describes all endpoints that can be used for testing purposes. 
 
 
 # How to Contribute
