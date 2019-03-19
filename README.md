@@ -31,6 +31,14 @@ KeljuCaaS uses port 9205 that needs to be open to in order that the endpoints an
 See [Mulperi](https://github.com/OpenReqEU/Mulperi).  The swagger page of KeljuCaaS describes all endpoints that can be used for testing purposes. 
 
 
+## Notes for Developers
+
+None at the moment.
+
+## Sources
+
+None
+
 # How to Contribute
 See the OpenReq Contribution Guidelines [here](https://github.com/OpenReqEU/OpenReq/blob/master/CONTRIBUTING.md).
 
