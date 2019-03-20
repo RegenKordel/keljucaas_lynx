@@ -19,6 +19,7 @@ public class Element4Csp implements Diagnosable{
 	private IntVar assignedContainer;
 	private int originalContainerAssigment;
 	private IntVar[] effortInContainer;
+	private IntVar priority;
 	private boolean denyPosted = false;
 	private boolean requirePosted = false;
 	private Constraint requireCstr;
@@ -44,6 +45,8 @@ public class Element4Csp implements Diagnosable{
 		requirePosted = true;
 		//in terms of Index. Container 1 =0, Container 0 = UNASSIGNED
 		originalContainerAssigment = getElementsContainer(element);
+		
+		priority = model.intVar(element.getNameID() + "_priority", getPriorityOfElement());
 
 		setAssignedContainer(planner);
 		createEffortVariables(planner);
@@ -88,6 +91,13 @@ public class Element4Csp implements Diagnosable{
 		return d.intValue();
 	}
 
+	public int getPriorityOfElement() {
+		Double d = (Double) elementModel.getAttributeValues().get(element.getAttributes().get("priority")).getValue();
+		if (d != null)
+			return d.intValue();
+		else
+			return 100;
+	}
 
 	/**
 	 * Create choco variables for representing effort in each container
@@ -172,6 +182,10 @@ public class Element4Csp implements Diagnosable{
 
 	public IntVar getEffortOfContainer(int releaseIndex) {
 		return effortInContainer[releaseIndex]; 
+	}
+	
+	public final IntVar getPriority() {
+		return priority;
 	}
 
 

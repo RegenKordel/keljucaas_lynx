@@ -25,7 +25,8 @@ public class Relationship {
         DAMAGES,
         CONTRIBUTES,
         EXCLUDES,
-        IMPLIES
+        IMPLIES,
+        DECOMPOSITION
 	}
 	
 	@SerializedName("id")

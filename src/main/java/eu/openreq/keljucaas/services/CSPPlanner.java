@@ -10,6 +10,7 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.IntVar;
 
+import eu.openreq.keljucaas.domain.release.DecompositionRelationship4Csp;
 import eu.openreq.keljucaas.domain.release.Diagnosable;
 import eu.openreq.keljucaas.domain.release.Element4Csp;
 import eu.openreq.keljucaas.domain.release.ExcludesRelationship4Csp;
@@ -202,7 +203,10 @@ public class CSPPlanner {
 					case IMPLIES:
 						relationship4Csps.add(
 								new ImpliesRelationship4Csp(from, to, model, Integer.valueOf(relation.getID())));
-	
+						break;
+					case DECOMPOSITION:
+						relationship4Csps.add(
+								new DecompositionRelationship4Csp(from, to, model, Integer.valueOf(relation.getID())));
 						break;
 					//following not supported	
 					case CONTRIBUTES:
@@ -512,6 +516,7 @@ public class CSPPlanner {
 		case REQUIRES:
 		case EXCLUDES:
 		case IMPLIES:
+		case DECOMPOSITION:	
 			return true;
 
 		case CONTRIBUTES:
