@@ -523,7 +523,7 @@ public class ReleasePlanOutputFormatter {
 		jsonObject.addProperty(relKey, relationship.getRelationShipName());
 	}
 
-	private void appendDiagnosisElements(List <Diagnosable>  diagnosis, StringBuffer sb, String listSeparator) {
+	protected void appendDiagnosisElements(List <Diagnosable>  diagnosis, StringBuffer sb, String listSeparator) {
 
 		if (diagnosis != null && diagnosis.size() >0) {
 			for (Diagnosable diagElem : diagnosis) {

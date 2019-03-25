@@ -146,12 +146,14 @@ public class ConsistencyCheckServiceTest {
 		public List<String> getDiagnosis() {
 			return diagnosis;
 		}
+		@SuppressWarnings("unused")
 		public void setDiagnosis(List<String> diagnosis) {
 			this.diagnosis = diagnosis;
 		}
 		public boolean isConsistent() {
 			return consistent;
 		}
+		@SuppressWarnings("unused")
 		public void setConsistent(boolean consistent) {
 			this.consistent = consistent;
 		}
