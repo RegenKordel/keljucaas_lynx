@@ -46,7 +46,7 @@ public class Element4Csp implements Diagnosable{
 		//in terms of Index. Container 1 =0, Container 0 = UNASSIGNED
 		originalContainerAssigment = getElementsContainer(element);
 		
-		priority = model.intVar(element.getNameID() + "_priority", getPriorityOfElement());
+		priority = model.intVar(element.getNameID() + "_priority", getPriorityOfElement(planner));
 
 		setAssignedContainer(planner);
 		createEffortVariables(planner);
@@ -91,12 +91,12 @@ public class Element4Csp implements Diagnosable{
 		return d.intValue();
 	}
 
-	public int getPriorityOfElement() {
+	public int getPriorityOfElement(CSPPlanner planner) {
 		Double d = (Double) elementModel.getAttributeValues().get(element.getAttributes().get("priority")).getValue();
 		if (d != null)
 			return d.intValue();
 		else
-			return 100;
+			return planner.getMaxElementPriority() +1;
 	}
 
 	/**

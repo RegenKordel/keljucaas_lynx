@@ -33,8 +33,8 @@ public class DecompositionRelationship4Csp extends Relationship4Csp {
 		if (releaseOfFrom == 0)
 			return true;
 		if (releaseOfTo == 0) //parent will not be complete without child TODO check if prioriity affectd
-			return false;
-		else if ((releaseOfTo > releaseOfFrom) && (getTo().getPriorityOfElement() <= getFrom().getPriorityOfElement()))
+			return false; //rely on priority to to have domain size 1, LB has the priority; 
+		else if ((releaseOfTo > releaseOfFrom) && (getTo().getPriority().getLB() <= getFrom().getPriority().getLB()))
 			return false;
 		else
 			return true;

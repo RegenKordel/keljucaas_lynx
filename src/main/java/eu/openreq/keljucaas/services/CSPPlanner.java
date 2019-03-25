@@ -73,6 +73,8 @@ public class CSPPlanner {
 	private boolean diagnoseRelations; //if false, diagnosis requirements setting does not clear these requirements
 
 	private LinkedHashMap <String, ReleasePlanInfo> releaseStates = new LinkedHashMap<>();
+	
+	private int maxElementPriority;
 
 	Model model = null;
 	//Solution solution;
@@ -91,7 +93,7 @@ public class CSPPlanner {
 		initializeElementIndexMaps();
 
 		this.element4CSPs = new Element4Csp[nElements];
-
+		maxElementPriority = getMaximumPriority();
 
 		generateCSP();
 
@@ -132,7 +134,10 @@ public class CSPPlanner {
 	public final int getNelements() {
 		return nElements;
 	}
-
+		
+	public final int getMaxElementPriority() {
+		return maxElementPriority;
+	}
 
 	/**
 	 * Generate Constraint Satisfaction Problem model
@@ -160,6 +165,18 @@ public class CSPPlanner {
 			Element4Csp element4csp = new Element4Csp(element, this, model, this.elementModel);
 			element4CSPs[elementIDToIndex.get(element.getNameID())] = element4csp;
 		}
+	}
+	
+	private int getMaximumPriority() {
+		double maximumPriority =0;
+		for (Element element : elementModel.getElements().values()) {
+			Double d = (Double) elementModel.getAttributeValues().get(element.getAttributes().get("priority")).getValue();
+			if (d != null)
+				if (d > maximumPriority)
+					maximumPriority = d;
+		}
+		return (int)maximumPriority;
+		
 	}
 
 	/**
