@@ -98,7 +98,7 @@ public class Container {
 		this.attributes.put(key, value);
 	}
 	
-	public void addAttribute(AttributeValue value) {
+	public void addAttribute(AttributeValue<?> value) {
 
 		this.attributes.put(value.getName(), value.getID());
 	}
@@ -208,11 +208,11 @@ public class Container {
 	* Attributes describing this container
 	*
 	*/
-	public void setAttributes(List<AttributeValue> attributes) {
+	public void setAttributes(List<AttributeValue<?>> attributes) {
 		
 		this.attributes.clear();
 		
-		for (AttributeValue atr : attributes) {
+		for (AttributeValue<?> atr : attributes) {
 			this.attributes.put(atr.getName(), atr.getID());
 		}
 	}

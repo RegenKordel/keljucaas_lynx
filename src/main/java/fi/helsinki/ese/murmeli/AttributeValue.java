@@ -193,7 +193,7 @@ public class AttributeValue<T> {
 			return false;
 		}
 		
-		AttributeValue other = (AttributeValue) obj;
+		AttributeValue<?> other = (AttributeValue<?>) obj;
 		
 		if (this.value == null) {
 			if (other.getValue() != null) {

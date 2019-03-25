@@ -39,7 +39,7 @@ public class ElementModel {
 	
 	@SerializedName("attributeValues")
 	@Expose
-	private HashMap<Integer, AttributeValue> attributeValues;
+	private HashMap<Integer, AttributeValue<?>> attributeValues;
 	
 	@SerializedName("partDefinitions")
 	@Expose
@@ -59,7 +59,7 @@ public class ElementModel {
 		this.rootContainer = null;
 		this.relations = new ArrayList<Relationship>();
 		this.constraints = new HashMap<Integer, Constraint>();
-		this.attributeValues = new HashMap<Integer, AttributeValue>();
+		this.attributeValues = new HashMap<Integer, AttributeValue<?>>();
 	}
 	
 	public HashMap<String, AttributeValueType> getAttributeValueTypes() {
@@ -146,15 +146,15 @@ public class ElementModel {
 		this.relations.add(relation);
 	}
 	
-	public HashMap<Integer, AttributeValue> getAttributeValues() {
+	public HashMap<Integer, AttributeValue<?>> getAttributeValues() {
 		return attributeValues;
 	}
 
-	public void setAttributeValues(HashMap<Integer, AttributeValue> attributeValues) {
+	public void setAttributeValues(HashMap<Integer, AttributeValue<?>> attributeValues) {
 		this.attributeValues = attributeValues;
 	}
 
-	public void addAttributeValue(AttributeValue value) {
+	public void addAttributeValue(AttributeValue<?> value) {
 		this.attributeValues.put(value.getID(), value);
 	}
 }

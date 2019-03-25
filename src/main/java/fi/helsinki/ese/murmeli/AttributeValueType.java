@@ -163,17 +163,17 @@ public class AttributeValueType {
 		this.values = values;
 	}
 	
-	public void setValues(List<AttributeValue> values) {
+	public void setValues(List<AttributeValue<?>> values) {
 		
 		this.values.clear();
 		
-		for (AttributeValue value : values) {
+		for (AttributeValue<?> value : values) {
 			
 			this.values.add(value.getID());
 		}
 	}
 	
-	public void addValue(AttributeValue value) {
+	public void addValue(AttributeValue<?> value) {
 		
 		this.values.add(value.getID());
 	}

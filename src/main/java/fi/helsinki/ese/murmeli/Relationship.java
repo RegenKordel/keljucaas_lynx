@@ -113,7 +113,7 @@ public class Relationship {
 		return this.attributes.get("status");
 	}
 	
-	public void addAttribute(AttributeValue atr) {
+	public void addAttribute(AttributeValue<?> atr) {
 		this.attributes.put(atr.getName(), atr.getID());
 	}
 	

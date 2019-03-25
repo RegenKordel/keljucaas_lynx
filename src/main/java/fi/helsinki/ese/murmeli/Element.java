@@ -102,7 +102,7 @@ public class Element {
 		return this.id;
 	}
 	
-	public void addAttribute(AttributeValue attribute) {
+	public void addAttribute(AttributeValue<?> attribute) {
 		
 		this.attributes.put(attribute.getName(), attribute.getID());
 	}
@@ -156,11 +156,11 @@ public class Element {
 		this.attributes = attributes;
 	}
 	
-	public void setAttributes(List<AttributeValue> attributes) {
+	public void setAttributes(List<AttributeValue<?>> attributes) {
 		
 		this.attributes.clear();
 		
-		for (AttributeValue atr : attributes) {
+		for (AttributeValue<?> atr : attributes) {
 			this.attributes.put(atr.getName(), atr.getID());
 		}
 	}
