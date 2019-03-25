@@ -28,8 +28,8 @@ public class TransitiveClosureService {
 
 	public Map<String, List<ElementRelationTuple>> generateGraph(Collection<ElementModel> models) {
 
-		Map<String, List<ElementRelationTuple>> graph = new HashMap();
-		Set<String> mocks = new HashSet();
+		Map<String, List<ElementRelationTuple>> graph = new HashMap<>();
+		Set<String> mocks = new HashSet<>();
 
 		for (ElementModel model : models) {
 			relationsToGraph(graph, model, mocks);
@@ -128,7 +128,7 @@ public class TransitiveClosureService {
 			}
 
 			if (!graph.containsKey(element.getNameID())) {
-				graph.put(element.getNameID(), new ArrayList());
+				graph.put(element.getNameID(), new ArrayList<>());
 
 				if (element.getNameID().endsWith("mock")) {
 					mocks.add(element.getNameID());
@@ -138,7 +138,7 @@ public class TransitiveClosureService {
 			for (Parts parts : element.getParts()) {
 				for (String part : parts.getParts()) {
 					if (!graph.containsKey(part)) {
-						graph.put(part, new ArrayList());
+						graph.put(part, new ArrayList<>());
 
 						if (part.endsWith("mock")) {
 							mocks.add(part);
@@ -161,7 +161,7 @@ public class TransitiveClosureService {
 		for (Relationship relation : model.getRelations()) {
 
 			if (!graph.containsKey(relation.getFromID())) {
-				graph.put(relation.getFromID(), new ArrayList());
+				graph.put(relation.getFromID(), new ArrayList<>());
 
 				if (relation.getFromID().endsWith("mock")) {
 					mocks.add(relation.getFromID());
@@ -173,7 +173,7 @@ public class TransitiveClosureService {
 			graph.get(relation.getFromID()).add(tuple);
 
 			if (!graph.containsKey(relation.getToID())) {
-				graph.put(relation.getToID(), new ArrayList());
+				graph.put(relation.getToID(), new ArrayList<>());
 
 				if (relation.getToID().endsWith("mock")) {
 					mocks.add(relation.getToID());
@@ -188,7 +188,7 @@ public class TransitiveClosureService {
 	public TransitiveClosure getTransitiveClosure(Map<String, List<ElementRelationTuple>> graph, String id, int depth) {
 
 		ElementModel model = new ElementModel();
-		Map<Integer, List<String>> layers = new HashMap();
+		Map<Integer, List<String>> layers = new HashMap<>();
 
 		Element requested = null;
 
@@ -205,7 +205,7 @@ public class TransitiveClosureService {
 
 		model.addElement(requested);
 
-		Queue<ElementRelationTuple> queue = new LinkedList();
+		Queue<ElementRelationTuple> queue = new LinkedList<>();
 
 		for (ElementRelationTuple tuple : graph.get(id)) {
 			queue.add(tuple);
@@ -249,7 +249,7 @@ public class TransitiveClosureService {
 			return;
 		}
 
-		List<String> layer = new ArrayList();
+		List<String> layer = new ArrayList<>();
 
 		while (!currentLayer.isEmpty()) {
 			ElementRelationTuple tuple = currentLayer.poll();

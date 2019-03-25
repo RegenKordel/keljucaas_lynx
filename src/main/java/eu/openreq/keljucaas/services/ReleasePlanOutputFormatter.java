@@ -375,18 +375,11 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_diagnosis_combined: {
-			String reqKey= ofmt.getFormat(topic_diagnosis_requirements).getDataKey();
-			String  relKey = ofmt.getFormat(topic_diagnosis_relationships).getDataKey();
-			//JsonObject requirementDiagJson = new JsonObject();
-			//JsonObject relationshipDiagJson = new JsonObject();
 			JsonObject dianosisJson = new JsonObject();
 			if (currentRelPlan.getAppliedDiagnosis() != null) {
 				buildJsonOutput (currentRelPlan, currentRelease, topic_diagnosis_requirements, ofmt, dianosisJson);
 				buildJsonOutput (currentRelPlan, currentRelease, topic_diagnosis_relationships, ofmt, dianosisJson);
 			}
-			//			dianosisJson.add(reqKey, requirementDiagJson);
-			//			dianosisJson.add(relKey, relationshipDiagJson);
-
 
 			jsonObject.add(
 					ofmt.getDataKey(topic),

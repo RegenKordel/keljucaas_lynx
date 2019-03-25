@@ -9,9 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
-import eu.openreq.keljucaas.domain.release.Diagnosable;
 import eu.openreq.keljucaas.domain.release.ReleaseInfo;
 import eu.openreq.keljucaas.domain.release.ReleasePlanAnalysisDefinition;
 import eu.openreq.keljucaas.domain.release.ReleasePlanInfo;
@@ -143,9 +141,7 @@ public class ConsistencyCheckService {
 						releaseArray);
 			
 
-				//OutputDefinition jsonDef = wanted.getStructuredOutputDef();
 				releasePlanArrays.add(releasePlanJson);
-				StringBuffer sb = new StringBuffer();
 			}
 
 

@@ -4,8 +4,6 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
 
-import fi.helsinki.ese.murmeli.Relationship.NameType;
-
 public abstract class Relationship4Csp implements Diagnosable {
 	private Element4Csp from;
 	private Element4Csp to;
