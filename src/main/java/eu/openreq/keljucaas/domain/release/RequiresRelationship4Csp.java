@@ -23,7 +23,7 @@ public class RequiresRelationship4Csp extends Relationship4Csp {
 	protected boolean isSatisfiedWithAssignment(int releaseOfFrom, int releaseOfTo) {
 		if (releaseOfFrom == 0)
 			return true;
-		else if ((releaseOfTo >0) &&  (releaseOfFrom <= releaseOfTo))
+		else if ((releaseOfTo >0) &&  (releaseOfTo <= releaseOfFrom))
 			return true;
 		else
 			return false;

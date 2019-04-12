@@ -1,0 +1,263 @@
+swagger: '2.0'
+info:
+  description: A CaaS for Murmeli
+  version: '1.6'
+  title: KeljuCaas
+host: 'localhost:9205'
+basePath: /
+tags:
+  - name: kelju-controller
+    description: Kelju Controller
+paths:
+  /consistencyCheckAndDiagnosis:
+    post:
+      tags:
+        - kelju-controller
+      summary: Returns consistency and diagnosis of received model
+      description: Import a model in OpenReq JSON format
+      operationId: consistencyCheckAndDiagnosisUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: json
+          description: json
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '201':
+          description: Returns consistency and extended diagnosis of received model
+          schema:
+            type: string
+        '400':
+          description: Failure ex. malformed input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '409':
+          description: Failure
+  /findTransitiveClosureOfElement:
+    post:
+      tags:
+        - kelju-controller
+      summary: Find the transitive closure of an element
+      description: 'Accepts requirementId as a String, returns the transitive closure to depth 5 as a default (depth 0 if there are no dependencies)'
+      operationId: findTransitiveClosureOfElementUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: requirementId
+          description: requirementId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '201':
+          description: 'Success, returns a transitive closure of the requested element'
+          schema:
+            type: string
+        '400':
+          description: 'Failure, ex. malformed input'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '409':
+          description: Failure
+  /importModel:
+    post:
+      tags:
+        - kelju-controller
+      summary: Import Murmeli JSON model and save it
+      description: Import a model in JSON format
+      operationId: importModelUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: json
+          description: json
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '201':
+          description: 'Success, rgiven model is saved to the list of saved models.'
+          schema:
+            type: string
+        '400':
+          description: 'Failure, ex. malformed input'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '409':
+          description: Failure
+  /importModelAndUpdateGraph:
+    post:
+      tags:
+        - kelju-controller
+      summary: 'Import Murmeli JSON model, save it and update graph of requirements'
+      description: Import a model in JSON format
+      operationId: importModelAndUpdateGraphUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: json
+          description: json
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '201':
+          description: 'Success, returns received requirements and dependencies in OpenReq JSON format'
+          schema:
+            type: string
+        '400':
+          description: 'Failure, ex. malformed input'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '409':
+          description: Failure
+  /updateGraph:
+    post:
+      tags:
+        - kelju-controller
+      summary: Update the graph of models
+      operationId: updateGraphUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '201':
+          description: 'Success, the graph is updated according the list of saved models'
+          schema:
+            type: string
+        '400':
+          description: 'Failure, ex. malformed input'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '409':
+          description: Failure
+  /uploadDataAndCheckForConsistency:
+    post:
+      tags:
+        - kelju-controller
+      summary: Returns consistency of received model
+      description: Import a model in OpenReq JSON format
+      operationId: uploadDataAndCheckForConsistencyUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: json
+          description: json
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '201':
+          description: Returns consistency of received model
+          schema:
+            type: string
+        '400':
+          description: Failure ex. malformed input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '409':
+          description: Failure
+  /uploadDataCheckForConsistencyAndDoDiagnosis:
+    post:
+      tags:
+        - kelju-controller
+      summary: Returns consistency and diagnosis of received model
+      description: Import a model in OpenReq JSON format
+      operationId: uploadDataCheckForConsistencyAndDoDiagnosisUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: json
+          description: json
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '201':
+          description: Returns consistency and diagnosis of received model
+          schema:
+            type: string
+        '400':
+          description: Failure ex. malformed input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '409':
+          description: Failure
+

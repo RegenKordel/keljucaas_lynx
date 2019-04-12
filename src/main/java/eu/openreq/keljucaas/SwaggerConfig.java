@@ -29,6 +29,7 @@ public class SwaggerConfig {
     private ApiInfo metaData() {
       return new ApiInfoBuilder()
               .title("KeljuCaas")
+              .version("1.6")
               .description("A CaaS for Murmeli")
               .build();
   }
