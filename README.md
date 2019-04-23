@@ -17,11 +17,11 @@ KeljuCaaS is a generic inference engine for product models. For requirements mod
 	
 ## Public APIs
 
-The API is documented by using Swagger2: http://217.172.12.199:9205/swagger-ui.html
+The API is documented by using Swagger2: https://api.openreq.eu/keljucaas/swagger-ui.html
 
 ## How to Install
 
-Run the compiled jar file, e.g., `java -jar KeljuCaaS-1.5.jar`.
+Run the compiled jar file, e.g., `java -jar KeljuCaaS-1.6.jar`.
 
 KeljuCaaS uses port 9205 that needs to be open to in order that the endpoints and Swagger page can be accessed. 
 
