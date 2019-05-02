@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
@@ -101,12 +102,20 @@ public class KeljuController {
 			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
 			@ApiResponse(code = 409, message = "Failure") })
 	@RequestMapping(value = "/findTransitiveClosureOfElement", method = RequestMethod.POST)
-	public ResponseEntity<?> findTransitiveClosureOfElement(@RequestBody String requirementId) throws Exception {
+	public ResponseEntity<?> findTransitiveClosureOfElement(@RequestBody String requirementId, 
+			@RequestParam(required = false) Integer layerCount) throws Exception {
 
 		TransitiveClosure newModel = null;
 		String reqId = null;
 		int depth = 0;
 		String response = "";
+
+		if (layerCount != null) {
+			depth = layerCount;
+		} else {
+			depth = searchDepth;
+		}
+		
 		try {
 			// Check if the wanted element is in the graph, if it is not then look for the
 			// mock element.
@@ -115,7 +124,6 @@ public class KeljuController {
 			} else {
 				reqId = requirementId;
 			}
-			depth = searchDepth;
 
 			newModel = service.getTransitiveClosure(graph, reqId, depth);
 			if (newModel.getModel().getElements().isEmpty()) {
