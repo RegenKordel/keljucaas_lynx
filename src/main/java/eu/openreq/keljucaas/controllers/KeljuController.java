@@ -232,9 +232,16 @@ public class KeljuController {
 			@ApiResponse(code = 400, message = "Failure ex. malformed input"),
 			@ApiResponse(code = 409, message = "Failure") })
 	@RequestMapping(value = "/consistencyCheckAndDiagnosis", method = RequestMethod.POST)
-	public ResponseEntity<?> consistencyCheckAndDiagnosis(@RequestBody String json) throws Exception {
+	public ResponseEntity<?> consistencyCheckAndDiagnosis(@RequestBody String json,
+			@RequestParam(required = false) Boolean analysisOnly) throws Exception {
 
 		 //System.out.println("Requirements received from Mulperi");
+		 //System.out.println(json);
+		 
+		if (analysisOnly == null) 
+			analysisOnly = Boolean.FALSE;
+
+		 //System.out.println("Requirements received from Mulperi, analysisOnly=" + analysisOnly);
 		 //System.out.println(json);
 		 
 
@@ -244,9 +251,11 @@ public class KeljuController {
 		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>();
 		
 		wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.submitted, false, false)); 
-		wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.diagnoseRequirements, true, false));
-		wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.diagnoseRelationships, false, true));
-		wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.diagnoseRequirementsAndRelationships, true, true));
+		if (!analysisOnly.booleanValue()) {
+			wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.diagnoseRequirements, true, false));
+			wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.diagnoseRelationships, false, true));
+			wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.diagnoseRequirementsAndRelationships, true, true));
+		}
 
 		for (ReleasePlanAnalysisDefinition wanted : wanteds) {
 			if (!wanted.getPlanName().equals(ConsistencyCheckService.submitted)) 
@@ -267,9 +276,11 @@ public class KeljuController {
 			return new ResponseEntity<>(transform.generateProjectJsonResponseDetailed(releasePlanstoReport), HttpStatus.OK);
 		}
 		
-		releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.diagnoseRequirements));
-		releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.diagnoseRelationships));
-		releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.diagnoseRequirementsAndRelationships));
+		if (!analysisOnly.booleanValue()) {
+			releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.diagnoseRequirements));
+			releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.diagnoseRelationships));
+			releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.diagnoseRequirementsAndRelationships));
+		}
 				
 		return new ResponseEntity<>(transform.generateProjectJsonResponseDetailed(releasePlanstoReport), HttpStatus.OK);
 		
