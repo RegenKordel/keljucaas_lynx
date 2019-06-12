@@ -100,5 +100,10 @@ public class ReleaseInfo {
 		buildAssignedRequirements(sb);
 		return sb.toString();
 	}
+
+	public final String getIdString() {
+		return idString;
+	}
+	
 	
 }
