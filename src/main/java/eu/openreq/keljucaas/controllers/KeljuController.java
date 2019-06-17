@@ -96,7 +96,7 @@ public class KeljuController {
 		return new ResponseEntity<>("Model saved and graph updated", HttpStatus.OK);
 	}
 
-	@ApiOperation(value = "Find the transitive closure of an element", notes = "Accepts requirementId as a String, returns the transitive closure to depth 5 as a default (depth 0 if there are no dependencies)", response = String.class)
+	@ApiOperation(value = "Find the transitive closure of an element", notes = "Accepts requirementId as a String, returns the transitive closure to the desired depth (depth 5 as default and 0 if there are no dependencies)", response = String.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Success, returns a transitive closure of the requested element"),
 			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
