@@ -75,7 +75,7 @@ public class TransitiveClosureService {
 			String baseName = mock.substring(0, mock.lastIndexOf('-'));
 
 			if (graph.containsKey(baseName)) {
-
+				
 				Element real = findRequestedElement(graph, baseName);
 
 				// set mock's relations to the real one
@@ -90,6 +90,16 @@ public class TransitiveClosureService {
 							tuple.setRelationship(rel);
 						} else {
 
+							if (tuple.getRelationship().getNameType() == Relationship.NameType.DECOMPOSITION) {
+								for (Parts parts : tuple.getElement().getParts()) {
+									if (parts.getRole().equals("decomposition")) {
+										
+										parts.getParts().remove(mock);
+										parts.getParts().add(baseName);
+									}
+								}
+							}
+							
 							Relationship rel = new Relationship(tuple.getRelationship().getNameType(),
 									tuple.getRelationship().getFromID(), baseName);
 							tuple.setRelationship(rel);
@@ -145,11 +155,17 @@ public class TransitiveClosureService {
 						}
 					}
 
-					ElementRelationTuple tuple = new ElementRelationTuple(model.getElements().get(part));
+					/*//This section was to ensure that findRequestedElement() worked properly in dealWithDuplicatingMoscks when
+					 * partDefinition was only passed on as parts. Now they are passed here as decomposition dependencies and
+					 * parts both so obsolete for now unless changed in the future. 
+					 * 
+					 * Relationship rel = new Relationship(Relationship.NameType.DECOMPOSITION, element.getNameID(), part);
+					
+					ElementRelationTuple tuple = new ElementRelationTuple(model.getElements().get(part), rel);
 					graph.get(element.getNameID()).add(tuple);
 
-					tuple = new ElementRelationTuple(element);
-					graph.get(part).add(tuple);
+					tuple = new ElementRelationTuple(element, rel);
+					graph.get(part).add(tuple);*/
 				}
 			}
 		}
@@ -231,8 +247,15 @@ public class TransitiveClosureService {
 
 		if (element != null) {
 			for (ElementRelationTuple tuple : graph.get(element.getNameID())) {
-				if (tuple.getElement().getNameID().equals(id)) {
-					return tuple.getElement();
+				try {
+					if (tuple.getElement().getNameID().equals(id)) {
+						return tuple.getElement();
+					}
+				} catch (Exception e) {
+					System.out.println(id);
+					System.out.println(tuple);
+					System.out.println(tuple.getElement());
+					System.out.println(tuple.getElement().getNameID());
 				}
 			}
 		}
