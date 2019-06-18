@@ -17,7 +17,7 @@ KeljuCaaS is a generic inference engine for product models. For requirements mod
 	
 ## Public APIs
 
-The API is documented by using Swagger2: https://api.openreq.eu/keljucaas/swagger-ui.html
+The API is documented by using Swagger2: https://api.openreq.eu/#/services/keljucaas
 
 ## How to Install
 

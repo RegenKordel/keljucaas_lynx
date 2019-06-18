@@ -50,6 +50,7 @@ public class ReleasePlanOutputFormatter {
 	public static final String topic_release_capacity_used = "release.capacity.used";
 
 	public static final String topic_release_number = "release.number";
+	public static final String topic_release_id_string = "release.id_string";
 	public static final String topic_release_surroundchar ="release.surroundchar";
 	public static final String topic_release_plan_consistent = "release.plan.consistent";
 	public static final String topic_release_plan_inconsistent = "release.plan.inconsistent";
@@ -84,6 +85,7 @@ public class ReleasePlanOutputFormatter {
 			topic_release_capacity_balance,
 			topic_release_capacity_used,
 			topic_release_number,
+			topic_release_id_string,
 			topic_release_surroundchar,
 			topic_release_plan_consistent,
 			topic_release_plan_inconsistent,
@@ -282,6 +284,14 @@ public class ReleasePlanOutputFormatter {
 			ofmt.appendArgs(releaseToFormat, topic, out);
 		}
 		break;
+		
+		case topic_release_id_string: {
+			String idString = currentRelease.getIdString();
+			ofmt.appendString(idString, topic, out);
+		}
+		break;
+
+
 
 		case topic_release_plan_consistent: {
 			boolean isConsistent = currentRelPlan.isConsistent();
@@ -474,6 +484,15 @@ public class ReleasePlanOutputFormatter {
 
 		}
 		break;
+		
+		case topic_release_id_string: {
+			String idString = currentRelease.getIdString();
+			jsonObject.add(
+					ofmt.getDataKey(topic),
+					new JsonPrimitive(idString));
+		}
+		break;
+
 
 		case topic_release_plan_consistent: {
 			Boolean isConsistent = currentRelPlan.isConsistent();

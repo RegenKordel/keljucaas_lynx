@@ -3,7 +3,6 @@ info:
   description: A CaaS for Murmeli
   version: '1.6'
   title: KeljuCaas
-host: 'localhost:9205'
 basePath: /
 tags:
   - name: kelju-controller
@@ -27,6 +26,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: analysisOnly
+          in: query
+          description: analysisOnly
+          required: false
+          type: boolean
       responses:
         '200':
           description: OK
@@ -51,7 +55,7 @@ paths:
       tags:
         - kelju-controller
       summary: Find the transitive closure of an element
-      description: 'Accepts requirementId as a String, returns the transitive closure to depth 5 as a default (depth 0 if there are no dependencies)'
+      description: 'Accepts requirementId as a String, returns the transitive closure to the desired depth (depth 5 as default and 0 if there are no dependencies)'
       operationId: findTransitiveClosureOfElementUsingPOST
       consumes:
         - application/json
@@ -64,6 +68,12 @@ paths:
           required: true
           schema:
             type: string
+        - name: layerCount
+          in: query
+          description: layerCount
+          required: false
+          type: integer
+          format: int32
       responses:
         '200':
           description: OK
@@ -260,4 +270,3 @@ paths:
           description: Not Found
         '409':
           description: Failure
-

@@ -161,7 +161,7 @@ public class ConsistencyCheckService {
 
 	List<String> getUnassignedReleaseTopics() {
 		String[] topicsToGet = {
-				ReleasePlanOutputFormatter.topic_release_number,
+				ReleasePlanOutputFormatter.topic_release_id_string,
 				ReleasePlanOutputFormatter.topic_release_requirements_assigned,
 				ReleasePlanOutputFormatter.topic_release_capacity_used
 				};
@@ -173,7 +173,7 @@ public class ConsistencyCheckService {
 
 	List<String> getNormalReleaseTopics() {
 		String[] topicsToGet = {
-				ReleasePlanOutputFormatter.topic_release_number,
+				ReleasePlanOutputFormatter.topic_release_id_string,
 				ReleasePlanOutputFormatter.topic_release_requirements_assigned,
 				ReleasePlanOutputFormatter.topic_release_capacity_all
 		};

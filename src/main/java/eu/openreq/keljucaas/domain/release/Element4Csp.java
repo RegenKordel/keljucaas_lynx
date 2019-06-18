@@ -51,6 +51,7 @@ public class Element4Csp implements Diagnosable{
 		setAssignedContainer(planner);
 		createEffortVariables(planner);
 		createConstraints(planner);
+		//model.ifThenElse(isIncluded, model.arithm(assignedContainer, ">", 0), model.arithm(assignedContainer, "=", 0));
 	}
 
 	
