@@ -1,7 +1,8 @@
 package fi.helsinki.ese.murmeli;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -30,7 +31,7 @@ public class Parts {
 	
 	@SerializedName("parts")
 	@Expose
-	private List<String> parts = new ArrayList<String>();
+	private Set<String> parts = new HashSet<String>();
 	
 	@SerializedName("definition")
 	@Expose
@@ -108,11 +109,22 @@ public class Parts {
 		this.role = role;
 	}
 	
-	public List<String> getParts() {
+	public Set<String> getParts() {
 		return parts;
 	}
 	
 	public void setParts(List<Element> parts) {
+		
+		this.parts.clear();
+		
+		for (Element element : parts) {
+			this.parts.add(element.getNameID());
+		}
+	}
+	
+	public void setParts(Set<Element> parts) {
+		
+		this.parts.clear();
 		
 		for (Element element : parts) {
 			this.parts.add(element.getNameID());
@@ -120,6 +132,15 @@ public class Parts {
 	}
 	
 	public void setPartsAsIds(List<String> parts) {
+		
+		this.parts.clear();
+		
+		for (String element : parts) {
+			this.parts.add(element);
+		}
+	}
+	
+	public void setPartsAsIds(Set<String> parts) {
 		this.parts = parts;
 	}
 }

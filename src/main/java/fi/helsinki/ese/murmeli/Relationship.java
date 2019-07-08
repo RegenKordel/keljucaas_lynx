@@ -193,7 +193,7 @@ public class Relationship {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((fromID == null) ? 0 : fromID.hashCode());
+		result = ((fromID == null) ? 0 : fromID.hashCode());
 		result = prime * result + ((toID == null) ? 0 : toID.hashCode());
 		return result;
 	}
