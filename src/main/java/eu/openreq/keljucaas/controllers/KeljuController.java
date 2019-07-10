@@ -60,7 +60,6 @@ public class KeljuController {
 	@RequestMapping(value = "/importModel", method = RequestMethod.POST)
 	public ResponseEntity<?> importModel(@RequestBody String json) throws Exception {
 		
-	//	MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 
 		savedModels.put(model.getRootContainer().getNameID(), model);
@@ -138,7 +137,7 @@ public class KeljuController {
 		}
 		
 		try {
-			// Check if the wanted element is in the graph, if it is not then look for the
+			// Checks if the wanted element is in the graph, if it is not then look for the
 			// mock element.
 			if (this.graph.containsKey(requirementId + "-mock")) {
 				reqId = requirementId + "-mock";
@@ -188,9 +187,6 @@ public class KeljuController {
 	@RequestMapping(value = "/uploadDataAndCheckForConsistency", method = RequestMethod.POST)
 	public ResponseEntity<?> uploadDataAndCheckForConsistency(@RequestBody String json) throws Exception {
 
-		// System.out.println("Requirements received from Mulperi");
-
-	//	MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 		
 		ReleasePlanAnalysisDefinition wanted = new ReleasePlanAnalysisDefinition(ConsistencyCheckService.submitted, false, false);
@@ -218,11 +214,6 @@ public class KeljuController {
 	@RequestMapping(value = "/uploadDataCheckForConsistencyAndDoDiagnosis", method = RequestMethod.POST)
 	public ResponseEntity<?> uploadDataCheckForConsistencyAndDoDiagnosis(@RequestBody String json) throws Exception {
 
-		 //System.out.println("Requirements received from Mulperi");
-		 //System.out.println(json);
-		 
-
-	//	MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 
 		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>();
@@ -256,18 +247,10 @@ public class KeljuController {
 	@RequestMapping(value = "/consistencyCheckAndDiagnosis", method = RequestMethod.POST)
 	public ResponseEntity<?> consistencyCheckAndDiagnosis(@RequestBody String json,
 			@RequestParam(required = false) Boolean analysisOnly) throws Exception {
-
-		 //System.out.println("Requirements received from Mulperi");
-		 //System.out.println(json);
 		 
 		if (analysisOnly == null) 
 			analysisOnly = Boolean.FALSE;
 
-		 //System.out.println("Requirements received from Mulperi, analysisOnly=" + analysisOnly);
-		 //System.out.println(json);
-		 
-
-	//	MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 		
 		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>();
