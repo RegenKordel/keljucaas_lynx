@@ -3,7 +3,7 @@
   <groupId>keljucaas</groupId>
   <artifactId>keljucaas</artifactId>
   <version>1.6-SNAPSHOT</version>
-  
+
   	<name>KeljuCaas</name>
 	<description>Murmeli eating Caas</description>
 
@@ -50,7 +50,7 @@
 			<version>1.10.19</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.choco-solver</groupId>
 			<artifactId>choco-solver</artifactId>
@@ -84,7 +84,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-		<!-- <dependency> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-jdbc</artifactId> 
+		<!-- <dependency> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-jdbc</artifactId>
 			</dependency> -->
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -126,7 +126,27 @@
 					</execution>
 				</executions>
 			</plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.0</version>
+        <executions>
+          <execution>
+            <id>default-prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-report</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 		</plugins>
 	</build>
-  
+
 </project>
