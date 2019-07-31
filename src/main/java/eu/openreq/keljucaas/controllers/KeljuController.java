@@ -54,18 +54,38 @@ public class KeljuController {
 
 	@ApiOperation(value = "Import Murmeli JSON model and save it", notes = "Import a model in JSON format", response = String.class)
 	@ApiResponses(value = {
-			@ApiResponse(code = 201, message = "Success, rgiven model is saved to the list of saved models."),
+			@ApiResponse(code = 201, message = "Success, given model is saved to the list of saved models."),
 			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
 			@ApiResponse(code = 409, message = "Failure") })
 	@RequestMapping(value = "/importModel", method = RequestMethod.POST)
 	public ResponseEntity<?> importModel(@RequestBody String json) throws Exception {
-
-	//	MurmeliModelParser parser = new MurmeliModelParser();
+		
 		ElementModel model = parser.parseMurmeliModel(json);
 
 		savedModels.put(model.getRootContainer().getNameID(), model);
 
 		return new ResponseEntity<>("Model saved", HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Update Murmeli JSON model and update graph", notes = "Import a model in JSON format", response = String.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Success, given updated requirements are saved."),
+			@ApiResponse(code = 400, message = "Failure, ex. malformed input"),
+			@ApiResponse(code = 409, message = "Failure") })
+	@RequestMapping(value = "/updateModel", method = RequestMethod.POST)
+	public ResponseEntity<?> updateModel(@RequestBody String json) throws Exception {
+		
+		ElementModel model = parser.parseMurmeliModel(json);
+		
+		try{
+			this.service.updateModel(this.savedModels.get(model.getRootContainer().getNameID()), model);
+		} catch (Exception e) {
+			return new ResponseEntity<String>("New types of elements or attributes detected. Please import the whole model instead of updating.", HttpStatus.BAD_REQUEST);
+		}
+		
+		this.updateGraph();
+		
+		return new ResponseEntity<>("Model and graph updated", HttpStatus.OK);
 	}
 
 	@ApiOperation(value = "Update the graph of models", response = String.class)
@@ -89,10 +109,10 @@ public class KeljuController {
 			@ApiResponse(code = 409, message = "Failure") })
 	@RequestMapping(value = "/importModelAndUpdateGraph", method = RequestMethod.POST)
 	public ResponseEntity<?> importModelAndUpdateGraph(@RequestBody String json) throws Exception {
-
+		
 		this.importModel(json);
 		this.updateGraph();
-
+		
 		return new ResponseEntity<>("Model saved and graph updated", HttpStatus.OK);
 	}
 
@@ -104,7 +124,7 @@ public class KeljuController {
 	@RequestMapping(value = "/findTransitiveClosureOfElement", method = RequestMethod.POST)
 	public ResponseEntity<?> findTransitiveClosureOfElement(@RequestBody String requirementId, 
 			@RequestParam(required = false) Integer layerCount) throws Exception {
-
+		
 		TransitiveClosure newModel = null;
 		String reqId = null;
 		int depth = 0;
@@ -117,7 +137,7 @@ public class KeljuController {
 		}
 		
 		try {
-			// Check if the wanted element is in the graph, if it is not then look for the
+			// Checks if the wanted element is in the graph, if it is not then look for the
 			// mock element.
 			if (this.graph.containsKey(requirementId + "-mock")) {
 				reqId = requirementId + "-mock";
@@ -141,6 +161,7 @@ public class KeljuController {
 
 			service.addAttributesToTransitiveClosure(this.savedModels.values(), newModel.getModel());
 			response = gson.toJson(newModel);
+			
 			return new ResponseEntity<String>(response, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -166,9 +187,6 @@ public class KeljuController {
 	@RequestMapping(value = "/uploadDataAndCheckForConsistency", method = RequestMethod.POST)
 	public ResponseEntity<?> uploadDataAndCheckForConsistency(@RequestBody String json) throws Exception {
 
-		// System.out.println("Requirements received from Mulperi");
-
-	//	MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 		
 		ReleasePlanAnalysisDefinition wanted = new ReleasePlanAnalysisDefinition(ConsistencyCheckService.submitted, false, false);
@@ -196,11 +214,6 @@ public class KeljuController {
 	@RequestMapping(value = "/uploadDataCheckForConsistencyAndDoDiagnosis", method = RequestMethod.POST)
 	public ResponseEntity<?> uploadDataCheckForConsistencyAndDoDiagnosis(@RequestBody String json) throws Exception {
 
-		 //System.out.println("Requirements received from Mulperi");
-		 //System.out.println(json);
-		 
-
-	//	MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 
 		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>();
@@ -234,18 +247,10 @@ public class KeljuController {
 	@RequestMapping(value = "/consistencyCheckAndDiagnosis", method = RequestMethod.POST)
 	public ResponseEntity<?> consistencyCheckAndDiagnosis(@RequestBody String json,
 			@RequestParam(required = false) Boolean analysisOnly) throws Exception {
-
-		 //System.out.println("Requirements received from Mulperi");
-		 //System.out.println(json);
 		 
 		if (analysisOnly == null) 
 			analysisOnly = Boolean.FALSE;
 
-		 //System.out.println("Requirements received from Mulperi, analysisOnly=" + analysisOnly);
-		 //System.out.println(json);
-		 
-
-	//	MurmeliModelParser parser = new MurmeliModelParser();
 		ElementModel model = parser.parseMurmeliModel(json);
 		
 		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>();

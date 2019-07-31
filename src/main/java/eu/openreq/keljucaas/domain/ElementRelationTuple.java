@@ -51,17 +51,6 @@ public class ElementRelationTuple {
 
 		ElementRelationTuple other = (ElementRelationTuple) obj;
 		
-		/*
-		 * for debugging the strange nullpointer:
-		 * 
-		 * if (other == null) {
-			System.out.println("kakku on vale! " + this.element.getNameID());
-		} else if (this.relationship == null) {
-			System.out.println("piiras on vale! " + this.element.getNameID());
-		} else if (other.getRelationship() == null) {
-			System.out.println("torttu on vale! " + other.getElement().getNameID());
-		}*/
-		
 		if (this.element.getNameID().equals(other.getElement().getNameID())) {
 			if (this.relationship == null && other.relationship == null) {
 				return true;

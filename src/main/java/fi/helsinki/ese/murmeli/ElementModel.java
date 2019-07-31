@@ -2,7 +2,9 @@ package fi.helsinki.ese.murmeli;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -31,7 +33,7 @@ public class ElementModel {
 	
 	@SerializedName("relations")
 	@Expose
-	private List<Relationship> relations;
+	private Set<Relationship> relations;
 	
 	@SerializedName("constraints")
 	@Expose
@@ -57,7 +59,7 @@ public class ElementModel {
 		this.elements = new HashMap<String, Element>();
 		this.subContainers = new ArrayList<Container>();
 		this.rootContainer = null;
-		this.relations = new ArrayList<Relationship>();
+		this.relations = new HashSet<Relationship>();
 		this.constraints = new HashMap<Integer, Constraint>();
 		this.attributeValues = new HashMap<Integer, AttributeValue<?>>();
 	}
@@ -134,11 +136,11 @@ public class ElementModel {
 		this.subContainers = subContainers;
 	}
 
-	public List<Relationship> getRelations() {
+	public Set<Relationship> getRelations() {
 		return relations;
 	}
 
-	public void setRelations(List<Relationship> relations) {
+	public void setRelations(Set<Relationship> relations) {
 		this.relations = relations;
 	}
 	

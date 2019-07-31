@@ -16,6 +16,8 @@ import eu.openreq.keljucaas.domain.ElementRelationTuple;
 import eu.openreq.keljucaas.domain.TransitiveClosure;
 import fi.helsinki.ese.murmeli.Element;
 import fi.helsinki.ese.murmeli.ElementModel;
+import fi.helsinki.ese.murmeli.ElementType;
+import fi.helsinki.ese.murmeli.PartDefinition;
 import fi.helsinki.ese.murmeli.Parts;
 import fi.helsinki.ese.murmeli.Relationship;
 
@@ -85,6 +87,32 @@ public class TransitiveClosureService {
 
 						if (tuple.getRelationship().getFromID().equals(mock)) {
 
+							if (tuple.getRelationship().getNameType() == Relationship.NameType.DECOMPOSITION) {
+								
+								Element mockElmnt = findRequestedElement(graph, mock);
+								
+								if (mockElmnt != null) {
+									for (Parts parts : mockElmnt.getParts()) {
+										if (parts.getRole().equals("decomposition")) {
+											
+											Parts realParts = null;
+											
+											for (Parts itrbl : real.getParts()) {
+												if (itrbl.getRole().equals("decomposition")) {
+													realParts = itrbl;
+												}
+											}
+											
+											if (realParts != null) {
+												for (String part : parts.getParts()) {
+													realParts.addPartAsId(part);
+												}
+											}
+										}
+									}
+								}
+							}
+							
 							Relationship rel = new Relationship(tuple.getRelationship().getNameType(), baseName,
 									tuple.getRelationship().getToID());
 							tuple.setRelationship(rel);
@@ -227,7 +255,7 @@ public class TransitiveClosureService {
 			queue.add(tuple);
 		}
 
-		this.addElementsAndRelationsToModel(model, queue, new LinkedList<ElementRelationTuple>(), depth, 1, graph,
+		int numberOfOutpointingRelations = this.addElementsAndRelationsToModel(model, queue, new LinkedList<ElementRelationTuple>(), depth, 1, graph,
 				layers);
 
 		List<String> layer = new ArrayList<String>();
@@ -237,6 +265,7 @@ public class TransitiveClosureService {
 		TransitiveClosure closure = new TransitiveClosure();
 		closure.setLayers(layers);
 		closure.setModel(model);
+		closure.setNumberOfOutpointingRelations(numberOfOutpointingRelations);
 
 		return closure;
 	}
@@ -262,14 +291,28 @@ public class TransitiveClosureService {
 		return null;
 	}
 
-	private void addElementsAndRelationsToModel(ElementModel model, Queue<ElementRelationTuple> currentLayer,
+	/**
+	 * 
+	 * Gathers all elements and relations within the desired transitive closure up the desired depth
+	 * into an ElementModel. Keeps record of layers on which elements appear the first time. Returns
+	 * the number of relations pointing out of the transitive closure.
+	 * 
+	 * @param model
+	 * @param currentLayer
+	 * @param nextLayer
+	 * @param depth
+	 * @param currentDepth
+	 * @param graph
+	 * @param layers
+	 */
+	private int addElementsAndRelationsToModel(ElementModel model, Queue<ElementRelationTuple> currentLayer,
 			Queue<ElementRelationTuple> nextLayer, int depth, int currentDepth,
 			Map<String, List<ElementRelationTuple>> graph, Map<Integer, List<String>> layers) {
 
-		if (currentDepth > depth) {
-			return;
-		} else if (currentLayer.isEmpty()) {
-			return;
+		if (currentLayer.isEmpty()) {
+			return 0;
+		} else if (currentDepth > depth) {
+			return numberOfOutPointingRelations(model, currentLayer);
 		}
 
 		List<String> layer = new ArrayList<>();
@@ -296,8 +339,115 @@ public class TransitiveClosureService {
 			layers.put(currentDepth, layer);
 		}
 
-		addElementsAndRelationsToModel(model, nextLayer, new LinkedList<ElementRelationTuple>(), depth,
+		return addElementsAndRelationsToModel(model, nextLayer, new LinkedList<ElementRelationTuple>(), depth,
 				currentDepth + 1, graph, layers);
+	}
+
+	private int numberOfOutPointingRelations(ElementModel model, Queue<ElementRelationTuple> currentLayer) {
+		
+		int numberOfRelations = 0;
+		
+		while(!currentLayer.isEmpty()) {
+			ElementRelationTuple tuple = currentLayer.poll();
+			if (!model.getElements().containsKey(tuple.getElement().getNameID())) {
+				numberOfRelations++;
+			}
+		}
+		
+		return numberOfRelations;
+	}
+
+	/**
+	 * Adds updated elements and relationships to an already saved model
+	 * 
+	 * @param elementModel
+	 * @param model
+	 * @throws Exception 
+	 */
+	public void updateModel(ElementModel real, ElementModel updatedRequirements) throws Exception {
+
+		//Does not update constraints or subcontainers at the moment.
+		
+		for (String key : updatedRequirements.getAttributeValueTypes().keySet()) {
+			if (!real.getAttributeValueTypes().containsKey(key)) {
+				
+				throw new Exception();
+			}
+		}
+		
+		for (ElementType type : updatedRequirements.getElementTypes().values()) {
+			if (!real.getElementTypes().containsKey(type.getNameID())) {
+				
+				throw new Exception();
+			}
+		}
+		
+		for (Element elmnt : updatedRequirements.getElements().values()) {
+			
+			if (!real.getElements().containsKey(elmnt.getNameID().substring(elmnt.getNameID().lastIndexOf('-')))) {
+				//if (!real.getElements().containsKey(elmnt.getNameID())) {
+					real.addElement(elmnt);
+					
+					if (real.getElements().containsKey(elmnt.getNameID() + "-mock")) {
+						real.getElements().remove(elmnt.getNameID() + "-mock");
+					}
+					
+					for (Parts parts : elmnt.getParts()) {
+						if (parts.getRole().equals("decomposition")) {
+							List<String> partsToModify = new ArrayList<String>();
+							
+							for (String part : parts.getParts()) {
+								if (part.endsWith("-mock")) {
+									if (real.getElements().containsKey(part.substring(part.lastIndexOf('-')))) {
+										partsToModify.add(part.substring(part.lastIndexOf('-')));
+										continue;
+									}
+								}
+								
+								partsToModify.add(part);
+							}
+							
+							parts.setPartsAsIds(partsToModify);
+							break;
+						}
+					}
+				//}
+			}
+		}
+		
+		for (Relationship rel : updatedRequirements.getRelations()) {
+			
+			if (rel.getFromID().endsWith("-mock")) {
+				if (!real.getElements().containsKey(rel.getFromID())) {
+					if (real.getElements().containsKey(rel.getFromID().substring(rel.getFromID().lastIndexOf('-')))) {
+						rel.setFromID(rel.getFromID().substring(rel.getFromID().lastIndexOf('-')));
+					} else {
+						continue;
+					}
+				}
+			}
+			
+			if (rel.getToID().endsWith("-mock")) {
+				if (!real.getElements().containsKey(rel.getToID())) {
+					if (real.getElements().containsKey(rel.getToID().substring(rel.getToID().lastIndexOf('-')))) {
+						rel.setToID(rel.getToID().substring(rel.getToID().lastIndexOf('-')));
+					} else {
+						continue;
+					}
+				}
+			}
+			
+			//possible mock-versions of the relation removed
+			real.getRelations().remove(new Relationship(null, rel.getFromID()+"-mock", rel.getToID()));
+			real.getRelations().remove(new Relationship(null, rel.getFromID(), rel.getToID()+"-mock"));
+			real.getRelations().remove(new Relationship(null, rel.getFromID()+"-mock", rel.getToID()+"-mock"));
+			
+			real.addRelation(rel);
+		}
+		
+		for (Integer key : updatedRequirements.getAttributeValues().keySet()) {
+			real.addAttributeValue(updatedRequirements.getAttributeValues().get(key));
+		}
 	}
 
 }

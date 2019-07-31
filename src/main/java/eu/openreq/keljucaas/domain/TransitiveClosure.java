@@ -9,6 +9,7 @@ public class TransitiveClosure {
 
 	private ElementModel model;
 	private Map<Integer, List<String>> layers;
+	private int numberOfOutpointingRelations;
 	
 	public ElementModel getModel() {
 		return model;
@@ -21,5 +22,11 @@ public class TransitiveClosure {
 	}
 	public void setLayers(Map<Integer, List<String>> layers) {
 		this.layers = layers;
+	}
+	public int getNumberOfOutpointingRelations() {
+		return numberOfOutpointingRelations;
+	}
+	public void setNumberOfOutpointingRelations(int numberOfOutpointingRelations) {
+		this.numberOfOutpointingRelations = numberOfOutpointingRelations;
 	}
 }
