@@ -73,6 +73,7 @@ public class DiagnosisRelationship {
 		this.type = type;
 	}
 
+	@SuppressWarnings("unused")
 	private DiagnosisRelationship() {
 	}
 

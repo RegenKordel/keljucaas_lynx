@@ -1,8 +1,6 @@
 package eu.openreq.keljucaas.servicesTest;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import eu.openreq.keljucaas.servicesTest.GrazDto.Diagnosis;
 import eu.openreq.keljucaas.servicesTest.GrazDto.RelationshipsInconsistent;
@@ -27,6 +25,7 @@ public class Testcase {
 	public static class ExpectedDiagnosisResult {
 		protected Boolean consistentWithDiagnosis;
 		protected Diagnosis expectedDiagnosis;
+	
 		public ExpectedDiagnosisResult(Boolean consistentWithDiagnosis, Diagnosis expectedDiagnosis) {
 			super();
 			this.consistentWithDiagnosis = consistentWithDiagnosis;
@@ -43,9 +42,5 @@ public class Testcase {
 		this.relationshipsInconsistents = relationshipsInconsistents;
 		this.expectedDiagnosisResults = expectedDiagnosisResults;
 	}
-	
-	
-	
-	
 	
 }
