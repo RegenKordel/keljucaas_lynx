@@ -1,12 +1,10 @@
 package eu.openreq.keljucaas.servicesTest;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -20,8 +18,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.google.gson.Gson;
 
 import eu.openreq.keljucaas.controllers.KeljuController;
-//import eu.openreq.keljucaas.servicesTest.ConsistencyCheckServiceTest.FullResponse;
-//import eu.openreq.keljucaas.servicesTest.ConsistencyCheckServiceTest.Response;
 import eu.openreq.keljucaas.domain.TransitiveClosure;
 import fi.helsinki.ese.murmeli.Parts;
 
@@ -117,10 +113,17 @@ public class TransitiveClosureTest {
 			
 			assertTrue(decompTestHelp);
 			
-			response = keljuController.findTransitiveClosureOfElement("QTBUG-0", 5);
+			response = keljuController.findTransitiveClosureOfElement("QTBUG-0", 1);
 			tc = gson.fromJson(response.getBody().toString(), TransitiveClosure.class);
 			
 			assertFalse(tc.getLayers().get(0).contains("QTBUG-0-mock"));
+			assertTrue(tc.getLayers().size() == 2);
+			assertTrue(tc.getNumberOfOutpointingRelations() == 1);
+			
+			response = keljuController.findTransitiveClosureOfElement("QTUNREAL-0", 5);
+			tc = gson.fromJson(response.getBody().toString(), TransitiveClosure.class);
+			
+			assertTrue(tc.getLayers().isEmpty());
 			
 		} catch (Exception e) {
 			System.out.println(e);

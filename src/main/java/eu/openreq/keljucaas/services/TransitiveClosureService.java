@@ -17,7 +17,6 @@ import eu.openreq.keljucaas.domain.TransitiveClosure;
 import fi.helsinki.ese.murmeli.Element;
 import fi.helsinki.ese.murmeli.ElementModel;
 import fi.helsinki.ese.murmeli.ElementType;
-import fi.helsinki.ese.murmeli.PartDefinition;
 import fi.helsinki.ese.murmeli.Parts;
 import fi.helsinki.ese.murmeli.Relationship;
 
@@ -81,79 +80,81 @@ public class TransitiveClosureService {
 				Element real = findRequestedElement(graph, baseName);
 
 				// set mock's relations to the real one
-				for (ElementRelationTuple tuple : graph.get(mock)) {
-
-					if (tuple.getRelationship() != null) {
-
-						if (tuple.getRelationship().getFromID().equals(mock)) {
-
-							if (tuple.getRelationship().getNameType() == Relationship.NameType.DECOMPOSITION) {
-								
-								Element mockElmnt = findRequestedElement(graph, mock);
-								
-								if (mockElmnt != null) {
-									for (Parts parts : mockElmnt.getParts()) {
-										if (parts.getRole().equals("decomposition")) {
-											
-											Parts realParts = null;
-											
-											for (Parts itrbl : real.getParts()) {
-												if (itrbl.getRole().equals("decomposition")) {
-													realParts = itrbl;
+				if (real != null) {
+					for (ElementRelationTuple tuple : graph.get(mock)) {
+	
+						if (tuple.getRelationship() != null) {
+	
+							if (tuple.getRelationship().getFromID().equals(mock)) {
+	
+								if (tuple.getRelationship().getNameType() == Relationship.NameType.DECOMPOSITION) {
+									
+									Element mockElmnt = findRequestedElement(graph, mock);
+									
+									if (mockElmnt != null) {
+										for (Parts parts : mockElmnt.getParts()) {
+											if (parts.getRole().equals("decomposition")) {
+												
+												Parts realParts = null;
+												
+												for (Parts itrbl : real.getParts()) {
+													if (itrbl.getRole().equals("decomposition")) {
+														realParts = itrbl;
+													}
 												}
-											}
-											
-											if (realParts != null) {
-												for (String part : parts.getParts()) {
-													realParts.addPartAsId(part);
+												
+												if (realParts != null) {
+													for (String part : parts.getParts()) {
+														realParts.addPartAsId(part);
+													}
 												}
 											}
 										}
 									}
 								}
-							}
-							
-							Relationship rel = new Relationship(tuple.getRelationship().getNameType(), baseName,
-									tuple.getRelationship().getToID());
-							tuple.setRelationship(rel);
-						} else {
-
-							if (tuple.getRelationship().getNameType() == Relationship.NameType.DECOMPOSITION) {
-								for (Parts parts : tuple.getElement().getParts()) {
-									if (parts.getRole().equals("decomposition")) {
-										
-										parts.getParts().remove(mock);
-										parts.getParts().add(baseName);
+								
+								Relationship rel = new Relationship(tuple.getRelationship().getNameType(), baseName,
+										tuple.getRelationship().getToID());
+								tuple.setRelationship(rel);
+							} else {
+	
+								if (tuple.getRelationship().getNameType() == Relationship.NameType.DECOMPOSITION) {
+									for (Parts parts : tuple.getElement().getParts()) {
+										if (parts.getRole().equals("decomposition")) {
+											
+											parts.getParts().remove(mock);
+											parts.getParts().add(baseName);
+										}
 									}
 								}
+								
+								Relationship rel = new Relationship(tuple.getRelationship().getNameType(),
+										tuple.getRelationship().getFromID(), baseName);
+								tuple.setRelationship(rel);
 							}
-							
-							Relationship rel = new Relationship(tuple.getRelationship().getNameType(),
-									tuple.getRelationship().getFromID(), baseName);
-							tuple.setRelationship(rel);
 						}
-					}
-
-					graph.get(baseName).add(tuple);
-
-					ElementRelationTuple tupleToBeRemoved = null;
-
-					List<ElementRelationTuple> list = graph.get(tuple.getElement().getNameID());
-
-					for (ElementRelationTuple correspondingTuple : list) {
-
-						if (correspondingTuple.getElement().getNameID().equals(mock)) {
-							tupleToBeRemoved = correspondingTuple;
-							break;
+	
+						graph.get(baseName).add(tuple);
+	
+						ElementRelationTuple tupleToBeRemoved = null;
+	
+						List<ElementRelationTuple> list = graph.get(tuple.getElement().getNameID());
+	
+						for (ElementRelationTuple correspondingTuple : list) {
+	
+							if (correspondingTuple.getElement().getNameID().equals(mock)) {
+								tupleToBeRemoved = correspondingTuple;
+								break;
+							}
 						}
+	
+						list.remove(tupleToBeRemoved);
+	
+						list.add(new ElementRelationTuple(real, tuple.getRelationship()));
 					}
-
-					list.remove(tupleToBeRemoved);
-
-					list.add(new ElementRelationTuple(real, tuple.getRelationship()));
+					
+					graph.remove(mock);
 				}
-
-				graph.remove(mock);
 			}
 		}
 	}
@@ -272,19 +273,14 @@ public class TransitiveClosureService {
 
 	private Element findRequestedElement(Map<String, List<ElementRelationTuple>> graph, String id) {
 
-		Element element = graph.get(id).get(0).getElement();
-
-		if (element != null) {
-			for (ElementRelationTuple tuple : graph.get(element.getNameID())) {
-				try {
-					if (tuple.getElement().getNameID().equals(id)) {
-						return tuple.getElement();
+		for (ElementRelationTuple neighbour : graph.get(id)) {
+			if (neighbour.getElement() != null) {
+				for (ElementRelationTuple tuple : graph.get(neighbour.getElement().getNameID())) {
+					if (tuple.getElement() != null) {
+						if (tuple.getElement().getNameID().equals(id)) {
+							return tuple.getElement();
+						}
 					}
-				} catch (Exception e) {
-					System.out.println(id);
-					System.out.println(tuple);
-					System.out.println(tuple.getElement());
-					System.out.println(tuple.getElement().getNameID());
 				}
 			}
 		}

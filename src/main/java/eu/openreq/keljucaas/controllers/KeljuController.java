@@ -96,8 +96,7 @@ public class KeljuController {
 	@RequestMapping(value = "/updateGraph", method = RequestMethod.POST)
 	public ResponseEntity<?> updateGraph() throws Exception {
 
-		Map<String, List<ElementRelationTuple>> graph = this.service.generateGraph(this.savedModels.values());
-		this.graph = graph;
+		this.graph = this.service.generateGraph(this.savedModels.values());
 
 		return new ResponseEntity<>("Graph updated", HttpStatus.OK);
 	}

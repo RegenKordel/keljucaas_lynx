@@ -178,8 +178,15 @@ public class AttributeValueType {
 		this.values.add(value.getID());
 	}
 	
-	public boolean equals(AttributeValueType other) {
+	@Override
+	public boolean equals(Object obj) {
 		
-		return (this.baseType.equals(other.getBaseType()) && this.cardinality.equals(other.getCardinality()) && this.nameID.equals(other.getName()));
+		if (!(obj instanceof AttributeValueType)) {
+        	return false;
+        }
+        
+		AttributeValueType avt = (AttributeValueType) obj;
+		
+		return (this.baseType.equals(avt.getBaseType()) && this.cardinality.equals(avt.getCardinality()) && this.nameID.equals(avt.getName()));
 	}
 }

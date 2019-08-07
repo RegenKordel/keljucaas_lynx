@@ -52,9 +52,19 @@ public class ElementRelationTuple {
 		ElementRelationTuple other = (ElementRelationTuple) obj;
 		
 		if (this.element.getNameID().equals(other.getElement().getNameID())) {
-			if (this.relationship == null && other.relationship == null) {
-				return true;
-			} else if (this.relationship.equals(other.getRelationship())) {
+			if (this.relationship == null) {
+				if (other.getRelationship() == null) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				if (other.getRelationship() == null) {
+					return false;
+				}
+			}
+			
+			if (this.relationship.equals(other.getRelationship())) {
 				return true;
 			}
 		}
