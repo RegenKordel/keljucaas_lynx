@@ -185,9 +185,9 @@ public class Relationship {
 		this.toID = to;
 	}
 	
-	public void setTo(String to) {
+	/*public void setTo(String to) {
 		this.toID = to;
-	}
+	}*/
 
 	@Override
 	public int hashCode() {

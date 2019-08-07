@@ -13,8 +13,6 @@ public class MurmeliModelParser {
 		
 		Gson gson = new Gson();
 		
-		ElementModel model = gson.fromJson(json, ElementModel.class);
-		
-		return model;
+		return gson.fromJson(json, ElementModel.class);
 	}
 }
