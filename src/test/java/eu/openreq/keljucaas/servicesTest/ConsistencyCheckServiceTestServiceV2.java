@@ -38,10 +38,46 @@ public class ConsistencyCheckServiceTestServiceV2 {
 	@Autowired
 	private KeljuController keljuController;
 	
-    
+
     @Test
-	public void Consistent01b() {
-    	Testcase tc = new Testcase("consistent_01.txt",
+	public void ConsistentDecompose() {
+    	Testcase tc = new Testcase("consistent_with_decomposes.json",
+    			Boolean.TRUE,
+    			new LinkedList<RelationshipsInconsistent>(Arrays.asList(
+    					)), 
+    			new LinkedList<ExpectedDiagnosisResult> (
+    					Arrays.asList(
+    							)));
+    	performTestCase(tc);
+    }
+
+    @Test
+	public void ConsistentImplies() {
+    	Testcase tc = new Testcase("consistent_with_implies.json",
+    			Boolean.TRUE,
+    			new LinkedList<RelationshipsInconsistent>(Arrays.asList(
+    					)), 
+    			new LinkedList<ExpectedDiagnosisResult> (
+    					Arrays.asList(
+    							)));
+    	performTestCase(tc);
+    }
+
+    @Test
+	public void consistent_with_incompatible() {
+    	Testcase tc = new Testcase("consistent_with_incompatible.json",
+    			Boolean.TRUE,
+    			new LinkedList<RelationshipsInconsistent>(Arrays.asList(
+    					)), 
+    			new LinkedList<ExpectedDiagnosisResult> (
+    					Arrays.asList(
+    							)));
+    	performTestCase(tc);
+    }
+
+    @Test
+	public void consistent_with_incompatible2() {
+    	Testcase tc = new Testcase("consistent_with_incompatible2.json",
     			Boolean.TRUE,
     			new LinkedList<RelationshipsInconsistent>(Arrays.asList(
     					)), 
@@ -51,13 +87,115 @@ public class ConsistencyCheckServiceTestServiceV2 {
     	performTestCase(tc);
     }
     
+
     @Test
-	public void inconsistentIncompatible01b() {
+	public void consistent_with_requires() {
+    	Testcase tc = new Testcase("consistent_with_requires.json",
+    			Boolean.TRUE,
+    			new LinkedList<RelationshipsInconsistent>(Arrays.asList(
+    					)), 
+    			new LinkedList<ExpectedDiagnosisResult> (
+    					Arrays.asList(
+    							)));
+    	performTestCase(tc);
+    }
+
+
+    @Test
+	public void inconsistent_excludes_resourceExceed() {
     	
-       	Testcase tc = new Testcase("inconsistent_incompatible_01.txt",
+       	Testcase tc = new Testcase("inconsistent_excludes_resourceExceed.json",
     			Boolean.FALSE,
     			new LinkedList<RelationshipsInconsistent>(Arrays.asList(
     					new RelationshipsInconsistent ("REQ1", "REQ5", "excludes")
+    					)), 
+    			new LinkedList<ExpectedDiagnosisResult> (
+    					Arrays.asList(
+    							new ExpectedDiagnosisResult(
+    									Boolean.TRUE,
+    									new Diagnosis(
+    											new LinkedList<String>(Arrays.asList(
+    													"REQ1", "REQ3"
+    													)), 
+    											new LinkedList<DiagnosisRelationship> (
+    													Arrays.asList(
+    															)))),
+    							new ExpectedDiagnosisResult( //example of failing diagnosis
+    									Boolean.FALSE,
+    									null))));
+    	performTestCase(tc);
+   	
+    }
+    
+
+	@Test
+	public void inconsistent_excludes() {
+       	Testcase tc = new Testcase("inconsistent_excludes.json",
+    			Boolean.FALSE,
+    			new LinkedList<RelationshipsInconsistent>(Arrays.asList(
+    					new RelationshipsInconsistent ("REQ1", "REQ5", "excludes")
+    					)), 
+    			new LinkedList<ExpectedDiagnosisResult> (
+    					Arrays.asList(
+    							new ExpectedDiagnosisResult(
+    									Boolean.TRUE,
+    									new Diagnosis(
+    											new LinkedList<String>(Arrays.asList(
+    													"REQ1"
+    													)), 
+    											new LinkedList<DiagnosisRelationship> (
+    													Arrays.asList(
+    															)))),
+    							new ExpectedDiagnosisResult( 
+    									Boolean.TRUE,
+    									new Diagnosis(
+    											new LinkedList<String>(Arrays.asList(
+    													)), 
+    											new LinkedList<DiagnosisRelationship> (
+    													Arrays.asList(
+    															new DiagnosisRelationship("REQ1", "REQ5", "excludes")
+    															)))))));
+    	performTestCase(tc);
+	}
+	
+    @Test
+	public void inconsistent_with_decomposes_02() {
+    	
+       	Testcase tc = new Testcase("inconsistent_with_decomposes_02.json",
+    			Boolean.FALSE,
+    			new LinkedList<RelationshipsInconsistent>(Arrays.asList(
+    					new RelationshipsInconsistent ("R3", "R3a", "decomposition")
+    					)), 
+    			new LinkedList<ExpectedDiagnosisResult> (
+    					Arrays.asList(
+    							new ExpectedDiagnosisResult(
+    									Boolean.TRUE,
+    									new Diagnosis(
+    											new LinkedList<String>(Arrays.asList(
+    													"R3", "R4"
+    													)), 
+    											new LinkedList<DiagnosisRelationship> (
+    													Arrays.asList(
+    															)))),
+    							new ExpectedDiagnosisResult(
+    									Boolean.TRUE,
+    									new Diagnosis(
+    											new LinkedList<String>(Arrays.asList(
+    													)), 
+    											new LinkedList<DiagnosisRelationship> (
+    													Arrays.asList( //example of how expected diagnosed relationships are set
+    															new DiagnosisRelationship("R3", "R3a", "decomposition")
+    															)))))));
+    	performTestCase(tc);
+    }
+
+    @Test
+	public void inconsistent_with_decomposes() {
+    	
+       	Testcase tc = new Testcase("inconsistent_with_decomposes.json",
+    			Boolean.FALSE,
+    			new LinkedList<RelationshipsInconsistent>(Arrays.asList(
+    					new RelationshipsInconsistent ("REQ1", "REQ4", "decomposition")
     					)), 
     			new LinkedList<ExpectedDiagnosisResult> (
     					Arrays.asList(
@@ -77,18 +215,18 @@ public class ConsistencyCheckServiceTestServiceV2 {
     													)), 
     											new LinkedList<DiagnosisRelationship> (
     													Arrays.asList( //example of how expected diagnosed relationships are set
-    															new DiagnosisRelationship("REQ1", "REQ5", "excludes")
+    															new DiagnosisRelationship("REQ1", "REQ4", "decomposition")
     															)))))));
     	performTestCase(tc);
-   	
     }
     
-	@Test
-	public void inconsistentIncompatibleResourceExceededb() {
-       	Testcase tc = new Testcase("inconsistent_incompatible_resourceExceed.txt",
+    @Test
+	public void inconsistent_with_implies() {
+    	
+       	Testcase tc = new Testcase("inconsistent_with_implies.json",
     			Boolean.FALSE,
     			new LinkedList<RelationshipsInconsistent>(Arrays.asList(
-    					new RelationshipsInconsistent ("REQ1", "REQ5", "excludes")
+    					new RelationshipsInconsistent ("REQ2", "REQ3", "implies")
     					)), 
     			new LinkedList<ExpectedDiagnosisResult> (
     					Arrays.asList(
@@ -96,14 +234,50 @@ public class ConsistencyCheckServiceTestServiceV2 {
     									Boolean.TRUE,
     									new Diagnosis(
     											new LinkedList<String>(Arrays.asList(
-    													"REQ1", "REQ3"
+    													"REQ1", "REQ2"
+    													)), 
+    											new LinkedList<DiagnosisRelationship> (
+    													Arrays.asList(
+    															)))),
+    							new ExpectedDiagnosisResult(
+    									Boolean.TRUE,
+    									new Diagnosis(
+    											new LinkedList<String>(Arrays.asList(
+    													)), 
+    											new LinkedList<DiagnosisRelationship> (
+    													Arrays.asList( //example of how expected diagnosed relationships are set
+    															new DiagnosisRelationship("REQ2", "REQ3", "implies")
+    															)))))));
+    	performTestCase(tc);
+    }
+
+    @Test
+	public void inconsistent_with_incompatible2() {
+       	Testcase tc = new Testcase("inconsistent_with_incompatible2.json",
+    			Boolean.FALSE,
+    			new LinkedList<RelationshipsInconsistent>(Arrays.asList(
+    					new RelationshipsInconsistent ("REQ1", "REQ3", "incompatible")
+    					)), 
+    			new LinkedList<ExpectedDiagnosisResult> (
+    					Arrays.asList(
+    							new ExpectedDiagnosisResult(
+    									Boolean.TRUE,
+    									new Diagnosis(
+    											new LinkedList<String>(Arrays.asList(
+    													"REQ1"
     													)), 
     											new LinkedList<DiagnosisRelationship> (
     													Arrays.asList(
     															)))),
     							new ExpectedDiagnosisResult( //example of failing diagnosis
-    									Boolean.FALSE,
-    									null))));
+    									Boolean.TRUE,
+    									new Diagnosis(
+    											new LinkedList<String>(Arrays.asList(
+    													)), 
+    											new LinkedList<DiagnosisRelationship> (
+    													Arrays.asList( //example of how expected diagnosed relationships are set
+    															new DiagnosisRelationship("REQ1", "REQ3", "incompatible")
+    															)))))));
     	performTestCase(tc);
 	}
 
@@ -149,9 +323,8 @@ public class ConsistencyCheckServiceTestServiceV2 {
 				assertEquals("Diagnosed consistency", expectedConsistency, reldiagPlan.getConsistent());
 				
 				if (expectedConsistency) {
-					assertTrue("Equal diagnosed requirements:", equalStringListsAsSet(
-							expectedDiagnosis.getDiagnosisRequirements(),
-							diagnosis.getDiagnosisRequirements()));
+					assertTrue("Equal diagnosed requirements: expected: " + expectedDiagnosis.getDiagnosisRequirements() + ", got:" +diagnosis.getDiagnosisRequirements(),
+							equalStringListsAsSet(expectedDiagnosis.getDiagnosisRequirements(), diagnosis.getDiagnosisRequirements()));
 					
 					assertTrue("Equal diagnosed relationships:", equalDiagnosisRelationshipsListsAsSet(
 							expectedDiagnosis.getDiagnosisRelationships(),
