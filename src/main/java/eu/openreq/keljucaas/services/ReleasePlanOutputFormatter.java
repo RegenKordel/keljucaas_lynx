@@ -63,7 +63,7 @@ public class ReleasePlanOutputFormatter {
 	public static final String topic_release_plan_diagnoseRelationships ="release.plan.diagnoseRelationships";
 	public static final String topic_release_plan_diagnoseRequirementsAndRelationships = "release.plan.diagnoseRequirementsAndRelationships";
 
-	public static String availableTopics[] = {
+	private static final String[] availableTopics = {
 			topic_default,
 			topic_empty_list,
 			topic_relationship_from,
