@@ -310,8 +310,8 @@ public class ConsistencyCheckServiceTestServiceV2 {
 				//Major kludge, either third analysis should be removed or fixed properly
 				
 				int resultToUse = relPlan - 1;
-				if ((relPlan + 1) == releasePlanVersions.size()) //disable third analysis
-					resultToUse = 0;
+				if (resultToUse >= testcase.expectedDiagnosisResults.size()) //disable checking of result if no correct result given. Disables third result in practice
+					continue;
 				
 				ExpectedDiagnosisResult expectedDiagnosisResult = testcase.getExpectedDiagnosisResult(resultToUse);
 				Boolean expectedConsistency = expectedDiagnosisResult.consistentWithDiagnosis;
