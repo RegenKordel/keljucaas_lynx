@@ -542,18 +542,6 @@ public class ReleasePlanOutputFormatter {
 		jsonObject.addProperty(relKey, relationship.getRelationShipName());
 	}
 
-	protected void appendDiagnosisElements(List <Diagnosable>  diagnosis, StringBuffer sb, String listSeparator) {
-
-		if (diagnosis != null && diagnosis.size() >0) {
-			for (Diagnosable diagElem : diagnosis) {
-				sb.append(diagElem.getNameId());
-				sb.append(listSeparator);
-			}
-			sb.setLength(sb.length() - listSeparator.length());
-		}
-	}
-
-
 	void buildJsonCombinedOutput (ReleasePlanInfo currentRelPlan, ReleaseInfo currentRelease, String topic,OutputFormatter ofmt, JsonObject jsonObject) {
 		buildJsonOutput (currentRelPlan, currentRelease, topic, ofmt, jsonObject);
 		StringBuffer sb= new StringBuffer();

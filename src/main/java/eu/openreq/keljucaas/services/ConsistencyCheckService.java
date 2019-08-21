@@ -1,5 +1,7 @@
 package eu.openreq.keljucaas.services;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,6 +27,78 @@ public class ConsistencyCheckService {
 	public static final String diagnoseRequirements = "reqdiag";
 	public static final String diagnoseRelationships= "reldiag";
 	public static final String diagnoseRequirementsAndRelationships= "reqreldiag";
+
+	public static final List <String> 	UNASSIGNED_RELEASE_TOPICS_OPENREQ = 
+			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
+					ReleasePlanOutputFormatter.topic_release_id_string,
+					ReleasePlanOutputFormatter.topic_release_requirements_assigned,
+					ReleasePlanOutputFormatter.topic_release_capacity_used
+					)));
+
+	public static final List<String> NORMAL_RELEASE_TOPICS_OPENREQ =
+			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
+					ReleasePlanOutputFormatter.topic_release_id_string,
+					ReleasePlanOutputFormatter.topic_release_requirements_assigned,
+					ReleasePlanOutputFormatter.topic_release_capacity_all
+					)));
+
+
+	public static final List<String> DIAGNOSED_RELEASEPLAN_COMMONTOPICS_OPENREQ = 
+			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
+					ReleasePlanOutputFormatter.topic_release_plan_name,
+					ReleasePlanOutputFormatter.topic_release_plan_consistent,
+					ReleasePlanOutputFormatter.topic_diagnosis_combined
+					)));
+
+	public static final List<String> ORIGINAL_RELEASEPLAN_TOPICS_OPENREQ = 
+			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
+					ReleasePlanOutputFormatter.topic_release_plan_name,
+					ReleasePlanOutputFormatter.topic_release_plan_consistent,
+					ReleasePlanOutputFormatter.topic_relationships_broken
+					)));
+	
+	public static final List <String> 	UNASSIGNED_RELEASE_TOPICS_ALL = 
+			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
+					ReleasePlanOutputFormatter.topic_release_id_string,
+					ReleasePlanOutputFormatter.topic_release_number,
+					ReleasePlanOutputFormatter.topic_release_requirements_assigned,
+					ReleasePlanOutputFormatter.topic_release_capacity_used,
+					ReleasePlanOutputFormatter.topic_release_capacity_available,
+					ReleasePlanOutputFormatter.topic_release_capacity_balance,
+					ReleasePlanOutputFormatter.topic_release_capacity_used
+					)));
+
+	public static final List<String> NORMAL_RELEASE_TOPICS_ALL =
+			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
+					ReleasePlanOutputFormatter.topic_release_id_string,
+					ReleasePlanOutputFormatter.topic_release_requirements_assigned,
+					ReleasePlanOutputFormatter.topic_release_capacity_all
+					)));
+
+
+	public static final List<String> DIAGNOSED_RELEASEPLAN_ALL= 
+			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
+					ReleasePlanOutputFormatter.topic_release_plan_name,
+					ReleasePlanOutputFormatter.topic_release_plan_consistent,
+					ReleasePlanOutputFormatter.topic_diagnosis_combined,
+					ReleasePlanOutputFormatter.topic_relationhips_exluded,
+					ReleasePlanOutputFormatter.topic_diagnosis_relationships,
+					ReleasePlanOutputFormatter.topic_diagnosis_requirements
+					)));
+
+	public static final List<String> ORIGINAL_RELEASEPLAN_TOPICS_ALL = 
+			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
+					ReleasePlanOutputFormatter.topic_release_plan_name,
+					ReleasePlanOutputFormatter.topic_release_plan_consistent,
+					ReleasePlanOutputFormatter.topic_relationships_broken,
+					ReleasePlanOutputFormatter.topic_relationships_ok
+					)));
+
+	private List <String> unassignedReleaseTopics =  UNASSIGNED_RELEASE_TOPICS_OPENREQ;
+	private List <String> normalReleaseTopics = NORMAL_RELEASE_TOPICS_OPENREQ;
+	private List <String> diagnosedReleasePlanCommonTopics = DIAGNOSED_RELEASEPLAN_COMMONTOPICS_OPENREQ;
+	private List <String> originalReleasePlanTopics = ORIGINAL_RELEASEPLAN_TOPICS_OPENREQ;
+	
 	/**
 	 * Generate response (consistency and diagnosis) as JSON String
 	 * @param isCOnsistent
@@ -160,51 +234,37 @@ public class ConsistencyCheckService {
 
 
 	List<String> getUnassignedReleaseTopics() {
-		String[] topicsToGet = {
-				ReleasePlanOutputFormatter.topic_release_id_string,
-				ReleasePlanOutputFormatter.topic_release_requirements_assigned,
-				ReleasePlanOutputFormatter.topic_release_capacity_used
-				};
-		List<String> topicList = new LinkedList<>();
-		for (String s: topicsToGet)
-			topicList.add(s);
-		return topicList;
+		return unassignedReleaseTopics;
 	}
 
 	List<String> getNormalReleaseTopics() {
-		String[] topicsToGet = {
-				ReleasePlanOutputFormatter.topic_release_id_string,
-				ReleasePlanOutputFormatter.topic_release_requirements_assigned,
-				ReleasePlanOutputFormatter.topic_release_capacity_all
-		};
-		List<String> topicList = new LinkedList<>();
-		for (String s: topicsToGet)
-			topicList.add(s);
-		return topicList;
+		return normalReleaseTopics;
 	}
 
 
 	List<String> getDiagnosedReleasePlanCommonTopics() {
-		String[] topicsToGet = {
-				ReleasePlanOutputFormatter.topic_release_plan_name,
-				ReleasePlanOutputFormatter.topic_release_plan_consistent,
-				ReleasePlanOutputFormatter.topic_diagnosis_combined,
-		};
-		List<String> topicList = new LinkedList<>();
-		for (String s: topicsToGet)
-			topicList.add(s);
-		return topicList;
+		return diagnosedReleasePlanCommonTopics;
 	}
 
 	List<String> getOriginalReleasePlanTopics() {
-		String[] topicsToGet = {
-				ReleasePlanOutputFormatter.topic_release_plan_name,
-				ReleasePlanOutputFormatter.topic_release_plan_consistent,
-				ReleasePlanOutputFormatter.topic_relationships_broken
-		};
-		List<String> topicList = new LinkedList<>();
-		for (String s: topicsToGet)
-			topicList.add(s);
-		return topicList;
+		return originalReleasePlanTopics;
 	}
+
+	public final void setUnassignedReleaseTopics(List<String> unassignedReleaseTopics) {
+		this.unassignedReleaseTopics = unassignedReleaseTopics;
+	}
+
+	public final void setNormalReleaseTopics(List<String> normalReleaseTopics) {
+		this.normalReleaseTopics = normalReleaseTopics;
+	}
+
+	public final void setDiagnosedReleasePlanCommonTopics(List<String> diagnosedReleasePlanCommonTopics) {
+		this.diagnosedReleasePlanCommonTopics = diagnosedReleasePlanCommonTopics;
+	}
+
+	public final void setOriginalReleasePlanTopics(List<String> originalReleasePlanTopics) {
+		this.originalReleasePlanTopics = originalReleasePlanTopics;
+	}
+	
+	
 }

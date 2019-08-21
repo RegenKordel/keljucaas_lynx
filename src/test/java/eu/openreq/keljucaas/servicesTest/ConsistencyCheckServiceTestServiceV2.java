@@ -21,6 +21,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.openreq.keljucaas.controllers.KeljuController;
+import eu.openreq.keljucaas.services.ConsistencyCheckService;
 import eu.openreq.keljucaas.servicesTest.Testcase.ExpectedDiagnosisResult;
 import eu.openreq.keljucaas.servicesTest.GrazDto.CheckConsistencyResponse;
 import eu.openreq.keljucaas.servicesTest.GrazDto.Diagnosis;
@@ -48,7 +49,8 @@ public class ConsistencyCheckServiceTestServiceV2 {
     			new LinkedList<ExpectedDiagnosisResult> (
     					Arrays.asList(
     							)));
-    	performTestCase(tc);
+    	performTestCase(tc, true);
+    	performTestCase(tc, false);
     }
 
     @Test
@@ -60,7 +62,8 @@ public class ConsistencyCheckServiceTestServiceV2 {
     			new LinkedList<ExpectedDiagnosisResult> (
     					Arrays.asList(
     							)));
-    	performTestCase(tc);
+    	performTestCase(tc, true);
+    	performTestCase(tc, false);
     }
 
     @Test
@@ -72,7 +75,8 @@ public class ConsistencyCheckServiceTestServiceV2 {
     			new LinkedList<ExpectedDiagnosisResult> (
     					Arrays.asList(
     							)));
-    	performTestCase(tc);
+    	performTestCase(tc, true);
+    	performTestCase(tc, false);
     }
 
     @Test
@@ -84,7 +88,8 @@ public class ConsistencyCheckServiceTestServiceV2 {
     			new LinkedList<ExpectedDiagnosisResult> (
     					Arrays.asList(
     							)));
-    	performTestCase(tc);
+    	performTestCase(tc, true);
+    	performTestCase(tc, false);
     }
     
 
@@ -97,7 +102,8 @@ public class ConsistencyCheckServiceTestServiceV2 {
     			new LinkedList<ExpectedDiagnosisResult> (
     					Arrays.asList(
     							)));
-    	performTestCase(tc);
+    	performTestCase(tc, true);
+    	performTestCase(tc, false);
     }
 
 
@@ -123,7 +129,8 @@ public class ConsistencyCheckServiceTestServiceV2 {
     							new ExpectedDiagnosisResult( //example of failing diagnosis
     									Boolean.FALSE,
     									null))));
-    	performTestCase(tc);
+    	performTestCase(tc, true);
+    	performTestCase(tc, false);
    	
     }
     
@@ -155,7 +162,8 @@ public class ConsistencyCheckServiceTestServiceV2 {
     													Arrays.asList(
     															new DiagnosisRelationship("REQ1", "REQ5", "excludes")
     															)))))));
-    	performTestCase(tc);
+    	performTestCase(tc, true);
+    	performTestCase(tc, false);
 	}
 	
     @Test
@@ -186,7 +194,8 @@ public class ConsistencyCheckServiceTestServiceV2 {
     													Arrays.asList( //example of how expected diagnosed relationships are set
     															new DiagnosisRelationship("R3", "R3a", "decomposition")
     															)))))));
-    	performTestCase(tc);
+    	performTestCase(tc, true);
+    	performTestCase(tc, false);
     }
 
     @Test
@@ -217,7 +226,8 @@ public class ConsistencyCheckServiceTestServiceV2 {
     													Arrays.asList( //example of how expected diagnosed relationships are set
     															new DiagnosisRelationship("REQ1", "REQ4", "decomposition")
     															)))))));
-    	performTestCase(tc);
+    	performTestCase(tc, true);
+    	performTestCase(tc, false);
     }
     
     @Test
@@ -248,7 +258,8 @@ public class ConsistencyCheckServiceTestServiceV2 {
     													Arrays.asList( //example of how expected diagnosed relationships are set
     															new DiagnosisRelationship("REQ2", "REQ3", "implies")
     															)))))));
-    	performTestCase(tc);
+    	performTestCase(tc, true);
+    	performTestCase(tc, false);
     }
 
     @Test
@@ -278,11 +289,16 @@ public class ConsistencyCheckServiceTestServiceV2 {
     													Arrays.asList( //example of how expected diagnosed relationships are set
     															new DiagnosisRelationship("REQ1", "REQ3", "incompatible")
     															)))))));
-    	performTestCase(tc);
+    	performTestCase(tc, true);
+    	performTestCase(tc, false);
 	}
 
     
-    void performTestCase(Testcase testcase) {
+    public void performTestCase(Testcase testcase, boolean useOpenReqOutputs) {
+    	if (useOpenReqOutputs)
+    		setOpenReqOutputs();
+    	else
+    		setFullOutputs();
 		try {
 			
 			String jsonText = readTestJson(testcase.testcasefile);
@@ -369,6 +385,19 @@ public class ConsistencyCheckServiceTestServiceV2 {
 			return null;
 		}
 	}
-
 	
+	private void setFullOutputs() {
+		keljuController.getConsistencyCheckService().setDiagnosedReleasePlanCommonTopics(ConsistencyCheckService.DIAGNOSED_RELEASEPLAN_ALL);
+		keljuController.getConsistencyCheckService().setNormalReleaseTopics(ConsistencyCheckService.NORMAL_RELEASE_TOPICS_ALL);
+		keljuController.getConsistencyCheckService().setOriginalReleasePlanTopics(ConsistencyCheckService.ORIGINAL_RELEASEPLAN_TOPICS_ALL);
+		keljuController.getConsistencyCheckService().setUnassignedReleaseTopics(ConsistencyCheckService.UNASSIGNED_RELEASE_TOPICS_ALL);
+	}
+	
+	private void setOpenReqOutputs() {
+		keljuController.getConsistencyCheckService().setDiagnosedReleasePlanCommonTopics(ConsistencyCheckService.DIAGNOSED_RELEASEPLAN_COMMONTOPICS_OPENREQ);
+		keljuController.getConsistencyCheckService().setNormalReleaseTopics(ConsistencyCheckService.NORMAL_RELEASE_TOPICS_OPENREQ);
+		keljuController.getConsistencyCheckService().setOriginalReleasePlanTopics(ConsistencyCheckService.ORIGINAL_RELEASEPLAN_TOPICS_OPENREQ);
+		keljuController.getConsistencyCheckService().setUnassignedReleaseTopics(ConsistencyCheckService.UNASSIGNED_RELEASE_TOPICS_OPENREQ);
+	}
+		
 }
