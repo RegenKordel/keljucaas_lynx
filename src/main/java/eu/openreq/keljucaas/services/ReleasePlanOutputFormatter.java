@@ -63,7 +63,7 @@ public class ReleasePlanOutputFormatter {
 	public static final String topic_release_plan_diagnoseRelationships ="release.plan.diagnoseRelationships";
 	public static final String topic_release_plan_diagnoseRequirementsAndRelationships = "release.plan.diagnoseRequirementsAndRelationships";
 
-	public static String availableTopics[] = {
+	private static final String[] availableTopics = {
 			topic_default,
 			topic_empty_list,
 			topic_relationship_from,
@@ -541,18 +541,6 @@ public class ReleasePlanOutputFormatter {
 		jsonObject.addProperty(toKey, relationship.getTo().getNameId());
 		jsonObject.addProperty(relKey, relationship.getRelationShipName());
 	}
-
-	protected void appendDiagnosisElements(List <Diagnosable>  diagnosis, StringBuffer sb, String listSeparator) {
-
-		if (diagnosis != null && diagnosis.size() >0) {
-			for (Diagnosable diagElem : diagnosis) {
-				sb.append(diagElem.getNameId());
-				sb.append(listSeparator);
-			}
-			sb.setLength(sb.length() - listSeparator.length());
-		}
-	}
-
 
 	void buildJsonCombinedOutput (ReleasePlanInfo currentRelPlan, ReleaseInfo currentRelease, String topic,OutputFormatter ofmt, JsonObject jsonObject) {
 		buildJsonOutput (currentRelPlan, currentRelease, topic, ofmt, jsonObject);

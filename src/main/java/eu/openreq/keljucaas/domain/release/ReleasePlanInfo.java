@@ -142,33 +142,6 @@ public class ReleasePlanInfo {
 		return failedRelationsips;
 	}
 
-	//TODO modify to use getUnsatiedRelationsShips()
-	public String getFailedRelationShipsMsg () {
-		StringBuilder sb = new StringBuilder();
-		boolean added = false;
-		for (Relationship4Csp rel: getUnsatiedRelationsShips()) {
-			sb.append(rel.getNameId());
-			sb.append(ConsistencyCheckService.fieldSeparator);
-			added = true;
-		}
-		if (added)
-			sb.setLength(sb.length() - ConsistencyCheckService.fieldSeparator.length());
-		return sb.toString();
-	}
-
-	public String getDisabledRelationShipsMsg () {
-		StringBuilder sb = new StringBuilder();
-		boolean added = false;
-		for (Relationship4Csp rel: getDisabledRelationsShips()) {
-			sb.append(rel.getNameId());
-			sb.append(ConsistencyCheckService.fieldSeparator);
-			added = true;
-		}
-		if (added)
-			sb.setLength(sb.length() - ConsistencyCheckService.fieldSeparator.length());
-		return sb.toString();
-	}
-
 	public String getDiagnosis() {
 		if (appliedDiagnosis == null)
 			return "";
@@ -186,68 +159,6 @@ public class ReleasePlanInfo {
 				}
 			}
 		}
-		return sb.toString();
-	}
-
-
-
-//	public String getDiagnosis() {
-//		if (appliedDiagnosis == null)
-//			return "";
-//		StringBuffer sb = new StringBuffer(); 
-//		if (appliedDiagnosis.isEmpty()) {
-//			sb.append("(No Diagnosis found.)");
-//		} 
-//		else {
-//			for (int i = 0; i < appliedDiagnosis.size(); i++) {
-//				Diagnosable reqB = appliedDiagnosis.get(i);
-//				if (!(reqB instanceof Element4Csp))
-//					continue;
-//				Element4Csp elem = (Element4Csp) reqB;
-//				String reqId = elem.getNameId();
-//				sb.append(reqId);
-//				if (appliedDiagnosis.size() > 1 && i < appliedDiagnosis.size() - 1) {
-//					sb.append(ConsistencyCheckService.fieldSeparator);
-//				}
-//			}
-//		}
-//		return sb.toString();
-//	}
-
-	public void  appendReleasePlanMessage(StringBuilder sb) {
-
-		sb.append("Release plan: '" +getIdString());
-		sb.append("' ");
-		if (isConsistent())
-			sb.append("is correct.");
-		else 
-			sb.append("contains errors.");
-		sb.append(ConsistencyCheckService.topicSeparator);
-		for (ReleaseInfo release: releases) {
-			sb.append("Release: '");
-			sb.append(release.releasePlainText());
-			sb.append("' ");
-			sb.append(ConsistencyCheckService.topicSeparator);
-
-			sb.append("Assigned requirements: ");
-			sb.append(release.getAssignedRequirementsStr());
-			sb.append(ConsistencyCheckService.topicSeparator);
-			sb.append("Capacity used: ");
-			sb.append(release.getCapacityExplanation());
-			sb.append(ConsistencyCheckService.topicSeparator);
-		}
-		sb.append("These relationships are NOT satisfied: ");
-		sb.append(getFailedRelationShipsMsg());
-		sb.append(ConsistencyCheckService.topicSeparator);
-		sb.append("These relationships are Disabled: ");
-		sb.append(getDisabledRelationShipsMsg());
-		sb.append(ConsistencyCheckService.topicSeparator);
-	}
-
-
-	public String getReleasePlanMessage() {
-		StringBuilder sb = new StringBuilder();
-		appendReleasePlanMessage (sb);
 		return sb.toString();
 	}
 }

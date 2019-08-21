@@ -51,6 +51,10 @@ public class KeljuController {
 	 * Value for the transitive closure search
 	 */
 	private static int searchDepth = 5;
+	
+	public final ConsistencyCheckService getConsistencyCheckService() {
+		return transform;
+	}
 
 	@ApiOperation(value = "Import Murmeli JSON model and save it", notes = "Import a model in JSON format", response = String.class)
 	@ApiResponses(value = {

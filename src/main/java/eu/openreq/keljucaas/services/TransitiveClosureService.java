@@ -115,6 +115,7 @@ public class TransitiveClosureService {
 								
 								Relationship rel = new Relationship(tuple.getRelationship().getNameType(), baseName,
 										tuple.getRelationship().getToID());
+								rel.setAttributes(tuple.getRelationship().getAttributes());
 								tuple.setRelationship(rel);
 							} else {
 	
@@ -130,6 +131,7 @@ public class TransitiveClosureService {
 								
 								Relationship rel = new Relationship(tuple.getRelationship().getNameType(),
 										tuple.getRelationship().getFromID(), baseName);
+								rel.setAttributes(tuple.getRelationship().getAttributes());
 								tuple.setRelationship(rel);
 							}
 						}
