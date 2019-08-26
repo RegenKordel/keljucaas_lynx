@@ -218,6 +218,10 @@ public class TransitiveClosureService {
 			ElementRelationTuple tuple = new ElementRelationTuple(model.getElements().get(relation.getToID()),
 					relation);
 			graph.get(relation.getFromID()).add(tuple);
+			
+			if (tuple.getElement() == null) {
+				System.out.println("UNDESIRED NULL ELEMENT AS RELATION'S TOID DETECTED: " + relation.getFromID() + " -> " + relation.getToID());
+			}
 
 			if (!graph.containsKey(relation.getToID())) {
 				graph.put(relation.getToID(), new ArrayList<>());
@@ -229,6 +233,10 @@ public class TransitiveClosureService {
 
 			tuple = new ElementRelationTuple(model.getElements().get(relation.getFromID()), relation);
 			graph.get(relation.getToID()).add(tuple);
+			
+			if (tuple.getElement() == null) {
+				System.out.println("UNDESIRED NULL ELEMENT AS RELATION'S FROMID DETECTED: " + relation.getFromID() + " -> " + relation.getToID());
+			}
 		}
 	}
 
