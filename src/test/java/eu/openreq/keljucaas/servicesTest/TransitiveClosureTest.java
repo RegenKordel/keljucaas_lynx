@@ -144,8 +144,6 @@ public class TransitiveClosureTest {
 			response = keljuController.findTransitiveClosureOfElement("QTBUG-0", 1);
 			tc = gson.fromJson(response.getBody().toString(), TransitiveClosure.class);
 			
-			System.out.println(tc.getLayers());
-			
 			assertFalse(tc.getLayers().get(0).contains("QTBUG-0-mock"));
 			assertTrue(tc.getLayers().size() == 2);
 			assertTrue(tc.getNumberOfOutpointingRelations() == 4);
