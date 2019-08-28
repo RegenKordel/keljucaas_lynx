@@ -35,10 +35,24 @@ public class TransitiveClosureService {
 		for (ElementModel model : models) {
 			relationsToGraph(graph, model, mocks);
 			partsToGraph(graph, model, mocks);
+			
+			//System.out.println(model.getRootContainer().getNameID() + ":");
+			//System.out.println("Relations:");
+			//for (Relationship rel : model.getRelations()) {
+				//System.out.println(rel.getFromID() + " -> " + rel.getToID());
+			//}
+			//System.out.println("Elements:");
+			//for (Element el : model.getElements().values()) {
+			//	if (el == null) {
+			//		System.out.println("null");
+			//	} else {
+			//		System.out.println(el.getNameID());
+			//	}
+			//}
 		}
 
 		dealWithDuplicatingMocksInTheGraph(graph, mocks);
-
+		
 		return graph;
 	}
 
@@ -218,6 +232,10 @@ public class TransitiveClosureService {
 			ElementRelationTuple tuple = new ElementRelationTuple(model.getElements().get(relation.getToID()),
 					relation);
 			graph.get(relation.getFromID()).add(tuple);
+			
+			if (tuple.getElement() == null) {
+				System.out.println("UNDESIRED NULL ELEMENT AS RELATION'S TOID DETECTED: " + relation.getFromID() + " -> " + relation.getToID());
+			}
 
 			if (!graph.containsKey(relation.getToID())) {
 				graph.put(relation.getToID(), new ArrayList<>());
@@ -229,6 +247,10 @@ public class TransitiveClosureService {
 
 			tuple = new ElementRelationTuple(model.getElements().get(relation.getFromID()), relation);
 			graph.get(relation.getToID()).add(tuple);
+			
+			if (tuple.getElement() == null) {
+				System.out.println("UNDESIRED NULL ELEMENT AS RELATION'S FROMID DETECTED: " + relation.getFromID() + " -> " + relation.getToID());
+			}
 		}
 	}
 
@@ -382,7 +404,7 @@ public class TransitiveClosureService {
 		
 		for (Element elmnt : updatedRequirements.getElements().values()) {
 			
-			if (!real.getElements().containsKey(elmnt.getNameID().substring(elmnt.getNameID().lastIndexOf('-')))) {
+			if (!real.getElements().containsKey(elmnt.getNameID().substring(0, elmnt.getNameID().lastIndexOf('-')))) {
 				//if (!real.getElements().containsKey(elmnt.getNameID())) {
 					real.addElement(elmnt);
 					
@@ -396,8 +418,8 @@ public class TransitiveClosureService {
 							
 							for (String part : parts.getParts()) {
 								if (part.endsWith("-mock")) {
-									if (real.getElements().containsKey(part.substring(part.lastIndexOf('-')))) {
-										partsToModify.add(part.substring(part.lastIndexOf('-')));
+									if (real.getElements().containsKey(part.substring(0, part.lastIndexOf('-')))) {
+										partsToModify.add(part.substring(0, part.lastIndexOf('-')));
 										continue;
 									}
 								}
@@ -417,8 +439,8 @@ public class TransitiveClosureService {
 			
 			if (rel.getFromID().endsWith("-mock")) {
 				if (!real.getElements().containsKey(rel.getFromID())) {
-					if (real.getElements().containsKey(rel.getFromID().substring(rel.getFromID().lastIndexOf('-')))) {
-						rel.setFromID(rel.getFromID().substring(rel.getFromID().lastIndexOf('-')));
+					if (real.getElements().containsKey(rel.getFromID().substring(0, rel.getFromID().lastIndexOf('-')))) {
+						rel.setFromID(rel.getFromID().substring(0, rel.getFromID().lastIndexOf('-')));
 					} else {
 						continue;
 					}
@@ -427,8 +449,8 @@ public class TransitiveClosureService {
 			
 			if (rel.getToID().endsWith("-mock")) {
 				if (!real.getElements().containsKey(rel.getToID())) {
-					if (real.getElements().containsKey(rel.getToID().substring(rel.getToID().lastIndexOf('-')))) {
-						rel.setToID(rel.getToID().substring(rel.getToID().lastIndexOf('-')));
+					if (real.getElements().containsKey(rel.getToID().substring(0, rel.getToID().lastIndexOf('-')))) {
+						rel.setToID(rel.getToID().substring(0, rel.getToID().lastIndexOf('-')));
 					} else {
 						continue;
 					}

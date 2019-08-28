@@ -668,6 +668,53 @@
 
          ],
          "type":"mock"
+      },
+      "QTWB-31":{
+         "id":13,
+         "nameID":"QTWB-31",
+         "attributes":{
+            "environment":44,
+            "components":25,
+            "versions":31,
+            "elementStatus":8,
+            "effort":12,
+            "priority":65,
+            "fixVersion":24,
+            "title":66,
+            "resolution":56,
+            "status":28,
+            "labels":21,
+            "platforms":23
+         },
+         "parts":[
+
+         ],
+         "requiredInterfaces":[
+
+         ],
+         "providedInterfaces":[
+
+         ],
+         "type":"bug"
+      },
+      "QTWB-30-mock":{
+         "id":500,
+         "nameID":"QTWB-30-mock",
+         "attributes":{
+            "elementStatus":1,
+            "effort":12,
+            "priority":0
+         },
+         "parts":[
+            
+         ],
+         "requiredInterfaces":[
+
+         ],
+         "providedInterfaces":[
+
+         ],
+         "type":"mock"
       }
    },
    "subContainers":[
@@ -703,7 +750,9 @@
          "QTBUG-63307-mock",
          "QTWB-6",
          "QTWB-23",
-         "QTBUG-0-mock"
+         "QTBUG-0-mock",
+	 "QTWB-30-mock",
+         "QTWB-31"
       ],
       "attributes":{
 
@@ -768,6 +817,18 @@
             "relationshipStatus":13,
             "description":113,
             "dependency_score":114
+         }
+      },
+      {
+         "id":6,
+         "nameType":"DUPLICATES",
+         "fromID":"QTWB-31",
+         "toID":"QTWB-30-mock",
+         "power":0,
+         "attributes":{
+            "relationshipStatus":13,
+            "description":110,
+            "dependency_score":111
          }
       }
    ],

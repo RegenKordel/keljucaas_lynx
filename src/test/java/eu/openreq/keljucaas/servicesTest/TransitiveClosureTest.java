@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import eu.openreq.keljucaas.controllers.KeljuController;
 import eu.openreq.keljucaas.domain.TransitiveClosure;
 import fi.helsinki.ese.murmeli.Parts;
+import fi.helsinki.ese.murmeli.Relationship;
 
 
 
@@ -83,23 +84,50 @@ public class TransitiveClosureTest {
 			assertTrue(tc.getModel().getRelations().size() == 5);
 			assertTrue(tc.getModel().getElements().get("QTWB-6").getAttributes().get("priority") == 53);
 			
+			response = keljuController.findTransitiveClosureOfElement("QTWB-31", 5);
+			
+			tc = gson.fromJson(response.getBody().toString(), TransitiveClosure.class);
+			
+			assertFalse(tc.getModel().getElements().containsKey("QTWB-30-mock"));
+			assertTrue(tc.getModel().getElements().containsKey("QTWB-30"));
+			assertFalse(tc.getModel().getRelations().contains(new Relationship(null, "QTWB-31", "QTWB-30-mock")));
+			assertTrue(tc.getModel().getRelations().contains(new Relationship(null, "QTWB-31", "QTWB-30")));
+			
+			response = keljuController.findTransitiveClosureOfElement("QTWB-30", 5);
+			
+			tc = gson.fromJson(response.getBody().toString(), TransitiveClosure.class);
+			
+			assertFalse(tc.getModel().getElements().containsKey("QTWB-30-mock"));
+			assertTrue(tc.getModel().getElements().containsKey("QTWB-30"));
+			assertFalse(tc.getModel().getRelations().contains(new Relationship(null, "QTWB-31", "QTWB-30-mock")));
+			assertTrue(tc.getModel().getRelations().contains(new Relationship(null, "QTWB-31", "QTWB-30")));
+			
+			response = keljuController.findTransitiveClosureOfElement("QTWB-30-mock", 5);
+			
+			tc = gson.fromJson(response.getBody().toString(), TransitiveClosure.class);
+			
+			//System.out.println(tc.getModel().getElements());
+			
+			//assertTrue(tc.getModel().getElements().isEmpty());
+			//assertTrue(tc.getLayers().isEmpty());
+			
 			inputFileName = "importNewProjectTest.txt";
 			jsonText = readTestJson(inputFileName);
 			if (jsonText == null)
 				fail("Could not read input string from '" + inputFileName +"'.");
-				
+			
 			keljuController.importModelAndUpdateGraph(jsonText);
 	
-			response = keljuController.findTransitiveClosureOfElement("QTWB-6", 5);
+			response = keljuController.findTransitiveClosureOfElement("QTWB-6", 10);
 			
 			tc = gson.fromJson(response.getBody().toString(), TransitiveClosure.class);
 			
 			assertFalse(tc == null);
 			assertTrue(tc.getLayers().get(1).contains("QTBUG-51306") && tc.getLayers().get(1).contains("QTBUG-63307") && tc.getLayers().get(0).contains("QTWB-6"));
 			assertTrue(tc.getLayers().get(2).contains("QTWB-987") && tc.getLayers().get(1).contains("QTWB-23") && tc.getLayers().get(3).contains("QTBUG-0"));
-			assertTrue(tc.getLayers().get(4) == null);
-			assertTrue(tc.getModel().getElements().keySet().size() == 6);
-			assertTrue(tc.getModel().getRelations().size() == 5);
+			assertTrue(tc.getLayers().get(6) == null);
+			assertTrue(tc.getModel().getElements().keySet().size() == 10);
+			assertTrue(tc.getModel().getRelations().size() == 9);
 			
 			boolean decompTestHelp = false;
 			
@@ -116,14 +144,27 @@ public class TransitiveClosureTest {
 			response = keljuController.findTransitiveClosureOfElement("QTBUG-0", 1);
 			tc = gson.fromJson(response.getBody().toString(), TransitiveClosure.class);
 			
+			System.out.println(tc.getLayers());
+			
 			assertFalse(tc.getLayers().get(0).contains("QTBUG-0-mock"));
 			assertTrue(tc.getLayers().size() == 2);
-			assertTrue(tc.getNumberOfOutpointingRelations() == 1);
+			assertTrue(tc.getNumberOfOutpointingRelations() == 4);
 			
 			response = keljuController.findTransitiveClosureOfElement("QTUNREAL-0", 5);
 			tc = gson.fromJson(response.getBody().toString(), TransitiveClosure.class);
 			
 			assertTrue(tc.getLayers().isEmpty());
+			
+			inputFileName = "newupdate.txt";
+			jsonText = readTestJson(inputFileName);
+			if (jsonText == null)
+				fail("Could not read input string from '" + inputFileName +"'.");
+			
+			keljuController.updateModel(jsonText);
+	
+			response = keljuController.findTransitiveClosureOfElement("QTWB-6", 5);
+			
+			tc = gson.fromJson(response.getBody().toString(), TransitiveClosure.class);
 			
 		} catch (Exception e) {
 			System.out.println(e);

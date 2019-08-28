@@ -35,7 +35,7 @@ import eu.openreq.keljucaas.servicesTest.GrazDto.Response;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 
-public class ConsistencyCheckServiceTestServiceV2 {
+public class ConsistencyCheckServiceV2Test {
 	@Autowired
 	private KeljuController keljuController;
 	
