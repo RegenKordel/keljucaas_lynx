@@ -391,12 +391,16 @@ public class TransitiveClosureService {
 		for (String key : updatedRequirements.getAttributeValueTypes().keySet()) {
 			if (!real.getAttributeValueTypes().containsKey(key)) {
 				
+				System.out.println("Unprecedented attribute type found: " + key);
+				
 				throw new Exception();
 			}
 		}
 		
 		for (ElementType type : updatedRequirements.getElementTypes().values()) {
 			if (!real.getElementTypes().containsKey(type.getNameID())) {
+				
+				System.out.println("Unprecedented element type found: " + type);
 				
 				throw new Exception();
 			}
