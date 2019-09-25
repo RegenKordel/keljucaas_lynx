@@ -14,6 +14,7 @@ import eu.openreq.keljucaas.domain.release.DecompositionRelationship4Csp;
 import eu.openreq.keljucaas.domain.release.Diagnosable;
 import eu.openreq.keljucaas.domain.release.Element4Csp;
 import eu.openreq.keljucaas.domain.release.ExcludesRelationship4Csp;
+import eu.openreq.keljucaas.domain.release.IgnoredRelationship;
 import eu.openreq.keljucaas.domain.release.ImpliesRelationship4Csp;
 import eu.openreq.keljucaas.domain.release.IncompatibleRelationship4Csp;
 import eu.openreq.keljucaas.domain.release.Relationship4Csp;
@@ -58,9 +59,11 @@ import fi.helsinki.ese.murmeli.Relationship.NameType;
 public class CSPPlanner {
 
 	public final static int UNASSIGNED_RELEASE = 0; 
+	private static String IGNORE_CROSSPROJECT_DESCRIPTION_MAGIC_WORD = "crossProjectTrue";
 
 	private ElementModel elementModel;
 	private List<ReleasePlanAnalysisDefinition> wantedplans;
+	private List<IgnoredRelationship> ignoredRelationships = new LinkedList<>();
 
 	private LinkedHashMap<String, Integer> elementIDToIndex;
 	private LinkedHashMap<Integer, String> indexToElementID;
@@ -71,6 +74,7 @@ public class CSPPlanner {
 	private ArrayList<Relationship4Csp> relationship4Csps = new ArrayList<>();
 	private boolean diagnoseElements; //if false, diagnosis requirements setting does not clear these requirements 
 	private boolean diagnoseRelations; //if false, diagnosis requirements setting does not clear these requirements
+	private boolean omitCrossProject;
 
 	private LinkedHashMap <String, ReleasePlanInfo> releaseStates = new LinkedHashMap<>();
 	
@@ -79,9 +83,10 @@ public class CSPPlanner {
 	Model model = null;
 	//Solution solution;
 
-	public CSPPlanner(ElementModel elementModel, List<ReleasePlanAnalysisDefinition> wantedplans) {
+	public CSPPlanner(ElementModel elementModel, List<ReleasePlanAnalysisDefinition> wantedplans, boolean omitCrossProject) {
 		this.elementModel = elementModel;
 		this.wantedplans = wantedplans;
+		this.omitCrossProject = omitCrossProject;
 		nContainers = elementModel.getsubContainers().size();
 		nElements = elementModel.getElements().size();
 		initialize();
@@ -202,49 +207,50 @@ public class CSPPlanner {
 			if (isSupported(relation.getNameType())) {
 				Element4Csp from = getElement4Csp(relation.getFromID());
 				Element4Csp to = getElement4Csp(relation.getToID());
-				if ((from!= null) && (to != null)) {
-					switch(relation.getNameType()) {
-					case REQUIRES:
-						relationship4Csps.add(
-								new RequiresRelationship4Csp(from, to, model, Integer.valueOf(relation.getID())));
-						break;
-					case INCOMPATIBLE:
-						relationship4Csps.add(
-								new IncompatibleRelationship4Csp(from, to, model,Integer.valueOf(relation.getID())));
-						break;
+				if ((from != null) && (to != null)) {
+					if (omitCrossProject && shouldIgnore(relation)) {
+						IgnoredRelationship ignored_relation = new IgnoredRelationship(from, to, relation);
+						ignoredRelationships.add(ignored_relation);
+					} else {
 
-					case EXCLUDES:
-						relationship4Csps.add(
-								new ExcludesRelationship4Csp(from, to, model, Integer.valueOf(relation.getID())));
-						break;
-					case IMPLIES:
-						relationship4Csps.add(
-								new ImpliesRelationship4Csp(from, to, model, Integer.valueOf(relation.getID())));
-						break;
-					case DECOMPOSITION:
-						relationship4Csps.add(
-								new DecompositionRelationship4Csp(from, to, model, Integer.valueOf(relation.getID())));
-						break;
-					//following not supported	
-					case CONTRIBUTES:
-					case DAMAGES:
-					case DUPLICATES:
-					case REFINES:
-					case REPLACES:
-					case SIMILAR:
-						break;
+						switch (relation.getNameType()) {
+						case REQUIRES:
+							relationship4Csps.add(new RequiresRelationship4Csp(from, to, model, relation));
+							break;
+						case INCOMPATIBLE:
+							relationship4Csps.add(new IncompatibleRelationship4Csp(from, to, model, relation));
+							break;
 
+						case EXCLUDES:
+							relationship4Csps.add(new ExcludesRelationship4Csp(from, to, model, relation));
+							break;
+						case IMPLIES:
+							relationship4Csps.add(new ImpliesRelationship4Csp(from, to, model, relation));
+							break;
+						case DECOMPOSITION:
+							relationship4Csps.add(new DecompositionRelationship4Csp(from, to, model, relation));
+							break;
+						// following not supported
+						case CONTRIBUTES:
+						case DAMAGES:
+						case DUPLICATES:
+						case REFINES:
+						case REPLACES:
+						case SIMILAR:
+							break;
+
+						}
 					}
 				}
 			}
 		}
 	}
 
-
 	protected ReleasePlanInfo createInitialState (ReleasePlanInfo releasePlanInfo) {
 
 		ReleaseInfo unAllocatedRelease = new ReleaseInfo(CSPPlanner.UNASSIGNED_RELEASE, "unassigned");
 		releasePlanInfo.addReleaseInfo(unAllocatedRelease);
+		releasePlanInfo.setIgnoredRelationsShips(this.ignoredRelationships);
 
 		int index = CSPPlanner.UNASSIGNED_RELEASE +1;
 		for (Container container : elementModel.getsubContainers()) {
@@ -562,6 +568,18 @@ public class CSPPlanner {
 	public int determineCapacityAvailable(Container container) {
 		Double d = (Double) this.elementModel.getAttributeValues().get(container.getAttributes().get("capacity")).getValue();
 		return d.intValue();
+	}
+	
+	public boolean shouldIgnore(Relationship relationship) {
+		Object o = elementModel.getAttributeValues().get(relationship.getAttributes().get("description")).getValue();
+		if (o == null)
+			return false;
+		if (! (o instanceof ArrayList<?>))
+			return false;
+		ArrayList<?> descriptions = (ArrayList<?>) o;
+		if (descriptions.contains(IGNORE_CROSSPROJECT_DESCRIPTION_MAGIC_WORD))
+			return true;
+		return false;
 	}
 
 }

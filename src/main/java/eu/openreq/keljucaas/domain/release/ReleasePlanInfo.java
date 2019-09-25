@@ -12,6 +12,8 @@ public class ReleasePlanInfo {
 	private ArrayList<ReleaseInfo> releases = new ArrayList<>();
 	private ArrayList <Relationship4Csp> enabledRelationsShips = new ArrayList<>();
 	private ArrayList <Relationship4Csp> disabledRelationsShips = new ArrayList<>();
+	private ArrayList <IgnoredRelationship> ignoredRelationsShips = new ArrayList<>();
+
 	private Map<Integer, ReleaseInfo> releaseOfElement = new LinkedHashMap<>();
 	private List<Diagnosable> appliedDiagnosis; 
 	private final String idString;
@@ -45,6 +47,10 @@ public class ReleasePlanInfo {
 	public void addDisabledRelationsShip(Relationship4Csp relationship4Csp) {
 		disabledRelationsShips.add(relationship4Csp);	
 	}
+	
+	public void setIgnoredRelationsShips(List <IgnoredRelationship> ignoredRelationships) {
+		ignoredRelationsShips.addAll(ignoredRelationships);	
+	}
 
 	public void assignElementToRelease(Element4Csp element, ReleaseInfo releaseInfo)
 	{
@@ -62,6 +68,10 @@ public class ReleasePlanInfo {
 
 	public ArrayList<Relationship4Csp> getDisabledRelationsShips() {
 		return disabledRelationsShips;
+	}
+	
+	public final ArrayList<IgnoredRelationship> getIgnoredRelationsShips() {
+		return ignoredRelationsShips;
 	}
 
 	public String getIdString() {

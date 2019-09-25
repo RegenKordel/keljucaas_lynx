@@ -1,5 +1,10 @@
 package eu.openreq.keljucaas.services;
 
+import static  eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRelationships;
+import static  eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRequirements;
+import static eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRequirementsAndRelationships;
+import static eu.openreq.keljucaas.services.ConsistencyCheckService.submitted;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -12,15 +17,11 @@ import com.google.gson.JsonPrimitive;
 
 import eu.openreq.keljucaas.domain.release.Diagnosable;
 import eu.openreq.keljucaas.domain.release.Element4Csp;
+import eu.openreq.keljucaas.domain.release.IgnoredRelationship;
 import eu.openreq.keljucaas.domain.release.Relationship4Csp;
 import eu.openreq.keljucaas.domain.release.ReleaseInfo;
 import eu.openreq.keljucaas.domain.release.ReleasePlanInfo;
 import eu.openreq.keljucaas.services.OutputFormatter.OutputElement;
-
-import static eu.openreq.keljucaas.services.ConsistencyCheckService.submitted;
-import static  eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRequirements;
-import static  eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRelationships;
-import static eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRequirementsAndRelationships;
 
 
 public class ReleasePlanOutputFormatter {
@@ -42,6 +43,7 @@ public class ReleasePlanOutputFormatter {
 	public static final String topic_list_element_separator = "list.element.separator";
 	public static final String topic_relationhips_exluded = "relationhips.exluded";
 	public static final String topic_relationships_broken = "relationships.broken";
+	public static final String topic_relationships_ignored = "relationships.ignored";
 	public static final String topic_relationships_ok = "relationships.ok";
 	public static final String topic_releases_element = "releases.element";
 	public static final String topic_release_capacity_all = "release.capacity.all";
@@ -78,6 +80,7 @@ public class ReleasePlanOutputFormatter {
 			topic_list_element_separator,
 			topic_relationhips_exluded,
 			topic_relationships_broken,
+			topic_relationships_ignored,
 			topic_relationships_ok,
 			topic_releases_element,
 			topic_release_capacity_all,
@@ -272,6 +275,23 @@ public class ReleasePlanOutputFormatter {
 			ofmt.appendString(sb.toString(), topic, out);
 		}
 		break;
+		
+		case topic_relationships_ignored: {
+			List <IgnoredRelationship> relationships = currentRelPlan.getIgnoredRelationsShips();
+			if (relationships != null && relationships.size() >0) {
+				for (IgnoredRelationship rel :relationships) {
+					sb.append(rel.getNameId());
+					sb.append(listSeparator);
+				}
+				sb.setLength(sb.length() - listSeparator.length());
+			}
+			else
+				sb.append(emptylistStr);
+
+			ofmt.appendString(sb.toString(), topic, out);
+		}
+		break;
+
 
 		case topic_release_number: {
 			int release = currentRelease.getReleaseNr();
@@ -468,6 +488,7 @@ public class ReleasePlanOutputFormatter {
 				for (Relationship4Csp rel :relationships) {
 					JsonObject relationshipJson = new JsonObject();
 					buildRelationShipJson(rel, ofmt, relationshipJson);
+					relArray.add(relationshipJson);
 				}
 			}
 			jsonObject.add(
@@ -475,7 +496,23 @@ public class ReleasePlanOutputFormatter {
 					relArray);
 		}
 		break;
-
+		
+		case topic_relationships_ignored: {
+			List <IgnoredRelationship> relationships = currentRelPlan.getIgnoredRelationsShips();
+			JsonArray relArray = new JsonArray();
+			if (relationships != null) {
+				for (IgnoredRelationship rel :relationships) {
+					JsonObject relationshipJson = new JsonObject();
+					buildIgnoredRelationShipJson(rel, ofmt, relationshipJson);
+					relArray.add(relationshipJson);
+				}
+			}
+			jsonObject.add(
+					ofmt.getDataKey(topic),
+					relArray);
+		}
+		break;
+		
 		case topic_release_number: {
 			int release = currentRelease.getReleaseNr();
 			jsonObject.add(
@@ -541,6 +578,16 @@ public class ReleasePlanOutputFormatter {
 		jsonObject.addProperty(toKey, relationship.getTo().getNameId());
 		jsonObject.addProperty(relKey, relationship.getRelationShipName());
 	}
+	
+	void buildIgnoredRelationShipJson(IgnoredRelationship relationship, OutputFormatter ofmt, JsonObject jsonObject) {
+		String fromKey= ofmt.getFormat(topic_relationship_from).getDataKey();
+		String  toKey = ofmt.getFormat(topic_relationship_to).getDataKey();
+		String  relKey = ofmt.getFormat(topic_relationship_type).getDataKey();
+		jsonObject.addProperty(fromKey, relationship.getFrom().getNameId());
+		jsonObject.addProperty(toKey, relationship.getTo().getNameId());
+		jsonObject.addProperty(relKey, relationship.getRelationShipName());
+	}
+
 
 	void buildJsonCombinedOutput (ReleasePlanInfo currentRelPlan, ReleaseInfo currentRelease, String topic,OutputFormatter ofmt, JsonObject jsonObject) {
 		buildJsonOutput (currentRelPlan, currentRelease, topic, ofmt, jsonObject);

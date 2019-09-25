@@ -305,7 +305,7 @@ public class ConsistencyCheckServiceV2Test {
 			if (jsonText == null)
 				fail("Could not read input string from '" + testcase.testcasefile +"'.");
 				
-			ResponseEntity<?> responseEntity = keljuController.consistencyCheckAndDiagnosis(jsonText, false);
+			ResponseEntity<?> responseEntity = keljuController.consistencyCheckAndDiagnosis(jsonText, false, false, false);
 			
 			CheckConsistencyResponse responses = new ObjectMapper().readValue(responseEntity.getBody().toString(), CheckConsistencyResponse.class);
 			

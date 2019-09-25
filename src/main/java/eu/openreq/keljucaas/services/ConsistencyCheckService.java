@@ -82,6 +82,7 @@ public class ConsistencyCheckService {
 					ReleasePlanOutputFormatter.topic_release_plan_consistent,
 					ReleasePlanOutputFormatter.topic_diagnosis_combined,
 					ReleasePlanOutputFormatter.topic_relationhips_exluded,
+					ReleasePlanOutputFormatter.topic_relationships_ignored,
 					ReleasePlanOutputFormatter.topic_diagnosis_relationships,
 					ReleasePlanOutputFormatter.topic_diagnosis_requirements
 					)));
@@ -182,12 +183,15 @@ public class ConsistencyCheckService {
 
 			for (ReleasePlanInfo releasePlanInfo : releasePlanInfosToReport ) {
 				ReleasePlanAnalysisDefinition wanted = releasePlanInfo.getWantedAnalysis();
-				List <String> releasePlanTopics;
+				List <String> releasePlanTopics = new LinkedList<>();
 				if (wanted.isDiagnoseDesired())
-					releasePlanTopics = getDiagnosedReleasePlanCommonTopics();
+					releasePlanTopics.addAll(getDiagnosedReleasePlanCommonTopics());
 				else
-					releasePlanTopics = getOriginalReleasePlanTopics();
+					releasePlanTopics.addAll(getOriginalReleasePlanTopics());
 				JsonObject releasePlanJson = new JsonObject();
+				if (wanted.isOmitCrossProject()) {
+					releasePlanTopics.add(ReleasePlanOutputFormatter.topic_relationships_ignored);
+				}
 
 				for (String topic: releasePlanTopics) {
 					relof.buildJsonCombinedOutput(releasePlanInfo, null, topic, ofmt, releasePlanJson);

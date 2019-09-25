@@ -4,9 +4,14 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
 
+import fi.helsinki.ese.murmeli.Relationship;
+
+
 public abstract class Relationship4Csp implements Diagnosable {
+	
 	private Element4Csp from;
 	private Element4Csp to;
+	private Relationship relationship;
 	private BoolVar isIncluded;
 	private boolean denyPosted = false;
 	private boolean requirePosted = false;
@@ -14,14 +19,13 @@ public abstract class Relationship4Csp implements Diagnosable {
 	private Constraint denyCstr;
 	private Constraint relationShipConstraint = null;
 	private Model model;
-	private Integer id;
 	private String nameId;
 	
-	public Relationship4Csp(Element4Csp from, Element4Csp to, Model model, Integer id) {
+	public Relationship4Csp(Element4Csp from, Element4Csp to, Model model, Relationship relationship) {
 		this.from = from;
 		this.to = to;
 		this.model = model;
-		this.id = id;
+		this.relationship = relationship;
 	}
 	
 	protected void completeInitialization() {
@@ -72,10 +76,16 @@ public abstract class Relationship4Csp implements Diagnosable {
 	public BoolVar getIsIncluded() {
 		return isIncluded;
 	}
+	
+	public final Relationship getRelationship() {
+		return relationship;
+	}
 
 	protected abstract void makeConstraint();
 	
-	public abstract String getRelationShipName();
+	public final String getRelationShipName() {
+		return getRelationshipName(relationship);
+	}
 	
 	protected abstract boolean isSatisfiedWithAssignment(int releaseOfFrom, int ReleaseOfTo);
 
@@ -111,7 +121,7 @@ public abstract class Relationship4Csp implements Diagnosable {
 	}
 
 	public Integer getId() {
-		return id;
+		return relationship.getID();
 	}
 
 	public String getNameId() {
@@ -125,5 +135,33 @@ public abstract class Relationship4Csp implements Diagnosable {
 	protected void determineNameId() {
 		this.setNameId("rel_" + this.getFrom().getNameId()+"_" + getRelationShipName() + "_" + this.getTo().getNameId());
 	}
-
+	
+	public static String getRelationshipName (Relationship relationship) {
+		switch (relationship.getNameType()) {
+		case CONTRIBUTES:
+			return "contributes";
+		case DAMAGES:
+			return "damages";
+		case DECOMPOSITION:
+			return "decomposition";
+		case DUPLICATES:
+			return "duplicates";
+		case EXCLUDES:
+			return "excludes";
+		case IMPLIES:
+			return "implies";
+		case INCOMPATIBLE:
+			return "incompatible";
+		case REFINES:
+			return "refines";
+		case REPLACES:
+			return "replaces";
+		case REQUIRES:
+			return "requires";
+		case SIMILAR:
+			return "similar";
+		}
+		return "";
+	}
+	
 }
