@@ -198,7 +198,7 @@ public class KeljuController {
 		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>(); 
 		wanteds.add(wanted);
 
-		CSPPlanner rcspGen = new CSPPlanner(model, wanteds, omitCrossProject);
+		CSPPlanner rcspGen = new CSPPlanner(model, wanteds, omitCrossProject, 0);
 		rcspGen.performDiagnoses();
 		ReleasePlanInfo releasePlanInfo = rcspGen.getReleasePlan(ConsistencyCheckService.submitted);
 
@@ -229,7 +229,7 @@ public class KeljuController {
 		wanted.setAnalyzeOnlyIfIncosistentPlan(ConsistencyCheckService.submitted);
 		wanteds.add(wanted);
 
-		CSPPlanner rcspGen = new CSPPlanner(model, wanteds, omitCrossProject);
+		CSPPlanner rcspGen = new CSPPlanner(model, wanteds, omitCrossProject, 0);
 		rcspGen.performDiagnoses();
 		ReleasePlanInfo originalReleasePlanInfo = rcspGen.getReleasePlan(ConsistencyCheckService.submitted);
 
@@ -253,6 +253,7 @@ public class KeljuController {
 	@RequestMapping(value = "/consistencyCheckAndDiagnosis", method = RequestMethod.POST)
 	public ResponseEntity<?> consistencyCheckAndDiagnosis(@RequestBody String json,
 			@RequestParam(required = false) Boolean analysisOnly,
+			@RequestParam(required = false, defaultValue = "0") int timeOut,
 			@RequestParam(required = false) boolean omitCrossProject,
 			@RequestParam(required = false) boolean omitReqRelDiag) throws Exception {
 		 
@@ -277,7 +278,7 @@ public class KeljuController {
 		}
 
 
-		CSPPlanner rcspGen = new CSPPlanner(model, wanteds, omitCrossProject);
+		CSPPlanner rcspGen = new CSPPlanner(model, wanteds, omitCrossProject, timeOut);
 		rcspGen.performDiagnoses();
 		ReleasePlanInfo originalReleasePlanInfo = rcspGen.getReleasePlan(ConsistencyCheckService.submitted);
 		
@@ -287,7 +288,7 @@ public class KeljuController {
 
 		boolean isConsistent = originalReleasePlanInfo.isConsistent();
 		if (isConsistent) {
-			return new ResponseEntity<>(transform.generateProjectJsonResponseDetailed(releasePlanstoReport), HttpStatus.OK);
+			return new ResponseEntity<>(transform.generateProjectJsonResponseDetailed(releasePlanstoReport, timeOut), HttpStatus.OK);
 		}
 		
 		if (!analysisOnly.booleanValue()) {
@@ -297,7 +298,7 @@ public class KeljuController {
 				releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.diagnoseRequirementsAndRelationships));
 		}
 				
-		return new ResponseEntity<>(transform.generateProjectJsonResponseDetailed(releasePlanstoReport), HttpStatus.OK);
+		return new ResponseEntity<>(transform.generateProjectJsonResponseDetailed(releasePlanstoReport, timeOut), HttpStatus.OK);
 		
 	}
 

@@ -55,6 +55,7 @@ public class ReleasePlanOutputFormatter {
 	public static final String topic_release_id_string = "release.id_string";
 	public static final String topic_release_surroundchar ="release.surroundchar";
 	public static final String topic_release_plan_consistent = "release.plan.consistent";
+	public static final String topic_release_plan_has_timeout = "release.plan.has.timeout";
 	public static final String topic_release_plan_inconsistent = "release.plan.inconsistent";
 	public static final String topic_release_plan_name = "release.plan.name";
 	public static final String topic_release_plan_duration_ms = "release.plan.durarion.ms";
@@ -92,6 +93,7 @@ public class ReleasePlanOutputFormatter {
 			topic_release_id_string,
 			topic_release_surroundchar,
 			topic_release_plan_consistent,
+			topic_release_plan_has_timeout,
 			topic_release_plan_inconsistent,
 			topic_release_plan_name,
 			topic_release_plan_duration_ms,
@@ -327,6 +329,12 @@ public class ReleasePlanOutputFormatter {
 				ofmt.appendString(null, topic_release_plan_inconsistent, out);
 		}
 		break;
+		
+		case topic_release_plan_has_timeout: {
+			boolean isTimeout = currentRelPlan.isTimeout();
+			ofmt.appendString(Boolean.toString(isTimeout), topic, out);
+		}
+		break;
 
 		case topic_release_plan_name: {
 			switch (currentRelPlan.getIdString()) {
@@ -542,6 +550,14 @@ public class ReleasePlanOutputFormatter {
 			jsonObject.add(
 					ofmt.getDataKey(topic),
 					new JsonPrimitive(isConsistent));
+		}
+		break;
+		
+		case topic_release_plan_has_timeout: {
+			Boolean isTimeout = currentRelPlan.isTimeout();
+			jsonObject.add(
+					ofmt.getDataKey(topic),
+					new JsonPrimitive(isTimeout));
 		}
 		break;
 

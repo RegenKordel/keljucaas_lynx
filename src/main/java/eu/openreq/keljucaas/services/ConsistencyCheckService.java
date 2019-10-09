@@ -179,7 +179,7 @@ public class ConsistencyCheckService {
 	 */
 
 
-	public String generateProjectJsonResponseDetailed(List<ReleasePlanInfo> releasePlanInfosToReport) {
+	public String generateProjectJsonResponseDetailed(List<ReleasePlanInfo> releasePlanInfosToReport, int timeOut_ms) {
 		JsonObject responseObject = new JsonObject();
 		JsonArray releasePlanArrays = new JsonArray();
 		OutputFormatter ofmt = ReleasePlanOutputFormatter.intitializeOutputFormats();
@@ -195,6 +195,8 @@ public class ConsistencyCheckService {
 
 			if (addTimingOutputs)
 				releasePlanTopics.add(ReleasePlanOutputFormatter.topic_release_plan_duration_ms);
+			if (timeOut_ms >0)
+				releasePlanTopics.add(ReleasePlanOutputFormatter.topic_release_plan_has_timeout);
 
 			JsonObject releasePlanJson = new JsonObject();
 			if (wanted.isOmitCrossProject()) {

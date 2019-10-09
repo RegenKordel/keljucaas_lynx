@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Timing {
+	
 	public static class TimePair {
 		Long start;
 		Long end;
@@ -28,6 +29,11 @@ public class Timing {
 			super();
 			this.start = start;
 		}
+		
+		public TimePair() {
+			super();
+			this.start = System.nanoTime();
+		}
 
 		public Long getDuration_ns() {
 			if (start == null)
@@ -44,6 +50,20 @@ public class Timing {
 				return null;
 			return (end - start) / 1000000;
 		}
+		
+		public Long getTimeLeft_ms (long duration_ms) {
+			if (start == null)
+				return null;
+			long elapsed = System.nanoTime() - start;
+			return  (duration_ms * 1000000 - elapsed) / 1000000;
+		}
+
+		public Long getTimeLeft_ns (long duration_ns) {
+			if (start == null)
+				return null;
+			return  duration_ns + start - System.nanoTime();
+		}
+
 	}
 
 	private Map<String, TimePair> times = new HashMap<>();
