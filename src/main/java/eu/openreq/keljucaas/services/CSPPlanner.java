@@ -79,17 +79,23 @@ public class CSPPlanner {
 	private LinkedHashMap <String, ReleasePlanInfo> releaseStates = new LinkedHashMap<>();
 	
 	private int maxElementPriority;
+	private Timing timing = new Timing();
 
 	Model model = null;
-	//Solution solution;
+	
 
 	public CSPPlanner(ElementModel elementModel, List<ReleasePlanAnalysisDefinition> wantedplans, boolean omitCrossProject) {
+		long now = System.nanoTime();
+		timing.setStart("init", now);
+		timing.setStart("CSPPLanner", now);
 		this.elementModel = elementModel;
 		this.wantedplans = wantedplans;
 		this.omitCrossProject = omitCrossProject;
 		nContainers = elementModel.getsubContainers().size();
 		nElements = elementModel.getElements().size();
 		initialize();
+		timing.setEnd("init", System.nanoTime());
+		doConsistencyCheckNoDiagnosis();
 	}
 
 	private void initialize() {
@@ -101,13 +107,7 @@ public class CSPPlanner {
 		maxElementPriority = getMaximumPriority();
 
 		generateCSP();
-
 		initializeReleaseStates();
-//		ReleasePlanInfo submittedReleasePlan = releaseStates.get("submitted");
-		//allocateOriginallyAsssignedElements(submittedReleasePlan);
-		//releaseStates.put(submittedReleasePlan.getIdString(), submittedReleasePlan);
-//		System.out.println("");
-//		System.out.println("Initialize: submmitted "+ submittedReleasePlan.getReleasePlanMessage());
 	}
 
 	private Element4Csp getElement4Csp(String elementId) {
@@ -184,23 +184,28 @@ public class CSPPlanner {
 		
 	}
 
-	/**
-	 * Initialize Element4Csp[] elementCSPs
-	 */
 	private void initializeReleaseStates() {
 		for (ReleasePlanAnalysisDefinition wantedPlan : wantedplans) {
 			ReleasePlanInfo releasePlan = new ReleasePlanInfo(wantedPlan.getPlanName(), wantedPlan);
 			createInitialState (releasePlan);
-			//just check, no analysis
-			if (!wantedPlan.isDiagnoseRequirements() && !wantedPlan.isDiagnoseRelationships()) {
-				allocateOriginallyAsssignedElements(releasePlan);
-				setOriginallyEnabledRelationships(releasePlan);
-				releasePlan.determineConsistency();
-			}
 			releaseStates.put(releasePlan.getIdString(), releasePlan);
 		}
 	}
-
+	
+	private void doConsistencyCheckNoDiagnosis() {
+		for (ReleasePlanInfo releasePlan: releaseStates.values()) {
+			ReleasePlanAnalysisDefinition wantedPlan = releasePlan.getWantedAnalysis();
+			if (!wantedPlan.isDiagnoseRequirements() && !wantedPlan.isDiagnoseRelationships()) {
+				timing.setStart(wantedPlan.getPlanName(), System.nanoTime());
+				allocateOriginallyAsssignedElements(releasePlan);
+				setOriginallyEnabledRelationships(releasePlan);
+				releasePlan.determineConsistency();
+				timing.setEnd(wantedPlan.getPlanName(), System.nanoTime());
+				releasePlan.setDuration_ms(timing.getDuration_ms(wantedPlan.getPlanName()));
+			}
+		}
+	}
+	
 	private void initializeRelationship4CSPs() {
 
 		for (Relationship relation : this.elementModel.getRelations()) {
@@ -341,7 +346,7 @@ public class CSPPlanner {
 
 
 	public void performDiagnoses() {
-
+		timing.setStart("diagnoses", System.nanoTime());
 		List<Diagnosable> all= new ArrayList<>();
 		for (int req = 0; req < nElements; req++) {
 			all.add(element4CSPs[req]);
@@ -352,6 +357,7 @@ public class CSPPlanner {
 
 		for (ReleasePlanInfo releasePlanInfo : releaseStates.values()) {
 			ReleasePlanAnalysisDefinition wanted = releasePlanInfo.getWantedAnalysis();
+			timing.setStart(wanted.getPlanName(), System.nanoTime());
 			this.diagnoseElements = wanted.isDiagnoseRequirements();
 			this.diagnoseRelations= wanted.isDiagnoseRelationships();
 			boolean isAnalysisRequired = diagnoseElements || diagnoseRelations;
@@ -386,8 +392,10 @@ public class CSPPlanner {
 					setOriginallyEnabledRelationships(releasePlanInfo);
 				}
 			}
+			timing.setEnd(wanted.getPlanName(), System.nanoTime());
+			releasePlanInfo.setDuration_ms(timing.getDuration_ms(wanted.getPlanName()));
 		}
-
+		timing.setEnd("diagnoses", System.nanoTime());
 	}
 
 
