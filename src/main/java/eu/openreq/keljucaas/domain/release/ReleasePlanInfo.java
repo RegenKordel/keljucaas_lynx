@@ -20,7 +20,8 @@ public class ReleasePlanInfo {
 	private final ReleasePlanAnalysisDefinition wantedAnalysis;
 	//Consitency status to report. It is NOT set by the state automatically! 
 	private boolean consistent;
-
+	private boolean timeout;
+	private Long duration_ms = null;
 
 	public ReleasePlanInfo(String idString, ReleasePlanAnalysisDefinition wantedAnalysis) {
 		super();
@@ -90,6 +91,22 @@ public class ReleasePlanInfo {
 		this.consistent = consistent;
 	}
 	
+	public final boolean isTimeout() {
+		return timeout;
+	}
+
+	public final void setTimeout(boolean timeout) {
+		this.timeout = timeout;
+	}
+
+	public final Long getDuration_ms() {
+		return duration_ms;
+	}
+
+	public final void setDuration_ms(Long duration_ms) {
+		this.duration_ms = duration_ms;
+	}
+
 	//may return null;
 	public List<Diagnosable> getAppliedDiagnosis() {
 		return appliedDiagnosis;

@@ -50,13 +50,15 @@ public class ReleasePlanOutputFormatter {
 	public static final String topic_release_capacity_available = "release.capacity.available";
 	public static final String topic_release_capacity_balance = "release.capacity.balance";
 	public static final String topic_release_capacity_used = "release.capacity.used";
-
+	
 	public static final String topic_release_number = "release.number";
 	public static final String topic_release_id_string = "release.id_string";
 	public static final String topic_release_surroundchar ="release.surroundchar";
 	public static final String topic_release_plan_consistent = "release.plan.consistent";
+	public static final String topic_release_plan_has_timeout = "release.plan.has.timeout";
 	public static final String topic_release_plan_inconsistent = "release.plan.inconsistent";
 	public static final String topic_release_plan_name = "release.plan.name";
+	public static final String topic_release_plan_duration_ms = "release.plan.durarion.ms";
 	public static final String topic_release_requirements_assigned = "release.requirements.assigned";
 	public static final String topic_releases_requirements_not_assigned = "releases.requirements.not.assigned";
 
@@ -91,8 +93,10 @@ public class ReleasePlanOutputFormatter {
 			topic_release_id_string,
 			topic_release_surroundchar,
 			topic_release_plan_consistent,
+			topic_release_plan_has_timeout,
 			topic_release_plan_inconsistent,
 			topic_release_plan_name,
+			topic_release_plan_duration_ms,
 			topic_release_requirements_assigned,
 			topic_releases_requirements_not_assigned,
 			topic_release_plan_submitted,
@@ -311,7 +315,11 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-
+		case topic_release_plan_duration_ms: {
+			Long duration = currentRelPlan.getDuration_ms();
+			ofmt.appendString(duration.toString(), topic, out);
+		}
+		break;
 
 		case topic_release_plan_consistent: {
 			boolean isConsistent = currentRelPlan.isConsistent();
@@ -319,6 +327,12 @@ public class ReleasePlanOutputFormatter {
 				ofmt.appendString(null, topic, out);
 			else
 				ofmt.appendString(null, topic_release_plan_inconsistent, out);
+		}
+		break;
+		
+		case topic_release_plan_has_timeout: {
+			boolean isTimeout = currentRelPlan.isTimeout();
+			ofmt.appendString(Boolean.toString(isTimeout), topic, out);
 		}
 		break;
 
@@ -538,6 +552,14 @@ public class ReleasePlanOutputFormatter {
 					new JsonPrimitive(isConsistent));
 		}
 		break;
+		
+		case topic_release_plan_has_timeout: {
+			Boolean isTimeout = currentRelPlan.isTimeout();
+			jsonObject.add(
+					ofmt.getDataKey(topic),
+					new JsonPrimitive(isTimeout));
+		}
+		break;
 
 		case topic_release_plan_name: {
 			jsonObject.add(
@@ -545,7 +567,15 @@ public class ReleasePlanOutputFormatter {
 					new JsonPrimitive(currentRelPlan.getIdString()));
 		}
 		break;
-
+		
+		case topic_release_plan_duration_ms: {
+			Long duration = currentRelPlan.getDuration_ms();
+			jsonObject.add(
+					ofmt.getDataKey(topic),
+					new JsonPrimitive(duration));
+		}
+		break;
+		
 		case topic_release_requirements_assigned: {
 			ArrayList <Element4Csp> requirements = currentRelease.getAssignedElements();
 			JsonArray relArray = new JsonArray();

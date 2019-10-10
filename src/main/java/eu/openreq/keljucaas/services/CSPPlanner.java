@@ -22,6 +22,7 @@ import eu.openreq.keljucaas.domain.release.ReleaseInfo;
 import eu.openreq.keljucaas.domain.release.ReleasePlanAnalysisDefinition;
 import eu.openreq.keljucaas.domain.release.ReleasePlanInfo;
 import eu.openreq.keljucaas.domain.release.RequiresRelationship4Csp;
+import eu.openreq.keljucaas.services.Timing.TimePair;
 import fi.helsinki.ese.murmeli.Container;
 import fi.helsinki.ese.murmeli.Element;
 import fi.helsinki.ese.murmeli.ElementModel;
@@ -79,17 +80,31 @@ public class CSPPlanner {
 	private LinkedHashMap <String, ReleasePlanInfo> releaseStates = new LinkedHashMap<>();
 	
 	private int maxElementPriority;
+	private Timing timing = new Timing();
+	private long timeOut_ms = 0;
+	private TimePair currentOperationTimer;
 
 	Model model = null;
-	//Solution solution;
+	
 
-	public CSPPlanner(ElementModel elementModel, List<ReleasePlanAnalysisDefinition> wantedplans, boolean omitCrossProject) {
+	public CSPPlanner(ElementModel elementModel, List<ReleasePlanAnalysisDefinition> wantedplans, boolean omitCrossProject, int timeOut_ms) {
+		long now = System.nanoTime();
+		timing.setStart("init", now);
+		timing.setStart("CSPPLanner", now);
+		if (timeOut_ms == 0) {
+			 timeOut_ms = 10 * 365 * 24 *60 *60 *1000; //about 10 years
+		} else {
+			this.timeOut_ms = (long) timeOut_ms;
+		}
+		this.timeOut_ms = timeOut_ms;
 		this.elementModel = elementModel;
 		this.wantedplans = wantedplans;
 		this.omitCrossProject = omitCrossProject;
 		nContainers = elementModel.getsubContainers().size();
 		nElements = elementModel.getElements().size();
 		initialize();
+		timing.setEnd("init", System.nanoTime());
+		doConsistencyCheckNoDiagnosis();
 	}
 
 	private void initialize() {
@@ -101,13 +116,7 @@ public class CSPPlanner {
 		maxElementPriority = getMaximumPriority();
 
 		generateCSP();
-
 		initializeReleaseStates();
-//		ReleasePlanInfo submittedReleasePlan = releaseStates.get("submitted");
-		//allocateOriginallyAsssignedElements(submittedReleasePlan);
-		//releaseStates.put(submittedReleasePlan.getIdString(), submittedReleasePlan);
-//		System.out.println("");
-//		System.out.println("Initialize: submmitted "+ submittedReleasePlan.getReleasePlanMessage());
 	}
 
 	private Element4Csp getElement4Csp(String elementId) {
@@ -184,23 +193,28 @@ public class CSPPlanner {
 		
 	}
 
-	/**
-	 * Initialize Element4Csp[] elementCSPs
-	 */
 	private void initializeReleaseStates() {
 		for (ReleasePlanAnalysisDefinition wantedPlan : wantedplans) {
 			ReleasePlanInfo releasePlan = new ReleasePlanInfo(wantedPlan.getPlanName(), wantedPlan);
 			createInitialState (releasePlan);
-			//just check, no analysis
-			if (!wantedPlan.isDiagnoseRequirements() && !wantedPlan.isDiagnoseRelationships()) {
-				allocateOriginallyAsssignedElements(releasePlan);
-				setOriginallyEnabledRelationships(releasePlan);
-				releasePlan.determineConsistency();
-			}
 			releaseStates.put(releasePlan.getIdString(), releasePlan);
 		}
 	}
-
+	
+	private void doConsistencyCheckNoDiagnosis() {
+		for (ReleasePlanInfo releasePlan: releaseStates.values()) {
+			ReleasePlanAnalysisDefinition wantedPlan = releasePlan.getWantedAnalysis();
+			if (!wantedPlan.isDiagnoseRequirements() && !wantedPlan.isDiagnoseRelationships()) {
+				timing.setStart(wantedPlan.getPlanName(), System.nanoTime());
+				allocateOriginallyAsssignedElements(releasePlan);
+				setOriginallyEnabledRelationships(releasePlan);
+				releasePlan.determineConsistency();
+				timing.setEnd(wantedPlan.getPlanName(), System.nanoTime());
+				releasePlan.setDuration_ms(timing.getDuration_ms(wantedPlan.getPlanName()));
+			}
+		}
+	}
+	
 	private void initializeRelationship4CSPs() {
 
 		for (Relationship relation : this.elementModel.getRelations()) {
@@ -341,7 +355,7 @@ public class CSPPlanner {
 
 
 	public void performDiagnoses() {
-
+		timing.setStart("diagnoses", System.nanoTime());
 		List<Diagnosable> all= new ArrayList<>();
 		for (int req = 0; req < nElements; req++) {
 			all.add(element4CSPs[req]);
@@ -352,6 +366,7 @@ public class CSPPlanner {
 
 		for (ReleasePlanInfo releasePlanInfo : releaseStates.values()) {
 			ReleasePlanAnalysisDefinition wanted = releasePlanInfo.getWantedAnalysis();
+			timing.setStart(wanted.getPlanName(), System.nanoTime());
 			this.diagnoseElements = wanted.isDiagnoseRequirements();
 			this.diagnoseRelations= wanted.isDiagnoseRelationships();
 			boolean isAnalysisRequired = diagnoseElements || diagnoseRelations;
@@ -359,39 +374,51 @@ public class CSPPlanner {
 			if ((requireFailedForDiagnosis != null) && requireFailedForDiagnosis.isConsistent())
 					isAnalysisRequired = false;
 			if (isAnalysisRequired) {
-				List<Diagnosable> diagnosis = getDiagnosis(diagnoseElements, diagnoseRelations);
-				List<Diagnosable> included = diffListsAsSets(all, diagnosis);
-				setRequirementsToList(included);
-				boolean OK = consistent(included);
-				releasePlanInfo.setConsistent(OK);
-				if (OK) {
-					//use the current, determined release plan
-					allocateDiagnosed(releasePlanInfo);
-					releasePlanInfo.setAppliedDiagnosis(diagnosis);
-				}
-				else {
-					//no no diagnosis helped
-					//so do not set a diagnosis to utilize
-					
-					// how to return relevant information to user?
-					// If we take out all requirements, relationships do not have any meaning.
-					//but if all relationships were diagnosed out, one can could get useful info about resource consumption
-					//But the same info is available from the submitted solution
-					
-					// thus, do not set diagnosis
-					// and use the submitted release plan as the release plan.
-					//it should not be used for anything
-					
+				this.currentOperationTimer = new TimePair();
+				try {
+					List<Diagnosable> diagnosis = getDiagnosis(diagnoseElements, diagnoseRelations);
+					List<Diagnosable> included = diffListsAsSets(all, diagnosis);
+					setRequirementsToList(included);
+					boolean OK = consistent(included);
+					releasePlanInfo.setConsistent(OK);
+					releasePlanInfo.setTimeout(false);
+					if (OK) {
+						//use the current, determined release plan
+						allocateDiagnosed(releasePlanInfo);
+						releasePlanInfo.setAppliedDiagnosis(diagnosis);
+					}
+					else {
+						//no no diagnosis helped
+						//so do not set a diagnosis to utilize
+						
+						// how to return relevant information to user?
+						// If we take out all requirements, relationships do not have any meaning.
+						//but if all relationships were diagnosed out, one can could get useful info about resource consumption
+						//But the same info is available from the submitted solution
+						
+						// thus, do not set diagnosis
+						// and use the submitted release plan as the release plan.
+						//it should not be used for anything
+						
+						allocateOriginallyAsssignedElements(releasePlanInfo);
+						setOriginallyEnabledRelationships(releasePlanInfo);
+					}
+				} catch (TimeoutException ex) {
+					releasePlanInfo.setConsistent(false);
+					releasePlanInfo.setTimeout(true);
 					allocateOriginallyAsssignedElements(releasePlanInfo);
 					setOriginallyEnabledRelationships(releasePlanInfo);
+					model.getSolver().hardReset();
 				}
 			}
+			timing.setEnd(wanted.getPlanName(), System.nanoTime());
+			releasePlanInfo.setDuration_ms(timing.getDuration_ms(wanted.getPlanName()));
 		}
-
+		timing.setEnd("diagnoses", System.nanoTime());
 	}
 
 
-	protected List<Diagnosable> getDiagnosis(boolean diagnoseElements, boolean diagnoseRelations) {
+	protected List<Diagnosable> getDiagnosis(boolean diagnoseElements, boolean diagnoseRelations) throws TimeoutException {
 		List<Diagnosable> allElements = new ArrayList<>();
 		this.diagnoseElements = diagnoseElements;
 		this.diagnoseRelations = diagnoseRelations;
@@ -428,7 +455,9 @@ public class CSPPlanner {
 
 
 
-	private boolean consistent(List<Diagnosable> constraints) {
+	private boolean consistent(List<Diagnosable> constraints) throws TimeoutException {
+		if (currentOperationTimer.getTimeLeft_ns(timeOut_ms*1000000) < 0)
+			throw new TimeoutException();
 		if (constraints.size() == 0) {
 			return true;
 		}
@@ -450,7 +479,7 @@ public class CSPPlanner {
 	 * @param AC
 	 * @return
 	 */
-	private List<Diagnosable> fastDiag(List<Diagnosable> C, List<Diagnosable> AC) {
+	private List<Diagnosable> fastDiag(List<Diagnosable> C, List<Diagnosable> AC) throws TimeoutException {
 
 		if (C.isEmpty()) {
 			return Collections.emptyList();
@@ -480,7 +509,7 @@ public class CSPPlanner {
 	 *            user constraints
 	 * @return a diagnose
 	 */
-	private List<Diagnosable> fd(List<Diagnosable> D, List<Diagnosable> C, List<Diagnosable> AC) {
+	private List<Diagnosable> fd(List<Diagnosable> D, List<Diagnosable> C, List<Diagnosable> AC) throws TimeoutException {
 
 		boolean isConsistent = consistent(AC);
 		int q = C.size();
