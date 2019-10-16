@@ -142,7 +142,7 @@ public class ReleasePlanInfo {
 
 	public boolean determineConsistency() {
 		consistent = true;
-		if (!getUnsatiedRelationsShips().isEmpty()) {
+		if (!getUnsatisfiedRelationships().isEmpty()) {
 			consistent = false;
 			return consistent;
 		}
@@ -156,7 +156,7 @@ public class ReleasePlanInfo {
 		return consistent;
 	}
 
-	public ArrayList<Relationship4Csp> getUnsatiedRelationsShips() {
+	public ArrayList<Relationship4Csp> getUnsatisfiedRelationships() {
 		ArrayList<Relationship4Csp> failedRelationsips = new ArrayList<>();
 		for (Relationship4Csp rel: enabledRelationsShips) {
 			Element4Csp from = rel.getFrom();
@@ -168,6 +168,20 @@ public class ReleasePlanInfo {
 		}
 		return failedRelationsips;
 	}
+	
+	public ArrayList<Relationship4Csp> getSatisfiedRelationships() {
+		ArrayList<Relationship4Csp> satisfiedRelationsips = new ArrayList<>();
+		for (Relationship4Csp rel: enabledRelationsShips) {
+			Element4Csp from = rel.getFrom();
+			int fromRelease = getReleaseInfo(from).getReleaseNr();
+			Element4Csp to = rel.getTo();
+			int toRelease = getReleaseInfo(to).getReleaseNr();
+			if (rel.isSatisfiedWithAssignment(fromRelease, toRelease))
+				satisfiedRelationsips.add(rel);
+		}
+		return satisfiedRelationsips;
+	}
+
 
 	public String getDiagnosis() {
 		if (appliedDiagnosis == null)

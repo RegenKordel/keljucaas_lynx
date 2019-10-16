@@ -24,6 +24,9 @@ public class ConsistencyCheckService {
 	@Value("${keljucaas.releaseplanner.addTimings}")
 	private boolean addTimingOutputs; 
 
+	@Value("${keljucaas.releaseplanner.reportConsistentRelationships}")
+	private boolean reportConsistentRelationships; 
+
 	public static final String fieldSeparator = ","; 
 	public static final String topicSeparator = "@"; 
 	
@@ -201,6 +204,10 @@ public class ConsistencyCheckService {
 			JsonObject releasePlanJson = new JsonObject();
 			if (wanted.isOmitCrossProject()) {
 				releasePlanTopics.add(ReleasePlanOutputFormatter.topic_relationships_ignored);
+			}
+			
+			if (reportConsistentRelationships) {
+				releasePlanTopics.add(ReleasePlanOutputFormatter.topic_relationships_ok);
 			}
 
 			for (String topic : releasePlanTopics) {

@@ -249,7 +249,7 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_relationships_broken: {
-			ArrayList <Relationship4Csp> relationships = currentRelPlan.getUnsatiedRelationsShips();
+			ArrayList <Relationship4Csp> relationships = currentRelPlan.getUnsatisfiedRelationships();
 			if (relationships != null && relationships.size() >0) {
 				for (Relationship4Csp rel :relationships) {
 					sb.append(rel.getNameId());
@@ -265,7 +265,7 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_relationships_ok: {
-			ArrayList <Relationship4Csp> relationships = currentRelPlan.getEnabledRelationsShips();
+			ArrayList <Relationship4Csp> relationships = currentRelPlan.getSatisfiedRelationships();
 			if (relationships != null && relationships.size() >0) {
 				for (Relationship4Csp rel :relationships) {
 					sb.append(rel.getNameId());
@@ -480,7 +480,7 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_relationships_broken: {
-			ArrayList <Relationship4Csp> relationships = currentRelPlan.getUnsatiedRelationsShips();
+			ArrayList <Relationship4Csp> relationships = currentRelPlan.getUnsatisfiedRelationships();
 			JsonArray relArray = new JsonArray();
 			if (relationships != null) {
 				for (Relationship4Csp rel :relationships) {
@@ -496,7 +496,7 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_relationships_ok: {
-			ArrayList <Relationship4Csp> relationships = currentRelPlan.getEnabledRelationsShips();
+			ArrayList <Relationship4Csp> relationships = currentRelPlan.getSatisfiedRelationships();
 			JsonArray relArray = new JsonArray();
 			if (relationships != null) {
 				for (Relationship4Csp rel :relationships) {
