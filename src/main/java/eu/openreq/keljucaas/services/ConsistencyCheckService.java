@@ -26,6 +26,9 @@ public class ConsistencyCheckService {
 
 	@Value("${keljucaas.releaseplanner.reportConsistentRelationships}")
 	private boolean reportConsistentRelationships; 
+	
+	@Value("${keljucaas.releaseplanner.reportWithPlaintextMessages}")
+	private boolean reportWithPlaintextMessages; 
 
 	public static final String fieldSeparator = ","; 
 	public static final String topicSeparator = "@"; 
@@ -211,7 +214,10 @@ public class ConsistencyCheckService {
 			}
 
 			for (String topic : releasePlanTopics) {
-				relof.buildJsonCombinedOutput(releasePlanInfo, null, topic, ofmt, releasePlanJson);
+				if (reportWithPlaintextMessages)
+					relof.buildJsonCombinedOutput(releasePlanInfo, null, topic, ofmt, releasePlanJson);
+				else
+					relof.buildJsonOutput(releasePlanInfo, null, topic, ofmt, releasePlanJson);	
 			}
 
 			List<String> releaseTopics;
@@ -221,12 +227,17 @@ public class ConsistencyCheckService {
 
 			for (ReleaseInfo releaseInfo : releasePlanInfo.getReleases()) {
 				JsonObject releaseJson = new JsonObject();
+				
 				if (releaseInfo.getReleaseNr() < 1)
 					releaseTopics = getUnassignedReleaseTopics();
 				else
 					releaseTopics = getNormalReleaseTopics();
+				
 				for (String releaseTopic : releaseTopics) {
-					relof.buildJsonCombinedOutput(releasePlanInfo, releaseInfo, releaseTopic, ofmt, releaseJson);
+					if (reportWithPlaintextMessages)
+						relof.buildJsonCombinedOutput(releasePlanInfo, releaseInfo, releaseTopic, ofmt, releaseJson);
+					else
+						relof.buildJsonOutput(releasePlanInfo, releaseInfo, releaseTopic, ofmt, releaseJson);	
 				}
 				releaseArray.add(releaseJson);
 
