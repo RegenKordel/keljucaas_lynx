@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.search.SearchState;
 import org.chocosolver.solver.variables.IntVar;
 
 import eu.openreq.keljucaas.domain.release.DecompositionRelationship4Csp;
@@ -464,7 +465,10 @@ public class CSPPlanner {
 		setRequirementsToList(constraints);
 		Solver solver = model.getSolver();
 		solver.reset();
+		solver.limitTime(currentOperationTimer.getTimeLeft_ms(Math.max(timeOut_ms, 1)));
 		boolean result = solver.solve();
+		if (solver.getMeasures().getSearchState() == SearchState.STOPPED)
+			throw new TimeoutException();
 		//		if (result)
 		//			solution.record();
 		return result;
