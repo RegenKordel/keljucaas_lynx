@@ -22,7 +22,6 @@ public class SwaggerConfig {
     @Bean
     public Docket productApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-        		.host("api.openreq.eu/keljucaas")
         		.host(swaggerHost)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("eu.openreq.keljucaas.controllers"))    
