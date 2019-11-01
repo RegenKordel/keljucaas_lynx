@@ -5,15 +5,17 @@ public class ReleasePlanAnalysisDefinition {
 	private String analyzeOnlyIfIncosistentPlan;
 	private  boolean diagnoseRequirements;
 	private boolean diagnoseRelationships;
+	private boolean omitCrossProject;
 	
 
 
 	public ReleasePlanAnalysisDefinition(String planName, boolean diagnoseRequirements,
-			boolean diagnoseRelationships) {
+			boolean diagnoseRelationships, boolean omitCrossProject) {
 		super();
 		this.planName = planName;
 		this.diagnoseRequirements = diagnoseRequirements;
 		this.diagnoseRelationships = diagnoseRelationships;
+		this.omitCrossProject = omitCrossProject;
 	}
 
 
@@ -43,6 +45,10 @@ public class ReleasePlanAnalysisDefinition {
 	public boolean isDiagnoseDesired() {
 		return diagnoseRequirements || diagnoseRelationships;
 	}
-	
+
+
+	public final boolean isOmitCrossProject() {
+		return omitCrossProject;
+	}
 
 }

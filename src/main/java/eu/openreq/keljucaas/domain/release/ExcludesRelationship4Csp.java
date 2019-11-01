@@ -2,11 +2,13 @@ package eu.openreq.keljucaas.domain.release;
 
 import org.chocosolver.solver.Model;
 
+import fi.helsinki.ese.murmeli.Relationship;
+
 
 public class ExcludesRelationship4Csp extends Relationship4Csp {
 
-	public ExcludesRelationship4Csp(Element4Csp from, Element4Csp to, Model model, Integer id) {
-		super (from, to, model, id);
+	public ExcludesRelationship4Csp(Element4Csp from, Element4Csp to, Model model, Relationship relationship) {
+		super (from, to, model, relationship);
 		determineNameId();
 		makeConstraint();
 		completeInitialization();
@@ -22,8 +24,5 @@ public class ExcludesRelationship4Csp extends Relationship4Csp {
 		return (releaseOfFrom == 0) ||(releaseOfTo == 0); 
 	}
 	
-	public final String getRelationShipName() {
-		return "excludes";
-	}
 }
 

@@ -1,5 +1,10 @@
 package eu.openreq.keljucaas.services;
 
+import static  eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRelationships;
+import static  eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRequirements;
+import static eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRequirementsAndRelationships;
+import static eu.openreq.keljucaas.services.ConsistencyCheckService.submitted;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -12,15 +17,11 @@ import com.google.gson.JsonPrimitive;
 
 import eu.openreq.keljucaas.domain.release.Diagnosable;
 import eu.openreq.keljucaas.domain.release.Element4Csp;
+import eu.openreq.keljucaas.domain.release.IgnoredRelationship;
 import eu.openreq.keljucaas.domain.release.Relationship4Csp;
 import eu.openreq.keljucaas.domain.release.ReleaseInfo;
 import eu.openreq.keljucaas.domain.release.ReleasePlanInfo;
 import eu.openreq.keljucaas.services.OutputFormatter.OutputElement;
-
-import static eu.openreq.keljucaas.services.ConsistencyCheckService.submitted;
-import static  eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRequirements;
-import static  eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRelationships;
-import static eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRequirementsAndRelationships;
 
 
 public class ReleasePlanOutputFormatter {
@@ -42,19 +43,22 @@ public class ReleasePlanOutputFormatter {
 	public static final String topic_list_element_separator = "list.element.separator";
 	public static final String topic_relationhips_exluded = "relationhips.exluded";
 	public static final String topic_relationships_broken = "relationships.broken";
+	public static final String topic_relationships_ignored = "relationships.ignored";
 	public static final String topic_relationships_ok = "relationships.ok";
 	public static final String topic_releases_element = "releases.element";
 	public static final String topic_release_capacity_all = "release.capacity.all";
 	public static final String topic_release_capacity_available = "release.capacity.available";
 	public static final String topic_release_capacity_balance = "release.capacity.balance";
 	public static final String topic_release_capacity_used = "release.capacity.used";
-
+	
 	public static final String topic_release_number = "release.number";
 	public static final String topic_release_id_string = "release.id_string";
 	public static final String topic_release_surroundchar ="release.surroundchar";
 	public static final String topic_release_plan_consistent = "release.plan.consistent";
+	public static final String topic_release_plan_has_timeout = "release.plan.has.timeout";
 	public static final String topic_release_plan_inconsistent = "release.plan.inconsistent";
 	public static final String topic_release_plan_name = "release.plan.name";
+	public static final String topic_release_plan_duration_ms = "release.plan.durarion.ms";
 	public static final String topic_release_requirements_assigned = "release.requirements.assigned";
 	public static final String topic_releases_requirements_not_assigned = "releases.requirements.not.assigned";
 
@@ -78,6 +82,7 @@ public class ReleasePlanOutputFormatter {
 			topic_list_element_separator,
 			topic_relationhips_exluded,
 			topic_relationships_broken,
+			topic_relationships_ignored,
 			topic_relationships_ok,
 			topic_releases_element,
 			topic_release_capacity_all,
@@ -88,8 +93,10 @@ public class ReleasePlanOutputFormatter {
 			topic_release_id_string,
 			topic_release_surroundchar,
 			topic_release_plan_consistent,
+			topic_release_plan_has_timeout,
 			topic_release_plan_inconsistent,
 			topic_release_plan_name,
+			topic_release_plan_duration_ms,
 			topic_release_requirements_assigned,
 			topic_releases_requirements_not_assigned,
 			topic_release_plan_submitted,
@@ -242,7 +249,7 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_relationships_broken: {
-			ArrayList <Relationship4Csp> relationships = currentRelPlan.getUnsatiedRelationsShips();
+			ArrayList <Relationship4Csp> relationships = currentRelPlan.getUnsatisfiedRelationships();
 			if (relationships != null && relationships.size() >0) {
 				for (Relationship4Csp rel :relationships) {
 					sb.append(rel.getNameId());
@@ -258,7 +265,7 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_relationships_ok: {
-			ArrayList <Relationship4Csp> relationships = currentRelPlan.getEnabledRelationsShips();
+			ArrayList <Relationship4Csp> relationships = currentRelPlan.getSatisfiedRelationships();
 			if (relationships != null && relationships.size() >0) {
 				for (Relationship4Csp rel :relationships) {
 					sb.append(rel.getNameId());
@@ -272,6 +279,23 @@ public class ReleasePlanOutputFormatter {
 			ofmt.appendString(sb.toString(), topic, out);
 		}
 		break;
+		
+		case topic_relationships_ignored: {
+			List <IgnoredRelationship> relationships = currentRelPlan.getIgnoredRelationsShips();
+			if (relationships != null && relationships.size() >0) {
+				for (IgnoredRelationship rel :relationships) {
+					sb.append(rel.getNameId());
+					sb.append(listSeparator);
+				}
+				sb.setLength(sb.length() - listSeparator.length());
+			}
+			else
+				sb.append(emptylistStr);
+
+			ofmt.appendString(sb.toString(), topic, out);
+		}
+		break;
+
 
 		case topic_release_number: {
 			int release = currentRelease.getReleaseNr();
@@ -291,7 +315,11 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-
+		case topic_release_plan_duration_ms: {
+			Long duration = currentRelPlan.getDuration_ms();
+			ofmt.appendString(duration.toString(), topic, out);
+		}
+		break;
 
 		case topic_release_plan_consistent: {
 			boolean isConsistent = currentRelPlan.isConsistent();
@@ -299,6 +327,12 @@ public class ReleasePlanOutputFormatter {
 				ofmt.appendString(null, topic, out);
 			else
 				ofmt.appendString(null, topic_release_plan_inconsistent, out);
+		}
+		break;
+		
+		case topic_release_plan_has_timeout: {
+			boolean isTimeout = currentRelPlan.isTimeout();
+			ofmt.appendString(Boolean.toString(isTimeout), topic, out);
 		}
 		break;
 
@@ -446,7 +480,7 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_relationships_broken: {
-			ArrayList <Relationship4Csp> relationships = currentRelPlan.getUnsatiedRelationsShips();
+			ArrayList <Relationship4Csp> relationships = currentRelPlan.getUnsatisfiedRelationships();
 			JsonArray relArray = new JsonArray();
 			if (relationships != null) {
 				for (Relationship4Csp rel :relationships) {
@@ -462,12 +496,13 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 		case topic_relationships_ok: {
-			ArrayList <Relationship4Csp> relationships = currentRelPlan.getEnabledRelationsShips();
+			ArrayList <Relationship4Csp> relationships = currentRelPlan.getSatisfiedRelationships();
 			JsonArray relArray = new JsonArray();
 			if (relationships != null) {
 				for (Relationship4Csp rel :relationships) {
 					JsonObject relationshipJson = new JsonObject();
 					buildRelationShipJson(rel, ofmt, relationshipJson);
+					relArray.add(relationshipJson);
 				}
 			}
 			jsonObject.add(
@@ -475,7 +510,23 @@ public class ReleasePlanOutputFormatter {
 					relArray);
 		}
 		break;
-
+		
+		case topic_relationships_ignored: {
+			List <IgnoredRelationship> relationships = currentRelPlan.getIgnoredRelationsShips();
+			JsonArray relArray = new JsonArray();
+			if (relationships != null) {
+				for (IgnoredRelationship rel :relationships) {
+					JsonObject relationshipJson = new JsonObject();
+					buildIgnoredRelationShipJson(rel, ofmt, relationshipJson);
+					relArray.add(relationshipJson);
+				}
+			}
+			jsonObject.add(
+					ofmt.getDataKey(topic),
+					relArray);
+		}
+		break;
+		
 		case topic_release_number: {
 			int release = currentRelease.getReleaseNr();
 			jsonObject.add(
@@ -501,6 +552,14 @@ public class ReleasePlanOutputFormatter {
 					new JsonPrimitive(isConsistent));
 		}
 		break;
+		
+		case topic_release_plan_has_timeout: {
+			Boolean isTimeout = currentRelPlan.isTimeout();
+			jsonObject.add(
+					ofmt.getDataKey(topic),
+					new JsonPrimitive(isTimeout));
+		}
+		break;
 
 		case topic_release_plan_name: {
 			jsonObject.add(
@@ -508,7 +567,15 @@ public class ReleasePlanOutputFormatter {
 					new JsonPrimitive(currentRelPlan.getIdString()));
 		}
 		break;
-
+		
+		case topic_release_plan_duration_ms: {
+			Long duration = currentRelPlan.getDuration_ms();
+			jsonObject.add(
+					ofmt.getDataKey(topic),
+					new JsonPrimitive(duration));
+		}
+		break;
+		
 		case topic_release_requirements_assigned: {
 			ArrayList <Element4Csp> requirements = currentRelease.getAssignedElements();
 			JsonArray relArray = new JsonArray();
@@ -541,6 +608,16 @@ public class ReleasePlanOutputFormatter {
 		jsonObject.addProperty(toKey, relationship.getTo().getNameId());
 		jsonObject.addProperty(relKey, relationship.getRelationShipName());
 	}
+	
+	void buildIgnoredRelationShipJson(IgnoredRelationship relationship, OutputFormatter ofmt, JsonObject jsonObject) {
+		String fromKey= ofmt.getFormat(topic_relationship_from).getDataKey();
+		String  toKey = ofmt.getFormat(topic_relationship_to).getDataKey();
+		String  relKey = ofmt.getFormat(topic_relationship_type).getDataKey();
+		jsonObject.addProperty(fromKey, relationship.getFrom().getNameId());
+		jsonObject.addProperty(toKey, relationship.getTo().getNameId());
+		jsonObject.addProperty(relKey, relationship.getRelationShipName());
+	}
+
 
 	void buildJsonCombinedOutput (ReleasePlanInfo currentRelPlan, ReleaseInfo currentRelease, String topic,OutputFormatter ofmt, JsonObject jsonObject) {
 		buildJsonOutput (currentRelPlan, currentRelease, topic, ofmt, jsonObject);

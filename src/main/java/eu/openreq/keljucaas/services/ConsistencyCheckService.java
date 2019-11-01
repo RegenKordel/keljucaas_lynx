@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -19,6 +20,15 @@ import eu.openreq.keljucaas.services.OutputFormatter.OutputElement;
 
 @Service
 public class ConsistencyCheckService {
+
+	@Value("${keljucaas.releaseplanner.addTimings}")
+	private boolean addTimingOutputs; 
+
+	@Value("${keljucaas.releaseplanner.reportConsistentRelationships}")
+	private boolean reportConsistentRelationships; 
+	
+	@Value("${keljucaas.releaseplanner.reportWithPlaintextMessages}")
+	private boolean reportWithPlaintextMessages; 
 
 	public static final String fieldSeparator = ","; 
 	public static final String topicSeparator = "@"; 
@@ -80,8 +90,10 @@ public class ConsistencyCheckService {
 			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
 					ReleasePlanOutputFormatter.topic_release_plan_name,
 					ReleasePlanOutputFormatter.topic_release_plan_consistent,
+					ReleasePlanOutputFormatter.topic_release_plan_duration_ms,
 					ReleasePlanOutputFormatter.topic_diagnosis_combined,
 					ReleasePlanOutputFormatter.topic_relationhips_exluded,
+					ReleasePlanOutputFormatter.topic_relationships_ignored,
 					ReleasePlanOutputFormatter.topic_diagnosis_relationships,
 					ReleasePlanOutputFormatter.topic_diagnosis_requirements
 					)));
@@ -90,6 +102,7 @@ public class ConsistencyCheckService {
 			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
 					ReleasePlanOutputFormatter.topic_release_plan_name,
 					ReleasePlanOutputFormatter.topic_release_plan_consistent,
+					ReleasePlanOutputFormatter.topic_release_plan_duration_ms,
 					ReleasePlanOutputFormatter.topic_relationships_broken,
 					ReleasePlanOutputFormatter.topic_relationships_ok
 					)));
@@ -172,66 +185,75 @@ public class ConsistencyCheckService {
 	 */
 
 
-	public String generateProjectJsonResponseDetailed(List <ReleasePlanInfo> releasePlanInfosToReport) {
-		try {
-			JsonObject responseObject = new JsonObject();
-			JsonArray releasePlanArrays = new JsonArray();
-			OutputFormatter ofmt = ReleasePlanOutputFormatter.intitializeOutputFormats();
-			ReleasePlanOutputFormatter relof = new ReleasePlanOutputFormatter(); 
+	public String generateProjectJsonResponseDetailed(List<ReleasePlanInfo> releasePlanInfosToReport, int timeOut_ms) {
+		JsonObject responseObject = new JsonObject();
+		JsonArray releasePlanArrays = new JsonArray();
+		OutputFormatter ofmt = ReleasePlanOutputFormatter.intitializeOutputFormats();
+		ReleasePlanOutputFormatter relof = new ReleasePlanOutputFormatter();
 
+		for (ReleasePlanInfo releasePlanInfo : releasePlanInfosToReport) {
+			ReleasePlanAnalysisDefinition wanted = releasePlanInfo.getWantedAnalysis();
+			List<String> releasePlanTopics = new LinkedList<>();
+			if (wanted.isDiagnoseDesired())
+				releasePlanTopics.addAll(getDiagnosedReleasePlanCommonTopics());
+			else
+				releasePlanTopics.addAll(getOriginalReleasePlanTopics());
 
-			for (ReleasePlanInfo releasePlanInfo : releasePlanInfosToReport ) {
-				ReleasePlanAnalysisDefinition wanted = releasePlanInfo.getWantedAnalysis();
-				List <String> releasePlanTopics;
-				if (wanted.isDiagnoseDesired())
-					releasePlanTopics = getDiagnosedReleasePlanCommonTopics();
-				else
-					releasePlanTopics = getOriginalReleasePlanTopics();
-				JsonObject releasePlanJson = new JsonObject();
+			if (addTimingOutputs)
+				releasePlanTopics.add(ReleasePlanOutputFormatter.topic_release_plan_duration_ms);
+			if (timeOut_ms >0)
+				releasePlanTopics.add(ReleasePlanOutputFormatter.topic_release_plan_has_timeout);
 
-				for (String topic: releasePlanTopics) {
-					relof.buildJsonCombinedOutput(releasePlanInfo, null, topic, ofmt, releasePlanJson);
-				}
-
-				List<String> releaseTopics;
-				OutputElement releases = ofmt.getFormat(ReleasePlanOutputFormatter.topic_releases_element);
-
-				JsonArray releaseArray = new JsonArray();
-
-				for (ReleaseInfo releaseInfo : releasePlanInfo.getReleases()) {
-					JsonObject releaseJson = new JsonObject();
-					if (releaseInfo.getReleaseNr() <1)
-						releaseTopics = getUnassignedReleaseTopics();
-					else
-						releaseTopics = getNormalReleaseTopics();
-					for (String releaseTopic: releaseTopics) {
-						relof.buildJsonCombinedOutput(releasePlanInfo, releaseInfo, releaseTopic, ofmt, releaseJson);
-					}
-					releaseArray.add(releaseJson);
-
-				}
-				releasePlanJson.add(
-						releases.getDataKey(),
-						releaseArray);
+			JsonObject releasePlanJson = new JsonObject();
+			if (wanted.isOmitCrossProject()) {
+				releasePlanTopics.add(ReleasePlanOutputFormatter.topic_relationships_ignored);
+			}
 			
-
-				releasePlanArrays.add(releasePlanJson);
+			if (reportConsistentRelationships) {
+				releasePlanTopics.add(ReleasePlanOutputFormatter.topic_relationships_ok);
 			}
 
+			for (String topic : releasePlanTopics) {
+				if (reportWithPlaintextMessages)
+					relof.buildJsonCombinedOutput(releasePlanInfo, null, topic, ofmt, releasePlanJson);
+				else
+					relof.buildJsonOutput(releasePlanInfo, null, topic, ofmt, releasePlanJson);	
+			}
 
-			responseObject.add("response", releasePlanArrays);
+			List<String> releaseTopics;
+			OutputElement releases = ofmt.getFormat(ReleasePlanOutputFormatter.topic_releases_element);
 
-			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-			String prettyResponseJson = gson.toJson(responseObject);
+			JsonArray releaseArray = new JsonArray();
 
-			return prettyResponseJson;
+			for (ReleaseInfo releaseInfo : releasePlanInfo.getReleases()) {
+				JsonObject releaseJson = new JsonObject();
+				
+				if (releaseInfo.getReleaseNr() < 1)
+					releaseTopics = getUnassignedReleaseTopics();
+				else
+					releaseTopics = getNormalReleaseTopics();
+				
+				for (String releaseTopic : releaseTopics) {
+					if (reportWithPlaintextMessages)
+						relof.buildJsonCombinedOutput(releasePlanInfo, releaseInfo, releaseTopic, ofmt, releaseJson);
+					else
+						relof.buildJsonOutput(releasePlanInfo, releaseInfo, releaseTopic, ofmt, releaseJson);	
+				}
+				releaseArray.add(releaseJson);
+
+			}
+			releasePlanJson.add(releases.getDataKey(), releaseArray);
+
+			releasePlanArrays.add(releasePlanJson);
 		}
-		catch (Exception ex) {
-			return null;
-		}
 
+		responseObject.add("response", releasePlanArrays);
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String prettyResponseJson = gson.toJson(responseObject);
+
+		return prettyResponseJson;
 	}
-
 
 	List<String> getUnassignedReleaseTopics() {
 		return unassignedReleaseTopics;

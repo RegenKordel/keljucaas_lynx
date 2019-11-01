@@ -12,13 +12,16 @@ public class ReleasePlanInfo {
 	private ArrayList<ReleaseInfo> releases = new ArrayList<>();
 	private ArrayList <Relationship4Csp> enabledRelationsShips = new ArrayList<>();
 	private ArrayList <Relationship4Csp> disabledRelationsShips = new ArrayList<>();
+	private ArrayList <IgnoredRelationship> ignoredRelationsShips = new ArrayList<>();
+
 	private Map<Integer, ReleaseInfo> releaseOfElement = new LinkedHashMap<>();
 	private List<Diagnosable> appliedDiagnosis; 
 	private final String idString;
 	private final ReleasePlanAnalysisDefinition wantedAnalysis;
 	//Consitency status to report. It is NOT set by the state automatically! 
 	private boolean consistent;
-
+	private boolean timeout;
+	private Long duration_ms = null;
 
 	public ReleasePlanInfo(String idString, ReleasePlanAnalysisDefinition wantedAnalysis) {
 		super();
@@ -45,6 +48,10 @@ public class ReleasePlanInfo {
 	public void addDisabledRelationsShip(Relationship4Csp relationship4Csp) {
 		disabledRelationsShips.add(relationship4Csp);	
 	}
+	
+	public void setIgnoredRelationsShips(List <IgnoredRelationship> ignoredRelationships) {
+		ignoredRelationsShips.addAll(ignoredRelationships);	
+	}
 
 	public void assignElementToRelease(Element4Csp element, ReleaseInfo releaseInfo)
 	{
@@ -63,6 +70,10 @@ public class ReleasePlanInfo {
 	public ArrayList<Relationship4Csp> getDisabledRelationsShips() {
 		return disabledRelationsShips;
 	}
+	
+	public final ArrayList<IgnoredRelationship> getIgnoredRelationsShips() {
+		return ignoredRelationsShips;
+	}
 
 	public String getIdString() {
 		return idString;
@@ -80,6 +91,22 @@ public class ReleasePlanInfo {
 		this.consistent = consistent;
 	}
 	
+	public final boolean isTimeout() {
+		return timeout;
+	}
+
+	public final void setTimeout(boolean timeout) {
+		this.timeout = timeout;
+	}
+
+	public final Long getDuration_ms() {
+		return duration_ms;
+	}
+
+	public final void setDuration_ms(Long duration_ms) {
+		this.duration_ms = duration_ms;
+	}
+
 	//may return null;
 	public List<Diagnosable> getAppliedDiagnosis() {
 		return appliedDiagnosis;
@@ -115,7 +142,7 @@ public class ReleasePlanInfo {
 
 	public boolean determineConsistency() {
 		consistent = true;
-		if (!getUnsatiedRelationsShips().isEmpty()) {
+		if (!getUnsatisfiedRelationships().isEmpty()) {
 			consistent = false;
 			return consistent;
 		}
@@ -129,7 +156,7 @@ public class ReleasePlanInfo {
 		return consistent;
 	}
 
-	public ArrayList<Relationship4Csp> getUnsatiedRelationsShips() {
+	public ArrayList<Relationship4Csp> getUnsatisfiedRelationships() {
 		ArrayList<Relationship4Csp> failedRelationsips = new ArrayList<>();
 		for (Relationship4Csp rel: enabledRelationsShips) {
 			Element4Csp from = rel.getFrom();
@@ -141,6 +168,20 @@ public class ReleasePlanInfo {
 		}
 		return failedRelationsips;
 	}
+	
+	public ArrayList<Relationship4Csp> getSatisfiedRelationships() {
+		ArrayList<Relationship4Csp> satisfiedRelationsips = new ArrayList<>();
+		for (Relationship4Csp rel: enabledRelationsShips) {
+			Element4Csp from = rel.getFrom();
+			int fromRelease = getReleaseInfo(from).getReleaseNr();
+			Element4Csp to = rel.getTo();
+			int toRelease = getReleaseInfo(to).getReleaseNr();
+			if (rel.isSatisfiedWithAssignment(fromRelease, toRelease))
+				satisfiedRelationsips.add(rel);
+		}
+		return satisfiedRelationsips;
+	}
+
 
 	public String getDiagnosis() {
 		if (appliedDiagnosis == null)

@@ -99,7 +99,7 @@ public class Element4Csp implements Diagnosable{
 		else
 			return planner.getMaxElementPriority() +1;
 	}
-
+	
 	/**
 	 * Create choco variables for representing effort in each container
 	 * 
@@ -252,8 +252,11 @@ public class Element4Csp implements Diagnosable{
 	public String toString() {
 		return "Element4Csp [id=" + id + ", nameID=" + nameID + "]";
 	}
-		
 
+
+	public final ElementModel getElementModel() {
+		return elementModel;
+	}
 	
 }
 
