@@ -266,7 +266,6 @@ public class KeljuController {
 			analysisOnly = Boolean.FALSE;
 
 		ElementModel model = parser.parseMurmeliModel(json);
-		
 		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>();
 		
 		wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.submitted, false, false, omitCrossProject)); 
@@ -302,6 +301,9 @@ public class KeljuController {
 			if (!omitReqRelDiag)
 				releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.diagnoseRequirementsAndRelationships));
 		}
+		
+		rcspGen = null;
+		java.lang.Runtime.getRuntime().gc();
 				
 		return new ResponseEntity<>(transform.generateProjectJsonResponseDetailed(releasePlanstoReport, timeOut), HttpStatus.OK);
 		

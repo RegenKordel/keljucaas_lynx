@@ -105,6 +105,19 @@ public class ConsistencyCheckServiceV2Test {
     	performTestCase(tc, true);
     	performTestCase(tc, false);
     }
+    
+    @Test
+	public void consistent_with_ignored() {
+    	Testcase tc = new Testcase("qt3ds-2166-1layerWIgnored.json",
+    			Boolean.TRUE,
+    			new LinkedList<RelationshipsInconsistent>(Arrays.asList(
+    					)), 
+    			new LinkedList<ExpectedDiagnosisResult> (
+    					Arrays.asList(
+    							)));
+    	performTestCase(tc, true);
+    	performTestCase(tc, false);
+    }
 
 
     @Test
@@ -305,7 +318,7 @@ public class ConsistencyCheckServiceV2Test {
 			if (jsonText == null)
 				fail("Could not read input string from '" + testcase.testcasefile +"'.");
 				
-			ResponseEntity<?> responseEntity = keljuController.consistencyCheckAndDiagnosis(jsonText, false, 0, false, false);
+			ResponseEntity<?> responseEntity = keljuController.consistencyCheckAndDiagnosis(jsonText, false, 0, true, false);
 			
 			CheckConsistencyResponse responses = new ObjectMapper().readValue(responseEntity.getBody().toString(), CheckConsistencyResponse.class);
 			
@@ -355,7 +368,7 @@ public class ConsistencyCheckServiceV2Test {
 		}
 	}
     
-	private static boolean equalStringListsAsSet(List<String> list1, List<String> list2) {
+  private static boolean equalStringListsAsSet(List<String> list1, List<String> list2) {
 		HashSet<String> set1 = new HashSet<>(list1);
 		HashSet<String> set2 = new HashSet<>(list2);
 		return set1.equals(set2);

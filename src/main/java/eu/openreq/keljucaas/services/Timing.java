@@ -103,5 +103,14 @@ public class Timing {
 		}
 		return timepair.getDuration_ms();
 	}
+	
+	public TimePair getTimes(String id) {
+		return times.get(id);
+	}
+	
+	public void setTimes(String id, TimePair timePair) {
+		times.put(id, timePair);
+	}
+
 
 }

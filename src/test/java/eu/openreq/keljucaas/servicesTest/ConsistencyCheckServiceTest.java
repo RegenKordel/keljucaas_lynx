@@ -61,6 +61,32 @@ public class ConsistencyCheckServiceTest {
 			fail();
 		}
 	}
+	
+	@Test
+	public void Consistent01NoDiag() {
+
+		try {
+			
+			String inputFileName = "consistent_01.txt";
+			String jsonText = readTestJson(inputFileName);
+			if (jsonText == null)
+				fail("Could not read input string from '" + inputFileName +"'.");
+				
+			ResponseEntity<?> response = keljuController.uploadDataAndCheckForConsistency(jsonText);
+	
+			FullResponse fullResponse  = gson.fromJson(response.getBody().toString(), FullResponse.class);
+			List<String> diagnosis = fullResponse.getResponse().getDiagnosis();
+			
+			assertEquals(response.getStatusCodeValue(), 200);
+			assertTrue(diagnosis==null);
+			assertTrue(fullResponse.getResponse().isConsistent());
+			
+		} catch (Exception e) {
+			System.out.println(e);
+			fail();
+		}
+	}
+
 
 	@Test
 	public void inconsistentIncompatible01() {
@@ -90,6 +116,29 @@ public class ConsistencyCheckServiceTest {
 			fail();
 		}
 	}
+	
+	@Test
+	public void inconsistentIncompatible01NoDiag() {
+
+		try {
+			
+			String inputFileName = "inconsistent_incompatible_01.txt";
+			String jsonText = readTestJson(inputFileName);
+			if (jsonText == null)
+				fail("Could not read input string from '" + inputFileName +"'.");
+				
+			ResponseEntity<?> response = keljuController.uploadDataAndCheckForConsistency(jsonText);
+			
+			FullResponse fullResponse  = gson.fromJson(response.getBody().toString(), FullResponse.class);
+			assertEquals(response.getStatusCodeValue(), 200);
+			assertEquals(fullResponse.getResponse().isConsistent(), false);
+			
+		} catch (Exception e) {
+			System.out.println(e);
+			fail();
+		}
+	}
+
 	
 	@Test
 	public void inconsistentIncompatibleResourceExceeded() {

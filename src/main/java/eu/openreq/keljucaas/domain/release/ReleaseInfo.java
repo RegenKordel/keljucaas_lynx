@@ -68,39 +68,6 @@ public class ReleaseInfo {
 		return  isCapacitySatisfied();
 	}
 	
-	//TODO localize/externalize strings
-	public String getCapacityExplanation() {
-		boolean isUnlimitedCapacity = (releaseNr == CSPPlanner.UNASSIGNED_RELEASE) || capacityAvailable == 0;
-		int spared = capacityAvailable - capacityUsed;
-		if (isUnlimitedCapacity)
-			return "used: " + capacityUsed + " of (no limit)";
-		else
-			return "used: " + capacityUsed + " of ("+ capacityAvailable + ") " +
-			(spared >=0 ? ("free: " + spared) : ("missing: " + (-spared))) +".";  
-	}
-	
-	public String releasePlainText() {
-		return idString + ((releaseNr == CSPPlanner.UNASSIGNED_RELEASE) ? "" : (" " + releaseNr));
-		
-	}
-	
-	public void buildAssignedRequirements(StringBuilder sb) {
-		boolean added = false;
-		for (Element4Csp req : getAssignedElements()) {
-			sb.append(req.getNameId());
-			sb.append(ConsistencyCheckService.fieldSeparator);
-			added = true;
-		}
-		if (added)
-			sb.setLength(sb.length() - ConsistencyCheckService.fieldSeparator.length());
-	}
-	
-	public String getAssignedRequirementsStr() {
-		StringBuilder sb = new StringBuilder();
-		buildAssignedRequirements(sb);
-		return sb.toString();
-	}
-
 	public final String getIdString() {
 		return idString;
 	}
