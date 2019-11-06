@@ -218,6 +218,8 @@ public class Relationship {
 				return false;
 		} else if (!toID.equals(other.toID))
 			return false;
+//		if (!nameType.equals(other.nameType))
+//				return false;
 		return true;
 	}
 }

@@ -91,6 +91,7 @@ public class ConsistencyCheckService {
 					ReleasePlanOutputFormatter.topic_release_plan_name,
 					ReleasePlanOutputFormatter.topic_release_plan_consistent,
 					ReleasePlanOutputFormatter.topic_release_plan_duration_ms,
+					ReleasePlanOutputFormatter.topic_release_plan_has_timeout,
 					ReleasePlanOutputFormatter.topic_diagnosis_combined,
 					ReleasePlanOutputFormatter.topic_relationhips_exluded,
 					ReleasePlanOutputFormatter.topic_relationships_ignored,
@@ -104,7 +105,8 @@ public class ConsistencyCheckService {
 					ReleasePlanOutputFormatter.topic_release_plan_consistent,
 					ReleasePlanOutputFormatter.topic_release_plan_duration_ms,
 					ReleasePlanOutputFormatter.topic_relationships_broken,
-					ReleasePlanOutputFormatter.topic_relationships_ok
+					ReleasePlanOutputFormatter.topic_relationships_ok,
+					ReleasePlanOutputFormatter.topic_relationships_ignored
 					)));
 
 	private List <String> unassignedReleaseTopics =  UNASSIGNED_RELEASE_TOPICS_OPENREQ;

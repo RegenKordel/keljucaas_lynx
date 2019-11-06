@@ -1,0 +1,1098 @@
+{
+  "attributeValueTypes": {
+    "elementStatus": {
+      "id": 226,
+      "nameID": "elementStatus",
+      "values": [
+        696150,
+        696151,
+        696152,
+        696153,
+        696154,
+        696155,
+        696156,
+        696157,
+        696158,
+        696160,
+        696159
+      ],
+      "baseType": "STRING",
+      "cardinality": "SINGLE",
+      "bound": "ENUM"
+    },
+    "relationshipStatus": {
+      "id": 229,
+      "nameID": "relationshipStatus",
+      "values": [
+        696162,
+        696163,
+        696164
+      ],
+      "baseType": "STRING",
+      "cardinality": "SINGLE",
+      "bound": "ENUM"
+    },
+    "effort": {
+      "id": 227,
+      "nameID": "effort",
+      "values": [],
+      "baseType": "INT",
+      "cardinality": "SINGLE",
+      "bound": "UNBOUND"
+    },
+    "priority": {
+      "id": 225,
+      "nameID": "priority",
+      "values": [],
+      "baseType": "INT",
+      "cardinality": "SINGLE",
+      "bound": "RANGE",
+      "range": [
+        0,
+        6
+      ]
+    },
+    "capacity": {
+      "id": 228,
+      "nameID": "capacity",
+      "values": [],
+      "baseType": "INT",
+      "cardinality": "SINGLE",
+      "bound": "UNBOUND"
+    }
+  },
+  "elementTypes": {
+    "prose": {
+      "nameID": "prose",
+      "attributeDefinitions": [
+        {
+          "defaultValue": 696149,
+          "valueType": "priority",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696150,
+          "valueType": "elementStatus",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696161,
+          "valueType": "effort",
+          "optionality": "REQUIRED"
+        }
+      ],
+      "potentialParts": [
+        {
+          "id": 45,
+          "cardinality_min": 0,
+          "cardinality_max": 200,
+          "role": "decomposition",
+          "type": [
+            "prose",
+            "functional",
+            "task",
+            "initiative",
+            "user-story",
+            "issue",
+            "bug",
+            "non-functional",
+            "mock",
+            "epic",
+            "requirement"
+          ]
+        }
+      ]
+    },
+    "functional": {
+      "nameID": "functional",
+      "attributeDefinitions": [
+        {
+          "defaultValue": 696149,
+          "valueType": "priority",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696150,
+          "valueType": "elementStatus",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696161,
+          "valueType": "effort",
+          "optionality": "REQUIRED"
+        }
+      ],
+      "potentialParts": [
+        {
+          "id": 45,
+          "cardinality_min": 0,
+          "cardinality_max": 200,
+          "role": "decomposition",
+          "type": [
+            "prose",
+            "functional",
+            "task",
+            "initiative",
+            "user-story",
+            "issue",
+            "bug",
+            "non-functional",
+            "mock",
+            "epic",
+            "requirement"
+          ]
+        }
+      ]
+    },
+    "task": {
+      "nameID": "task",
+      "attributeDefinitions": [
+        {
+          "defaultValue": 696149,
+          "valueType": "priority",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696150,
+          "valueType": "elementStatus",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696161,
+          "valueType": "effort",
+          "optionality": "REQUIRED"
+        }
+      ],
+      "potentialParts": [
+        {
+          "id": 45,
+          "cardinality_min": 0,
+          "cardinality_max": 200,
+          "role": "decomposition",
+          "type": [
+            "prose",
+            "functional",
+            "task",
+            "initiative",
+            "user-story",
+            "issue",
+            "bug",
+            "non-functional",
+            "mock",
+            "epic",
+            "requirement"
+          ]
+        }
+      ]
+    },
+    "initiative": {
+      "nameID": "initiative",
+      "attributeDefinitions": [
+        {
+          "defaultValue": 696149,
+          "valueType": "priority",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696150,
+          "valueType": "elementStatus",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696161,
+          "valueType": "effort",
+          "optionality": "REQUIRED"
+        }
+      ],
+      "potentialParts": [
+        {
+          "id": 45,
+          "cardinality_min": 0,
+          "cardinality_max": 200,
+          "role": "decomposition",
+          "type": [
+            "prose",
+            "functional",
+            "task",
+            "initiative",
+            "user-story",
+            "issue",
+            "bug",
+            "non-functional",
+            "mock",
+            "epic",
+            "requirement"
+          ]
+        }
+      ]
+    },
+    "user-story": {
+      "nameID": "user-story",
+      "attributeDefinitions": [
+        {
+          "defaultValue": 696149,
+          "valueType": "priority",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696150,
+          "valueType": "elementStatus",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696161,
+          "valueType": "effort",
+          "optionality": "REQUIRED"
+        }
+      ],
+      "potentialParts": [
+        {
+          "id": 45,
+          "cardinality_min": 0,
+          "cardinality_max": 200,
+          "role": "decomposition",
+          "type": [
+            "prose",
+            "functional",
+            "task",
+            "initiative",
+            "user-story",
+            "issue",
+            "bug",
+            "non-functional",
+            "mock",
+            "epic",
+            "requirement"
+          ]
+        }
+      ]
+    },
+    "issue": {
+      "nameID": "issue",
+      "attributeDefinitions": [
+        {
+          "defaultValue": 696149,
+          "valueType": "priority",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696150,
+          "valueType": "elementStatus",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696161,
+          "valueType": "effort",
+          "optionality": "REQUIRED"
+        }
+      ],
+      "potentialParts": [
+        {
+          "id": 45,
+          "cardinality_min": 0,
+          "cardinality_max": 200,
+          "role": "decomposition",
+          "type": [
+            "prose",
+            "functional",
+            "task",
+            "initiative",
+            "user-story",
+            "issue",
+            "bug",
+            "non-functional",
+            "mock",
+            "epic",
+            "requirement"
+          ]
+        }
+      ]
+    },
+    "bug": {
+      "nameID": "bug",
+      "attributeDefinitions": [
+        {
+          "defaultValue": 696149,
+          "valueType": "priority",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696150,
+          "valueType": "elementStatus",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696161,
+          "valueType": "effort",
+          "optionality": "REQUIRED"
+        }
+      ],
+      "potentialParts": [
+        {
+          "id": 45,
+          "cardinality_min": 0,
+          "cardinality_max": 200,
+          "role": "decomposition",
+          "type": [
+            "prose",
+            "functional",
+            "task",
+            "initiative",
+            "user-story",
+            "issue",
+            "bug",
+            "non-functional",
+            "mock",
+            "epic",
+            "requirement"
+          ]
+        }
+      ]
+    },
+    "non-functional": {
+      "nameID": "non-functional",
+      "attributeDefinitions": [
+        {
+          "defaultValue": 696149,
+          "valueType": "priority",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696150,
+          "valueType": "elementStatus",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696161,
+          "valueType": "effort",
+          "optionality": "REQUIRED"
+        }
+      ],
+      "potentialParts": [
+        {
+          "id": 45,
+          "cardinality_min": 0,
+          "cardinality_max": 200,
+          "role": "decomposition",
+          "type": [
+            "prose",
+            "functional",
+            "task",
+            "initiative",
+            "user-story",
+            "issue",
+            "bug",
+            "non-functional",
+            "mock",
+            "epic",
+            "requirement"
+          ]
+        }
+      ]
+    },
+    "mock": {
+      "nameID": "mock",
+      "attributeDefinitions": [
+        {
+          "defaultValue": 696149,
+          "valueType": "priority",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696150,
+          "valueType": "elementStatus",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696161,
+          "valueType": "effort",
+          "optionality": "REQUIRED"
+        }
+      ],
+      "potentialParts": [
+        {
+          "id": 45,
+          "cardinality_min": 0,
+          "cardinality_max": 200,
+          "role": "decomposition",
+          "type": [
+            "prose",
+            "functional",
+            "task",
+            "initiative",
+            "user-story",
+            "issue",
+            "bug",
+            "non-functional",
+            "mock",
+            "epic",
+            "requirement"
+          ]
+        }
+      ]
+    },
+    "epic": {
+      "nameID": "epic",
+      "attributeDefinitions": [
+        {
+          "defaultValue": 696149,
+          "valueType": "priority",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696150,
+          "valueType": "elementStatus",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696161,
+          "valueType": "effort",
+          "optionality": "REQUIRED"
+        }
+      ],
+      "potentialParts": [
+        {
+          "id": 45,
+          "cardinality_min": 0,
+          "cardinality_max": 200,
+          "role": "decomposition",
+          "type": [
+            "prose",
+            "functional",
+            "task",
+            "initiative",
+            "user-story",
+            "issue",
+            "bug",
+            "non-functional",
+            "mock",
+            "epic",
+            "requirement"
+          ]
+        }
+      ]
+    },
+    "requirement": {
+      "nameID": "requirement",
+      "attributeDefinitions": [
+        {
+          "defaultValue": 696149,
+          "valueType": "priority",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696150,
+          "valueType": "elementStatus",
+          "optionality": "REQUIRED"
+        },
+        {
+          "defaultValue": 696161,
+          "valueType": "effort",
+          "optionality": "REQUIRED"
+        }
+      ],
+      "potentialParts": [
+        {
+          "id": 45,
+          "cardinality_min": 0,
+          "cardinality_max": 200,
+          "role": "decomposition",
+          "type": [
+            "prose",
+            "functional",
+            "task",
+            "initiative",
+            "user-story",
+            "issue",
+            "bug",
+            "non-functional",
+            "mock",
+            "epic",
+            "requirement"
+          ]
+        }
+      ]
+    }
+  },
+  "elements": {
+    "QT3DS-479": {
+      "id": 245913,
+      "nameID": "QT3DS-479",
+      "attributes": {
+        "environment": 696170,
+        "components": 696181,
+        "versions": 696178,
+        "elementStatus": 696157,
+        "effort": 696161,
+        "priority": 696175,
+        "fixVersion": 696180,
+        "title": 696182,
+        "resolution": 696176,
+        "platforms": 696177,
+        "labels": 696169,
+        "status": 696179
+      },
+      "parts": [],
+      "requiredInterfaces": [],
+      "providedInterfaces": [],
+      "type": "task"
+    },
+    "QT3DS-2166": {
+      "id": 245915,
+      "nameID": "QT3DS-2166",
+      "attributes": {
+        "environment": 696192,
+        "components": 696193,
+        "versions": 696191,
+        "elementStatus": 696150,
+        "effort": 696161,
+        "priority": 696189,
+        "fixVersion": 696172,
+        "title": 696194,
+        "resolution": 696166,
+        "platforms": 696190,
+        "labels": 696169,
+        "status": 696171
+      },
+      "parts": [],
+      "requiredInterfaces": [],
+      "providedInterfaces": [],
+      "type": "bug"
+    },
+    "QTBUG-44726": {
+      "id": 245914,
+      "nameID": "QTBUG-44726",
+      "attributes": {
+        "environment": 696186,
+        "components": 696187,
+        "versions": 696184,
+        "elementStatus": 696150,
+        "effort": 696161,
+        "priority": 696183,
+        "fixVersion": 696172,
+        "title": 696188,
+        "resolution": 696166,
+        "platforms": 696167,
+        "labels": 696185,
+        "status": 696171
+      },
+      "parts": [],
+      "requiredInterfaces": [],
+      "providedInterfaces": [],
+      "type": "issue"
+    },
+    "QT3DS-20": {
+      "id": 245912,
+      "nameID": "QT3DS-20",
+      "attributes": {
+        "environment": 696170,
+        "components": 696173,
+        "versions": 696168,
+        "elementStatus": 696150,
+        "effort": 696161,
+        "priority": 696165,
+        "fixVersion": 696172,
+        "title": 696174,
+        "resolution": 696166,
+        "platforms": 696167,
+        "labels": 696169,
+        "status": 696171
+      },
+      "parts": [],
+      "requiredInterfaces": [],
+      "providedInterfaces": [],
+      "type": "epic"
+    }
+  },
+  "subContainers": [
+    {
+      "id": 1,
+      "nameID": "Qt 3D Studio 2.1 BETA1",
+      "children": [],
+      "next": [],
+      "elements": [
+        "QT3DS-479"
+      ],
+      "attributes": {
+        "capacity": 696201
+      }
+    },
+    {
+      "id": 2,
+      "nameID": "No FixVersion",
+      "children": [],
+      "next": [],
+      "elements": [
+        "QT3DS-20",
+        "QTBUG-44726",
+        "QT3DS-2166"
+      ],
+      "attributes": {
+        "capacity": 696202
+      }
+    }
+  ],
+  "rootContainer": {
+    "id": 85,
+    "nameID": "Code Cleanup Tasks",
+    "children": [
+      1,
+      2
+    ],
+    "next": [],
+    "elements": [
+      "QT3DS-479",
+      "QT3DS-2166",
+      "QTBUG-44726",
+      "QT3DS-20"
+    ],
+    "attributes": {}
+  },
+  "relations": [
+    {
+      "id": 56463,
+      "nameType": "REQUIRES",
+      "fromID": "QT3DS-2166",
+      "toID": "QTBUG-44726",
+      "power": 0,
+      "attributes": {
+        "relationshipStatus": 696162,
+        "description": 696199,
+        "dependency_score": 696200
+      }
+    },
+    {
+      "id": 56461,
+      "nameType": "DECOMPOSITION",
+      "fromID": "QT3DS-20",
+      "toID": "QT3DS-2166",
+      "power": 0,
+      "attributes": {
+        "relationshipStatus": 696162,
+        "description": 696195,
+        "dependency_score": 696196
+      }
+    },
+    {
+      "id": 56462,
+      "nameType": "REFINES",
+      "fromID": "QT3DS-479",
+      "toID": "QT3DS-2166",
+      "power": 0,
+      "attributes": {
+        "relationshipStatus": 696162,
+        "description": 696197,
+        "dependency_score": 696198
+      }
+    }
+  ],
+  "constraints": {},
+  "attributeValues": {
+    "696202": {
+      "id": 696202,
+      "name": "capacity",
+      "mutable": false,
+      "value": 0,
+      "source": "FIXED",
+      "type": "capacity"
+    },
+    "696200": {
+      "id": 696200,
+      "name": "dependency_score",
+      "mutable": true,
+      "value": 1.0,
+      "source": "DEFAULT"
+    },
+    "696201": {
+      "id": 696201,
+      "name": "capacity",
+      "mutable": false,
+      "value": 0,
+      "source": "FIXED",
+      "type": "capacity"
+    },
+    "696194": {
+      "id": 696194,
+      "name": "title",
+      "mutable": false,
+      "value": "libpcre and libColladaDOM produce faulty \"file has no symbols\" warnings with XCode",
+      "source": "DEFAULT"
+    },
+    "696195": {
+      "id": 696195,
+      "name": "description",
+      "mutable": true,
+      "value": [
+        "epic"
+      ],
+      "source": "DEFAULT"
+    },
+    "696192": {
+      "id": 696192,
+      "name": "environment",
+      "mutable": false,
+      "value": "\"clang\"",
+      "source": "DEFAULT"
+    },
+    "696193": {
+      "id": 696193,
+      "name": "components",
+      "mutable": false,
+      "value": "[\"Editor Application\"]",
+      "source": "DEFAULT"
+    },
+    "696198": {
+      "id": 696198,
+      "name": "dependency_score",
+      "mutable": true,
+      "value": 1.0,
+      "source": "DEFAULT"
+    },
+    "696199": {
+      "id": 696199,
+      "name": "description",
+      "mutable": true,
+      "value": [
+        "Dependency",
+        "crossProjectTrue",
+        "crossProjectTrue"
+      ],
+      "source": "DEFAULT"
+    },
+    "696196": {
+      "id": 696196,
+      "name": "dependency_score",
+      "mutable": true,
+      "value": 1.0,
+      "source": "DEFAULT"
+    },
+    "696197": {
+      "id": 696197,
+      "name": "description",
+      "mutable": true,
+      "value": [
+        "Work Breakdown"
+      ],
+      "source": "DEFAULT"
+    },
+    "696154": {
+      "id": 696154,
+      "name": "elementStatus",
+      "mutable": false,
+      "value": "rejected",
+      "source": "DEFAULT",
+      "type": "elementStatus"
+    },
+    "696155": {
+      "id": 696155,
+      "name": "elementStatus",
+      "mutable": false,
+      "value": "draft",
+      "source": "DEFAULT",
+      "type": "elementStatus"
+    },
+    "696152": {
+      "id": 696152,
+      "name": "elementStatus",
+      "mutable": false,
+      "value": "pending",
+      "source": "DEFAULT",
+      "type": "elementStatus"
+    },
+    "696153": {
+      "id": 696153,
+      "name": "elementStatus",
+      "mutable": false,
+      "value": "inProgress",
+      "source": "DEFAULT",
+      "type": "elementStatus"
+    },
+    "696158": {
+      "id": 696158,
+      "name": "elementStatus",
+      "mutable": false,
+      "value": "open",
+      "source": "DEFAULT",
+      "type": "elementStatus"
+    },
+    "696159": {
+      "id": 696159,
+      "name": "elementStatus",
+      "mutable": false,
+      "value": "planned",
+      "source": "DEFAULT",
+      "type": "elementStatus"
+    },
+    "696156": {
+      "id": 696156,
+      "name": "elementStatus",
+      "mutable": false,
+      "value": "accepted",
+      "source": "DEFAULT",
+      "type": "elementStatus"
+    },
+    "696157": {
+      "id": 696157,
+      "name": "elementStatus",
+      "mutable": false,
+      "value": "completed",
+      "source": "DEFAULT",
+      "type": "elementStatus"
+    },
+    "696150": {
+      "id": 696150,
+      "name": "elementStatus",
+      "mutable": false,
+      "value": "submitted",
+      "source": "DEFAULT",
+      "type": "elementStatus"
+    },
+    "696151": {
+      "id": 696151,
+      "name": "elementStatus",
+      "mutable": false,
+      "value": "deferred",
+      "source": "DEFAULT",
+      "type": "elementStatus"
+    },
+    "696149": {
+      "id": 696149,
+      "name": "priority",
+      "mutable": true,
+      "value": 4,
+      "source": "DEFAULT",
+      "type": "priority"
+    },
+    "696170": {
+      "id": 696170,
+      "name": "environment",
+      "mutable": false,
+      "source": "DEFAULT"
+    },
+    "696171": {
+      "id": 696171,
+      "name": "status",
+      "mutable": false,
+      "value": "Open",
+      "source": "DEFAULT"
+    },
+    "696168": {
+      "id": 696168,
+      "name": "versions",
+      "mutable": false,
+      "value": "[\"Open Source Release\"]",
+      "source": "DEFAULT"
+    },
+    "696169": {
+      "id": 696169,
+      "name": "labels",
+      "mutable": false,
+      "value": "[]",
+      "source": "DEFAULT"
+    },
+    "696174": {
+      "id": 696174,
+      "name": "title",
+      "mutable": false,
+      "value": "Code Cleanup Tasks",
+      "source": "DEFAULT"
+    },
+    "696175": {
+      "id": 696175,
+      "name": "priority",
+      "mutable": true,
+      "value": 3,
+      "source": "FIXED",
+      "type": "priority"
+    },
+    "696172": {
+      "id": 696172,
+      "name": "fixVersion",
+      "mutable": false,
+      "value": "No FixVersion",
+      "source": "DEFAULT"
+    },
+    "696173": {
+      "id": 696173,
+      "name": "components",
+      "mutable": false,
+      "value": "[\"Documentation\",\"Editor Application\",\"Examples\",\"Runtime 1.x\"]",
+      "source": "DEFAULT"
+    },
+    "696162": {
+      "id": 696162,
+      "name": "relationshipStatus",
+      "mutable": true,
+      "value": "accepted",
+      "source": "DEFAULT",
+      "type": "relationshipStatus"
+    },
+    "696163": {
+      "id": 696163,
+      "name": "relationshipStatus",
+      "mutable": true,
+      "value": "proposed",
+      "source": "DEFAULT",
+      "type": "relationshipStatus"
+    },
+    "696160": {
+      "id": 696160,
+      "name": "elementStatus",
+      "mutable": false,
+      "value": "recommended",
+      "source": "DEFAULT",
+      "type": "elementStatus"
+    },
+    "696161": {
+      "id": 696161,
+      "name": "effort",
+      "mutable": true,
+      "value": 0,
+      "source": "DEFAULT",
+      "type": "effort"
+    },
+    "696166": {
+      "id": 696166,
+      "name": "resolution",
+      "mutable": false,
+      "value": "Unresolved",
+      "source": "DEFAULT"
+    },
+    "696167": {
+      "id": 696167,
+      "name": "platforms",
+      "mutable": false,
+      "source": "DEFAULT"
+    },
+    "696164": {
+      "id": 696164,
+      "name": "relationshipStatus",
+      "mutable": true,
+      "value": "rejected",
+      "source": "DEFAULT",
+      "type": "relationshipStatus"
+    },
+    "696165": {
+      "id": 696165,
+      "name": "priority",
+      "mutable": true,
+      "value": 4,
+      "source": "FIXED",
+      "type": "priority"
+    },
+    "696186": {
+      "id": 696186,
+      "name": "environment",
+      "mutable": false,
+      "value": "\"OS X 10.10\"",
+      "source": "DEFAULT"
+    },
+    "696187": {
+      "id": 696187,
+      "name": "components",
+      "mutable": false,
+      "value": "[\"Build tools: qmake\"]",
+      "source": "DEFAULT"
+    },
+    "696184": {
+      "id": 696184,
+      "name": "versions",
+      "mutable": false,
+      "value": "[\"5.4.1\"]",
+      "source": "DEFAULT"
+    },
+    "696185": {
+      "id": 696185,
+      "name": "labels",
+      "mutable": false,
+      "value": "[\"Reported_by_support_standard\"]",
+      "source": "DEFAULT"
+    },
+    "696190": {
+      "id": 696190,
+      "name": "platforms",
+      "mutable": false,
+      "value": "[\"macOS\"]",
+      "source": "DEFAULT"
+    },
+    "696191": {
+      "id": 696191,
+      "name": "versions",
+      "mutable": false,
+      "value": "[\"Qt 3D Studio 2.1 BETA1\"]",
+      "source": "DEFAULT"
+    },
+    "696188": {
+      "id": 696188,
+      "name": "title",
+      "mutable": false,
+      "value": "Add a QMAKE_RANLIB_FLAGS variable",
+      "source": "DEFAULT"
+    },
+    "696189": {
+      "id": 696189,
+      "name": "priority",
+      "mutable": true,
+      "value": 4,
+      "source": "FIXED",
+      "type": "priority"
+    },
+    "696178": {
+      "id": 696178,
+      "name": "versions",
+      "mutable": false,
+      "value": "[\"Qt 3D Studio 1.0 RC1\"]",
+      "source": "DEFAULT"
+    },
+    "696179": {
+      "id": 696179,
+      "name": "status",
+      "mutable": false,
+      "value": "Closed",
+      "source": "DEFAULT"
+    },
+    "696176": {
+      "id": 696176,
+      "name": "resolution",
+      "mutable": false,
+      "value": "Done",
+      "source": "DEFAULT"
+    },
+    "696177": {
+      "id": 696177,
+      "name": "platforms",
+      "mutable": false,
+      "value": "[\"Linux/X11\",\"macOS\",\"Windows\"]",
+      "source": "DEFAULT"
+    },
+    "696182": {
+      "id": 696182,
+      "name": "title",
+      "mutable": false,
+      "value": "Suppress warnings for 3rd party libs with clang",
+      "source": "DEFAULT"
+    },
+    "696183": {
+      "id": 696183,
+      "name": "priority",
+      "mutable": true,
+      "value": 4,
+      "source": "FIXED",
+      "type": "priority"
+    },
+    "696180": {
+      "id": 696180,
+      "name": "fixVersion",
+      "mutable": false,
+      "value": "Qt 3D Studio 2.1 BETA1",
+      "source": "DEFAULT"
+    },
+    "696181": {
+      "id": 696181,
+      "name": "components",
+      "mutable": false,
+      "value": "[\"Editor Application\",\"Runtime 1.x\",\"Viewer Application 1.x\"]",
+      "source": "DEFAULT"
+    }
+  }
+}
