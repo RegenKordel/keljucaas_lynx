@@ -1,9 +1,9 @@
 package eu.openreq.keljucaas.services;
 
-import static  eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRelationships;
-import static  eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRequirements;
-import static eu.openreq.keljucaas.services.ConsistencyCheckService.diagnoseRequirementsAndRelationships;
-import static eu.openreq.keljucaas.services.ConsistencyCheckService.submitted;
+import static  eu.openreq.keljucaas.services.ConsistencyCheckService.DIAGNOSE_RELATIONSHIPS;
+import static  eu.openreq.keljucaas.services.ConsistencyCheckService.DIAGNOSE_REQUIREMENTS;
+import static eu.openreq.keljucaas.services.ConsistencyCheckService.DIAGNOSE_REQUIREMENTS_AND_RELATIONSHIPS;
+import static eu.openreq.keljucaas.services.ConsistencyCheckService.SUBMITTED;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,96 +25,96 @@ import eu.openreq.keljucaas.services.OutputFormatter.OutputElement;
 
 
 public class ReleasePlanOutputFormatter {
-	public static final String topic_default = "default";
-	public static final String topic_empty_list = "empty.list";
+	public static final String TOPIC_DEFAULT = "default";
+	public static final String TOPIC_EMPTY_LIST = "empty.list";
 
-	public static final String topic_relationship_from = "relationship.from";
-	public static final String topic_relationship_to = "relationship.to";
-	public static final String topic_relationship_type = "relationship.type";
-	public static final String topic_relationhip = "relationhip";
+	public static final String TOPIC_RELATIONSHIP_FROM = "relationship.from";
+	public static final String TOPIC_RELATIONSHIP_TO = "relationship.to";
+	public static final String TOPIC_RELATIONSHIP_TYPE = "relationship.type";
+	public static final String TOPIC_RELATIONHIP = "relationhip";
 
 
 
-	public static final String topic_diagnosis_combined = "diagnosis.combined";
-	public static final String topic_diagnosis_relationships = "diagnosis.relationships";
-	public static final String topic_diagnosis_requirements = "diagnosis.requirements";
-	public static final String topic_diagnosis_nodiagnosis = "diagnosis.nodiagnosis";
-	public static final String topic_element_separator = "element.separator";
-	public static final String topic_list_element_separator = "list.element.separator";
-	public static final String topic_relationhips_exluded = "relationhips.exluded";
-	public static final String topic_relationships_broken = "relationships.broken";
-	public static final String topic_relationships_ignored = "relationships.ignored";
-	public static final String topic_relationships_ok = "relationships.ok";
-	public static final String topic_releases_element = "releases.element";
-	public static final String topic_release_capacity_all = "release.capacity.all";
-	public static final String topic_release_capacity_available = "release.capacity.available";
-	public static final String topic_release_capacity_balance = "release.capacity.balance";
-	public static final String topic_release_capacity_used = "release.capacity.used";
+	public static final String TOPIC_DIAGNOSIS_COMBINED = "diagnosis.combined";
+	public static final String TOPIC_DIAGNOSIS_RELATIONSHIPS = "diagnosis.relationships";
+	public static final String TOPIC_DIAGNOSIS_REQUIREMENTS = "diagnosis.requirements";
+	public static final String TOPIC_DIAGNOSIS_NODIAGNOSIS = "diagnosis.nodiagnosis";
+	public static final String TOPIC_ELEMENT_SEPARATOR = "element.separator";
+	public static final String TOPIC_LIST_ELEMENT_SEPARATOR = "list.element.separator";
+	public static final String TOPIC_RELATIONHIPS_EXLUDED = "relationhips.exluded";
+	public static final String TOPIC_RELATIONSHIPS_BROKEN = "relationships.broken";
+	public static final String TOPIC_RELATIONSHIPS_IGNORED = "relationships.ignored";
+	public static final String TOPIC_RELATIONSHIPS_OK = "relationships.ok";
+	public static final String TOPIC_RELEASES_ELEMENT = "releases.element";
+	public static final String TOPIC_RELEASE_CAPACITY_ALL = "release.capacity.all";
+	public static final String TOPIC_RELEASE_CAPACITY_AVAILABLE = "release.capacity.available";
+	public static final String TOPIC_RELEASE_CAPACITY_BALANCE = "release.capacity.balance";
+	public static final String TOPIC_RELEASE_CAPACITY_USED = "release.capacity.used";
 	
-	public static final String topic_release_number = "release.number";
-	public static final String topic_release_id_string = "release.id_string";
-	public static final String topic_release_surroundchar ="release.surroundchar";
-	public static final String topic_release_plan_consistent = "release.plan.consistent";
-	public static final String topic_release_plan_has_timeout = "release.plan.has.timeout";
-	public static final String topic_release_plan_inconsistent = "release.plan.inconsistent";
-	public static final String topic_release_plan_name = "release.plan.name";
-	public static final String topic_release_plan_duration_ms = "release.plan.durarion.ms";
-	public static final String topic_release_requirements_assigned = "release.requirements.assigned";
-	public static final String topic_releases_requirements_not_assigned = "releases.requirements.not.assigned";
+	public static final String TOPIC_RELEASE_NUMBER = "release.number";
+	public static final String TOPIC_RELEASE_ID_STRING = "release.id_string";
+	public static final String TOPIC_RELEASE_SURROUNDCHAR ="release.surroundchar";
+	public static final String TOPIC_RELEASE_PLAN_CONSISTENT = "release.plan.consistent";
+	public static final String TOPIC_RELEASE_PLAN_HAS_TIMEOUT = "release.plan.has.timeout";
+	public static final String TOPIC_RELEASE_PLAN_INCONSISTENT = "release.plan.inconsistent";
+	public static final String TOPIC_RELEASE_PLAN_NAME = "release.plan.name";
+	public static final String TOPIC_RELEASE_PLAN_DURATION_MS = "release.plan.durarion.ms";
+	public static final String TOPIC_RELEASE_REQUIREMENTS_ASSIGNED = "release.requirements.assigned";
+	public static final String TOPIC_RELEASES_REQUIREMENTS_NOT_ASSIGNED = "releases.requirements.not.assigned";
 
-	public static final String topic_release_plan_submitted = "release.plan.submitted";
-	public static final String topic_release_plan_diagnoseRequirements = "release.plan.diagnoseRequirements";
-	public static final String topic_release_plan_diagnoseRelationships ="release.plan.diagnoseRelationships";
-	public static final String topic_release_plan_diagnoseRequirementsAndRelationships = "release.plan.diagnoseRequirementsAndRelationships";
+	public static final String TOPIC_RELEASE_PLAN_SUBMITTED = "release.plan.submitted";
+	public static final String TOPIC_RELEASE_PLAN_DIAGNOSEREQUIREMENTS = "release.plan.diagnoseRequirements";
+	public static final String TOPIC_RELEASE_PLAN_DIAGNOSERELATIONSHIPS ="release.plan.diagnoseRelationships";
+	public static final String TOPIC_RELEASE_PLAN_DIAGNOSEREQUIREMENTSANDRELATIONSHIPS = "release.plan.diagnoseRequirementsAndRelationships";
 
 	private static final String[] availableTopics = {
-			topic_default,
-			topic_empty_list,
-			topic_relationship_from,
-			topic_relationship_to,
-			topic_relationship_type,
-			topic_relationhip,
-			topic_diagnosis_combined,
-			topic_diagnosis_relationships,
-			topic_diagnosis_requirements,
-			topic_diagnosis_nodiagnosis,
-			topic_element_separator,
-			topic_list_element_separator,
-			topic_relationhips_exluded,
-			topic_relationships_broken,
-			topic_relationships_ignored,
-			topic_relationships_ok,
-			topic_releases_element,
-			topic_release_capacity_all,
-			topic_release_capacity_available,
-			topic_release_capacity_balance,
-			topic_release_capacity_used,
-			topic_release_number,
-			topic_release_id_string,
-			topic_release_surroundchar,
-			topic_release_plan_consistent,
-			topic_release_plan_has_timeout,
-			topic_release_plan_inconsistent,
-			topic_release_plan_name,
-			topic_release_plan_duration_ms,
-			topic_release_requirements_assigned,
-			topic_releases_requirements_not_assigned,
-			topic_release_plan_submitted,
-			topic_release_plan_diagnoseRequirements,
-			topic_release_plan_diagnoseRelationships,
-			topic_release_plan_diagnoseRequirementsAndRelationships
+			TOPIC_DEFAULT,
+			TOPIC_EMPTY_LIST,
+			TOPIC_RELATIONSHIP_FROM,
+			TOPIC_RELATIONSHIP_TO,
+			TOPIC_RELATIONSHIP_TYPE,
+			TOPIC_RELATIONHIP,
+			TOPIC_DIAGNOSIS_COMBINED,
+			TOPIC_DIAGNOSIS_RELATIONSHIPS,
+			TOPIC_DIAGNOSIS_REQUIREMENTS,
+			TOPIC_DIAGNOSIS_NODIAGNOSIS,
+			TOPIC_ELEMENT_SEPARATOR,
+			TOPIC_LIST_ELEMENT_SEPARATOR,
+			TOPIC_RELATIONHIPS_EXLUDED,
+			TOPIC_RELATIONSHIPS_BROKEN,
+			TOPIC_RELATIONSHIPS_IGNORED,
+			TOPIC_RELATIONSHIPS_OK,
+			TOPIC_RELEASES_ELEMENT,
+			TOPIC_RELEASE_CAPACITY_ALL,
+			TOPIC_RELEASE_CAPACITY_AVAILABLE,
+			TOPIC_RELEASE_CAPACITY_BALANCE,
+			TOPIC_RELEASE_CAPACITY_USED,
+			TOPIC_RELEASE_NUMBER,
+			TOPIC_RELEASE_ID_STRING,
+			TOPIC_RELEASE_SURROUNDCHAR,
+			TOPIC_RELEASE_PLAN_CONSISTENT,
+			TOPIC_RELEASE_PLAN_HAS_TIMEOUT,
+			TOPIC_RELEASE_PLAN_INCONSISTENT,
+			TOPIC_RELEASE_PLAN_NAME,
+			TOPIC_RELEASE_PLAN_DURATION_MS,
+			TOPIC_RELEASE_REQUIREMENTS_ASSIGNED,
+			TOPIC_RELEASES_REQUIREMENTS_NOT_ASSIGNED,
+			TOPIC_RELEASE_PLAN_SUBMITTED,
+			TOPIC_RELEASE_PLAN_DIAGNOSEREQUIREMENTS,
+			TOPIC_RELEASE_PLAN_DIAGNOSERELATIONSHIPS,
+			TOPIC_RELEASE_PLAN_DIAGNOSEREQUIREMENTSANDRELATIONSHIPS
 	};
 
 	void buildFormattedTextOutput (ReleasePlanInfo currentRelPlan, ReleaseInfo currentRelease, String topic ,OutputFormatter ofmt, StringBuffer out) {
 
-		OutputElement listSeparatorFormat = ofmt.getFormat(topic_list_element_separator);
-		String emptylistStr = ofmt.getFormat(topic_empty_list).getFormat();
+		OutputElement listSeparatorFormat = ofmt.getFormat(TOPIC_LIST_ELEMENT_SEPARATOR);
+		String emptylistStr = ofmt.getFormat(TOPIC_EMPTY_LIST).getFormat();
 		String listSeparator = listSeparatorFormat.getFormat();
 		StringBuffer sb= new StringBuffer();
 
 		switch (topic) {
 
-		case topic_release_capacity_all: {
+		case TOPIC_RELEASE_CAPACITY_ALL: {
 			int capacityAvail = currentRelease.getCapacityAvailable();
 			int capacityUsed = currentRelease.getCapacityUsed();
 			int capacityBalance = currentRelease.getCapacityAvailable() - currentRelease.getCapacityUsed();
@@ -127,25 +127,25 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_release_capacity_available: {
+		case TOPIC_RELEASE_CAPACITY_AVAILABLE: {
 			int capacity = currentRelease.getCapacityAvailable();
 			ofmt.appendString(Integer.toString(capacity), topic, out);
 		}
 		break;
 
-		case topic_release_capacity_balance: {
+		case TOPIC_RELEASE_CAPACITY_BALANCE: {
 			int capacity = currentRelease.getCapacityAvailable() - currentRelease.getCapacityUsed();
 			ofmt.appendString(Integer.toString(capacity), topic, out);
 		}
 		break;
 
-		case topic_release_capacity_used: {
+		case TOPIC_RELEASE_CAPACITY_USED: {
 			int capacity = currentRelease.getCapacityUsed();
 			ofmt.appendString(Integer.toString(capacity), topic, out);
 		}
 		break;
 
-		case topic_diagnosis_combined: {
+		case TOPIC_DIAGNOSIS_COMBINED: {
 			if (currentRelPlan.getAppliedDiagnosis() != null) {
 				List <Element4Csp> req_diagnosis = currentRelPlan.getAppliedDiagnosisElements();
 				StringBuffer reqDiags = new StringBuffer();
@@ -179,13 +179,13 @@ public class ReleasePlanOutputFormatter {
 
 			}
 			else
-				ofmt.appendString(null, topic_diagnosis_nodiagnosis, out);
+				ofmt.appendString(null, TOPIC_DIAGNOSIS_NODIAGNOSIS, out);
 
 		}
 
 		break;
 
-		case topic_diagnosis_relationships: {
+		case TOPIC_DIAGNOSIS_RELATIONSHIPS: {
 			List <Relationship4Csp> diagnosis = currentRelPlan.getAppliedDiagnosisRelations();
 			if (diagnosis != null && diagnosis.size() >0) {
 				for (Diagnosable diagElem : diagnosis) {
@@ -196,12 +196,12 @@ public class ReleasePlanOutputFormatter {
 				ofmt.appendString(sb.toString(), topic, out);
 			}
 			else {
-				ofmt.appendString(null, topic_diagnosis_nodiagnosis, out);
+				ofmt.appendString(null, TOPIC_DIAGNOSIS_NODIAGNOSIS, out);
 			}
 		}
 		break;
 
-		case topic_diagnosis_requirements: {
+		case TOPIC_DIAGNOSIS_REQUIREMENTS: {
 			List <Element4Csp> diagnosis = currentRelPlan.getAppliedDiagnosisElements();
 			if (diagnosis != null && diagnosis.size() >0) {
 				for (Diagnosable diagElem : diagnosis) {
@@ -212,27 +212,29 @@ public class ReleasePlanOutputFormatter {
 				ofmt.appendString(sb.toString(), topic, out);
 			}
 			else {
-				ofmt.appendString(null, topic_diagnosis_nodiagnosis, out);
+				ofmt.appendString(null, TOPIC_DIAGNOSIS_NODIAGNOSIS, out);
 			}
 
 		}
 		break;
 
-		case topic_element_separator:
-		case topic_list_element_separator:
-		case topic_default:
-		case topic_release_surroundchar: {
+		case TOPIC_ELEMENT_SEPARATOR:
+		case TOPIC_LIST_ELEMENT_SEPARATOR:
+		case TOPIC_DEFAULT:
+		case TOPIC_RELEASE_SURROUNDCHAR: {
 			ofmt.appendString(null, topic, out);
 		}
+		break;
 
-		case topic_release_plan_submitted:
-		case topic_release_plan_diagnoseRequirements:
-		case topic_release_plan_diagnoseRelationships:
-		case topic_release_plan_diagnoseRequirementsAndRelationships: {
+		case TOPIC_RELEASE_PLAN_SUBMITTED:
+		case TOPIC_RELEASE_PLAN_DIAGNOSEREQUIREMENTS:
+		case TOPIC_RELEASE_PLAN_DIAGNOSERELATIONSHIPS:
+		case TOPIC_RELEASE_PLAN_DIAGNOSEREQUIREMENTSANDRELATIONSHIPS: {
 			ofmt.appendString(null, topic, out);
 		}
+		break;
 
-		case topic_relationhips_exluded: {
+		case TOPIC_RELATIONHIPS_EXLUDED: {
 			ArrayList <Relationship4Csp> relationships = currentRelPlan.getDisabledRelationsShips();
 			if (relationships != null && relationships.size() >0) {
 				for (Relationship4Csp rel :relationships) {
@@ -248,7 +250,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_relationships_broken: {
+		case TOPIC_RELATIONSHIPS_BROKEN: {
 			ArrayList <Relationship4Csp> relationships = currentRelPlan.getUnsatisfiedRelationships();
 			if (relationships != null && relationships.size() >0) {
 				for (Relationship4Csp rel :relationships) {
@@ -264,7 +266,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_relationships_ok: {
+		case TOPIC_RELATIONSHIPS_OK: {
 			ArrayList <Relationship4Csp> relationships = currentRelPlan.getSatisfiedRelationships();
 			if (relationships != null && relationships.size() >0) {
 				for (Relationship4Csp rel :relationships) {
@@ -280,7 +282,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 		
-		case topic_relationships_ignored: {
+		case TOPIC_RELATIONSHIPS_IGNORED: {
 			List <IgnoredRelationship> relationships = currentRelPlan.getIgnoredRelationsShips();
 			if (relationships != null && relationships.size() >0) {
 				for (IgnoredRelationship rel :relationships) {
@@ -297,9 +299,9 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 
-		case topic_release_number: {
+		case TOPIC_RELEASE_NUMBER: {
 			int release = currentRelease.getReleaseNr();
-			String surroundChar = ofmt.getFormat(topic_release_surroundchar).getFormat();
+			String surroundChar = ofmt.getFormat(TOPIC_RELEASE_SURROUNDCHAR).getFormat();
 
 			String[] releaseToFormat = {
 					Integer.toString(release),
@@ -309,46 +311,46 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 		
-		case topic_release_id_string: {
+		case TOPIC_RELEASE_ID_STRING: {
 			String idString = currentRelease.getIdString();
 			ofmt.appendString(idString, topic, out);
 		}
 		break;
 
-		case topic_release_plan_duration_ms: {
+		case TOPIC_RELEASE_PLAN_DURATION_MS: {
 			Long duration = currentRelPlan.getDuration_ms();
 			ofmt.appendString(duration.toString(), topic, out);
 		}
 		break;
 
-		case topic_release_plan_consistent: {
+		case TOPIC_RELEASE_PLAN_CONSISTENT: {
 			boolean isConsistent = currentRelPlan.isConsistent();
 			if (isConsistent)
 				ofmt.appendString(null, topic, out);
 			else
-				ofmt.appendString(null, topic_release_plan_inconsistent, out);
+				ofmt.appendString(null, TOPIC_RELEASE_PLAN_INCONSISTENT, out);
 		}
 		break;
 		
-		case topic_release_plan_has_timeout: {
+		case TOPIC_RELEASE_PLAN_HAS_TIMEOUT: {
 			boolean isTimeout = currentRelPlan.isTimeout();
 			ofmt.appendString(Boolean.toString(isTimeout), topic, out);
 		}
 		break;
 
-		case topic_release_plan_name: {
+		case TOPIC_RELEASE_PLAN_NAME: {
 			switch (currentRelPlan.getIdString()) {
-			case submitted:
-				ofmt.appendString(null, topic_release_plan_submitted, out);
+			case SUBMITTED:
+				ofmt.appendString(null, TOPIC_RELEASE_PLAN_SUBMITTED, out);
 				break;
-			case  diagnoseRequirements:
-				ofmt.appendString(null, topic_release_plan_diagnoseRequirements, out);
+			case  DIAGNOSE_REQUIREMENTS:
+				ofmt.appendString(null, TOPIC_RELEASE_PLAN_DIAGNOSEREQUIREMENTS, out);
 				break;
-			case diagnoseRelationships:
-				ofmt.appendString(null, topic_release_plan_diagnoseRelationships, out);
+			case DIAGNOSE_RELATIONSHIPS:
+				ofmt.appendString(null, TOPIC_RELEASE_PLAN_DIAGNOSERELATIONSHIPS, out);
 				break;
-			case diagnoseRequirementsAndRelationships:
-				ofmt.appendString(null, topic_release_plan_diagnoseRequirementsAndRelationships, out);
+			case DIAGNOSE_REQUIREMENTS_AND_RELATIONSHIPS:
+				ofmt.appendString(null, TOPIC_RELEASE_PLAN_DIAGNOSEREQUIREMENTSANDRELATIONSHIPS, out);
 				break;
 			default:
 				ofmt.appendString(currentRelPlan.getIdString(), topic, out);
@@ -356,7 +358,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_release_requirements_assigned: {
+		case TOPIC_RELEASE_REQUIREMENTS_ASSIGNED: {
 			ArrayList <Element4Csp> requirements = currentRelease.getAssignedElements();
 			if (requirements != null && requirements.size() >0) {
 				for (Element4Csp req :requirements) {
@@ -372,7 +374,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_releases_requirements_not_assigned: {
+		case TOPIC_RELEASES_REQUIREMENTS_NOT_ASSIGNED: {
 
 		}
 		break;
@@ -387,14 +389,14 @@ public class ReleasePlanOutputFormatter {
 
 		switch (topic) {
 
-		case topic_release_capacity_all: {
-			buildJsonOutput (currentRelPlan, currentRelease, topic_release_capacity_available, ofmt, jsonObject);
-			buildJsonOutput (currentRelPlan, currentRelease, topic_release_capacity_used, ofmt, jsonObject);
-			buildJsonOutput (currentRelPlan, currentRelease, topic_release_capacity_balance, ofmt, jsonObject);
+		case TOPIC_RELEASE_CAPACITY_ALL: {
+			buildJsonOutput (currentRelPlan, currentRelease, TOPIC_RELEASE_CAPACITY_AVAILABLE, ofmt, jsonObject);
+			buildJsonOutput (currentRelPlan, currentRelease, TOPIC_RELEASE_CAPACITY_USED, ofmt, jsonObject);
+			buildJsonOutput (currentRelPlan, currentRelease, TOPIC_RELEASE_CAPACITY_BALANCE, ofmt, jsonObject);
 		}
 		break;
 
-		case topic_release_capacity_available: {
+		case TOPIC_RELEASE_CAPACITY_AVAILABLE: {
 			int capacity = currentRelease.getCapacityAvailable();
 			jsonObject.add(
 					ofmt.getDataKey(topic),
@@ -402,7 +404,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_release_capacity_balance: {
+		case TOPIC_RELEASE_CAPACITY_BALANCE: {
 			int capacity = currentRelease.getCapacityAvailable() - currentRelease.getCapacityUsed();
 			jsonObject.add(
 					ofmt.getDataKey(topic),
@@ -410,7 +412,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_release_capacity_used: {
+		case TOPIC_RELEASE_CAPACITY_USED: {
 			int capacity = currentRelease.getCapacityUsed();
 			jsonObject.add(
 					ofmt.getDataKey(topic),
@@ -418,11 +420,11 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_diagnosis_combined: {
+		case TOPIC_DIAGNOSIS_COMBINED: {
 			JsonObject dianosisJson = new JsonObject();
 			if (currentRelPlan.getAppliedDiagnosis() != null) {
-				buildJsonOutput (currentRelPlan, currentRelease, topic_diagnosis_requirements, ofmt, dianosisJson);
-				buildJsonOutput (currentRelPlan, currentRelease, topic_diagnosis_relationships, ofmt, dianosisJson);
+				buildJsonOutput (currentRelPlan, currentRelease, TOPIC_DIAGNOSIS_REQUIREMENTS, ofmt, dianosisJson);
+				buildJsonOutput (currentRelPlan, currentRelease, TOPIC_DIAGNOSIS_RELATIONSHIPS, ofmt, dianosisJson);
 			}
 
 			jsonObject.add(
@@ -432,7 +434,7 @@ public class ReleasePlanOutputFormatter {
 
 		break;
 
-		case topic_diagnosis_relationships: {
+		case TOPIC_DIAGNOSIS_RELATIONSHIPS: {
 			List <Relationship4Csp> diagnosis = currentRelPlan.getAppliedDiagnosisRelations();
 			JsonArray diagnosisArray = new JsonArray();
 			if (diagnosis != null) {
@@ -448,7 +450,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_diagnosis_requirements: {
+		case TOPIC_DIAGNOSIS_REQUIREMENTS: {
 			List <Element4Csp> diagnosis = currentRelPlan.getAppliedDiagnosisElements();
 			JsonArray diagnosisArray = new JsonArray();
 			if (diagnosis != null) {
@@ -463,7 +465,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_relationhips_exluded: {
+		case TOPIC_RELATIONHIPS_EXLUDED: {
 			ArrayList <Relationship4Csp> relationships = currentRelPlan.getDisabledRelationsShips();
 			JsonArray relArray = new JsonArray();
 			if (relationships != null) {
@@ -479,7 +481,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_relationships_broken: {
+		case TOPIC_RELATIONSHIPS_BROKEN: {
 			ArrayList <Relationship4Csp> relationships = currentRelPlan.getUnsatisfiedRelationships();
 			JsonArray relArray = new JsonArray();
 			if (relationships != null) {
@@ -495,7 +497,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_relationships_ok: {
+		case TOPIC_RELATIONSHIPS_OK: {
 			ArrayList <Relationship4Csp> relationships = currentRelPlan.getSatisfiedRelationships();
 			JsonArray relArray = new JsonArray();
 			if (relationships != null) {
@@ -511,7 +513,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 		
-		case topic_relationships_ignored: {
+		case TOPIC_RELATIONSHIPS_IGNORED: {
 			List <IgnoredRelationship> relationships = currentRelPlan.getIgnoredRelationsShips();
 			JsonArray relArray = new JsonArray();
 			if (relationships != null) {
@@ -527,7 +529,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 		
-		case topic_release_number: {
+		case TOPIC_RELEASE_NUMBER: {
 			int release = currentRelease.getReleaseNr();
 			jsonObject.add(
 					ofmt.getDataKey(topic),
@@ -536,7 +538,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 		
-		case topic_release_id_string: {
+		case TOPIC_RELEASE_ID_STRING: {
 			String idString = currentRelease.getIdString();
 			jsonObject.add(
 					ofmt.getDataKey(topic),
@@ -545,7 +547,7 @@ public class ReleasePlanOutputFormatter {
 		break;
 
 
-		case topic_release_plan_consistent: {
+		case TOPIC_RELEASE_PLAN_CONSISTENT: {
 			Boolean isConsistent = currentRelPlan.isConsistent();
 			jsonObject.add(
 					ofmt.getDataKey(topic),
@@ -553,7 +555,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 		
-		case topic_release_plan_has_timeout: {
+		case TOPIC_RELEASE_PLAN_HAS_TIMEOUT: {
 			Boolean isTimeout = currentRelPlan.isTimeout();
 			jsonObject.add(
 					ofmt.getDataKey(topic),
@@ -561,14 +563,14 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_release_plan_name: {
+		case TOPIC_RELEASE_PLAN_NAME: {
 			jsonObject.add(
 					ofmt.getDataKey(topic),
 					new JsonPrimitive(currentRelPlan.getIdString()));
 		}
 		break;
 		
-		case topic_release_plan_duration_ms: {
+		case TOPIC_RELEASE_PLAN_DURATION_MS: {
 			Long duration = currentRelPlan.getDuration_ms();
 			jsonObject.add(
 					ofmt.getDataKey(topic),
@@ -576,7 +578,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 		
-		case topic_release_requirements_assigned: {
+		case TOPIC_RELEASE_REQUIREMENTS_ASSIGNED: {
 			ArrayList <Element4Csp> requirements = currentRelease.getAssignedElements();
 			JsonArray relArray = new JsonArray();
 			if (requirements != null) {
@@ -590,7 +592,7 @@ public class ReleasePlanOutputFormatter {
 		}
 		break;
 
-		case topic_releases_requirements_not_assigned: {
+		case TOPIC_RELEASES_REQUIREMENTS_NOT_ASSIGNED: {
 
 		}
 		break;
@@ -601,18 +603,18 @@ public class ReleasePlanOutputFormatter {
 	}
 
 	void buildRelationShipJson(Relationship4Csp relationship, OutputFormatter ofmt, JsonObject jsonObject) {
-		String fromKey= ofmt.getFormat(topic_relationship_from).getDataKey();
-		String  toKey = ofmt.getFormat(topic_relationship_to).getDataKey();
-		String  relKey = ofmt.getFormat(topic_relationship_type).getDataKey();
+		String fromKey= ofmt.getFormat(TOPIC_RELATIONSHIP_FROM).getDataKey();
+		String  toKey = ofmt.getFormat(TOPIC_RELATIONSHIP_TO).getDataKey();
+		String  relKey = ofmt.getFormat(TOPIC_RELATIONSHIP_TYPE).getDataKey();
 		jsonObject.addProperty(fromKey, relationship.getFrom().getNameId());
 		jsonObject.addProperty(toKey, relationship.getTo().getNameId());
 		jsonObject.addProperty(relKey, relationship.getRelationShipName());
 	}
 	
 	void buildIgnoredRelationShipJson(IgnoredRelationship relationship, OutputFormatter ofmt, JsonObject jsonObject) {
-		String fromKey= ofmt.getFormat(topic_relationship_from).getDataKey();
-		String  toKey = ofmt.getFormat(topic_relationship_to).getDataKey();
-		String  relKey = ofmt.getFormat(topic_relationship_type).getDataKey();
+		String fromKey= ofmt.getFormat(TOPIC_RELATIONSHIP_FROM).getDataKey();
+		String  toKey = ofmt.getFormat(TOPIC_RELATIONSHIP_TO).getDataKey();
+		String  relKey = ofmt.getFormat(TOPIC_RELATIONSHIP_TYPE).getDataKey();
 		jsonObject.addProperty(fromKey, relationship.getFrom().getNameId());
 		jsonObject.addProperty(toKey, relationship.getTo().getNameId());
 		jsonObject.addProperty(relKey, relationship.getRelationShipName());
