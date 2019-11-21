@@ -196,7 +196,7 @@ public class ReleasePlanInfo {
 				String reqId = reqB.getNameId();
 				sb.append(reqId);
 				if (appliedDiagnosis.size() > 1 && i < appliedDiagnosis.size() - 1) {
-					sb.append(ConsistencyCheckService.fieldSeparator);
+					sb.append(ConsistencyCheckService.FIELD_SEPARATOR);
 				}
 			}
 		}

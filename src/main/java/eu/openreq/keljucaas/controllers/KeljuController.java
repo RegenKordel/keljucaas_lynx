@@ -195,13 +195,13 @@ public class KeljuController {
 		
 		boolean omitCrossProject = false;
 		
-		ReleasePlanAnalysisDefinition wanted = new ReleasePlanAnalysisDefinition(ConsistencyCheckService.submitted, false, false, omitCrossProject);
+		ReleasePlanAnalysisDefinition wanted = new ReleasePlanAnalysisDefinition(ConsistencyCheckService.SUBMITTED, false, false, omitCrossProject);
 		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>(); 
 		wanteds.add(wanted);
 
 		CSPPlanner rcspGen = new CSPPlanner(model, wanteds, omitCrossProject, 0);
 		rcspGen.performDiagnoses();
-		ReleasePlanInfo releasePlanInfo = rcspGen.getReleasePlan(ConsistencyCheckService.submitted);
+		ReleasePlanInfo releasePlanInfo = rcspGen.getReleasePlan(ConsistencyCheckService.SUBMITTED);
 
 		boolean isConsistent = releasePlanInfo.isConsistent();
 		if (isConsistent) {
@@ -225,21 +225,21 @@ public class KeljuController {
 
 		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>();
 		
-		wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.submitted, false, false, omitCrossProject));
-		ReleasePlanAnalysisDefinition wanted = new ReleasePlanAnalysisDefinition(ConsistencyCheckService.diagnoseRequirements, true, false, omitCrossProject);
-		wanted.setAnalyzeOnlyIfIncosistentPlan(ConsistencyCheckService.submitted);
+		wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.SUBMITTED, false, false, omitCrossProject));
+		ReleasePlanAnalysisDefinition wanted = new ReleasePlanAnalysisDefinition(ConsistencyCheckService.DIAGNOSE_REQUIREMENTS, true, false, omitCrossProject);
+		wanted.setAnalyzeOnlyIfIncosistentPlan(ConsistencyCheckService.SUBMITTED);
 		wanteds.add(wanted);
 
 		CSPPlanner rcspGen = new CSPPlanner(model, wanteds, omitCrossProject, 0);
 		rcspGen.performDiagnoses();
-		ReleasePlanInfo originalReleasePlanInfo = rcspGen.getReleasePlan(ConsistencyCheckService.submitted);
+		ReleasePlanInfo originalReleasePlanInfo = rcspGen.getReleasePlan(ConsistencyCheckService.SUBMITTED);
 
 		boolean isConsistent = originalReleasePlanInfo.isConsistent();
 		if (isConsistent) {
 			return new ResponseEntity<>(transform.generateProjectJsonResponse(true, "Consistent", true), HttpStatus.OK);
 		}
 
-		ReleasePlanInfo diagnosedReleasePlanInfo = rcspGen.getReleasePlan(ConsistencyCheckService.diagnoseRequirements);
+		ReleasePlanInfo diagnosedReleasePlanInfo = rcspGen.getReleasePlan(ConsistencyCheckService.DIAGNOSE_REQUIREMENTS);
 
 		String diagnosis = diagnosedReleasePlanInfo.getDiagnosis();
 
@@ -268,23 +268,23 @@ public class KeljuController {
 		ElementModel model = parser.parseMurmeliModel(json);
 		List <ReleasePlanAnalysisDefinition> wanteds = new LinkedList<>();
 		
-		wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.submitted, false, false, omitCrossProject)); 
+		wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.SUBMITTED, false, false, omitCrossProject)); 
 		if (!analysisOnly.booleanValue()) {
-			wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.diagnoseRequirements, true, false, omitCrossProject));
-			wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.diagnoseRelationships, false, true, omitCrossProject));
+			wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.DIAGNOSE_REQUIREMENTS, true, false, omitCrossProject));
+			wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.DIAGNOSE_RELATIONSHIPS, false, true, omitCrossProject));
 			if (!omitReqRelDiag)
-				wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.diagnoseRequirementsAndRelationships, true, true, omitCrossProject));
+				wanteds.add(new ReleasePlanAnalysisDefinition(ConsistencyCheckService.DIAGNOSE_REQUIREMENTS_AND_RELATIONSHIPS, true, true, omitCrossProject));
 		}
 
 		for (ReleasePlanAnalysisDefinition wanted : wanteds) {
-			if (!wanted.getPlanName().equals(ConsistencyCheckService.submitted)) 
-				wanted.setAnalyzeOnlyIfIncosistentPlan(ConsistencyCheckService.submitted);
+			if (!wanted.getPlanName().equals(ConsistencyCheckService.SUBMITTED)) 
+				wanted.setAnalyzeOnlyIfIncosistentPlan(ConsistencyCheckService.SUBMITTED);
 		}
 
 
 		CSPPlanner rcspGen = new CSPPlanner(model, wanteds, omitCrossProject, timeOut);
 		rcspGen.performDiagnoses();
-		ReleasePlanInfo originalReleasePlanInfo = rcspGen.getReleasePlan(ConsistencyCheckService.submitted);
+		ReleasePlanInfo originalReleasePlanInfo = rcspGen.getReleasePlan(ConsistencyCheckService.SUBMITTED);
 		
 		List<ReleasePlanInfo> releasePlanstoReport = new LinkedList<>();
 		releasePlanstoReport.add(originalReleasePlanInfo);
@@ -296,10 +296,10 @@ public class KeljuController {
 		}
 		
 		if (!analysisOnly.booleanValue()) {
-			releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.diagnoseRequirements));
-			releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.diagnoseRelationships));
+			releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.DIAGNOSE_REQUIREMENTS));
+			releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.DIAGNOSE_RELATIONSHIPS));
 			if (!omitReqRelDiag)
-				releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.diagnoseRequirementsAndRelationships));
+				releasePlanstoReport.add(rcspGen.getReleasePlan(ConsistencyCheckService.DIAGNOSE_REQUIREMENTS_AND_RELATIONSHIPS));
 		}
 		
 		rcspGen = null;

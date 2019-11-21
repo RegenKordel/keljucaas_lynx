@@ -30,83 +30,83 @@ public class ConsistencyCheckService {
 	@Value("${keljucaas.releaseplanner.reportWithPlaintextMessages}")
 	private boolean reportWithPlaintextMessages; 
 
-	public static final String fieldSeparator = ","; 
-	public static final String topicSeparator = "@"; 
+	public static final String FIELD_SEPARATOR = ","; 
+	public static final String TOPIC_SEPARATOR = "@"; 
 	
-	public static final String submitted = "analysis";
-	public static final String diagnoseRequirements = "reqdiag";
-	public static final String diagnoseRelationships= "reldiag";
-	public static final String diagnoseRequirementsAndRelationships= "reqreldiag";
+	public static final String SUBMITTED = "analysis";
+	public static final String DIAGNOSE_REQUIREMENTS = "reqdiag";
+	public static final String DIAGNOSE_RELATIONSHIPS = "reldiag";
+	public static final String DIAGNOSE_REQUIREMENTS_AND_RELATIONSHIPS = "reqreldiag";
 
 	public static final List <String> 	UNASSIGNED_RELEASE_TOPICS_OPENREQ = 
 			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
-					ReleasePlanOutputFormatter.topic_release_id_string,
-					ReleasePlanOutputFormatter.topic_release_requirements_assigned,
-					ReleasePlanOutputFormatter.topic_release_capacity_used
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_ID_STRING,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_REQUIREMENTS_ASSIGNED,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_CAPACITY_USED
 					)));
 
 	public static final List<String> NORMAL_RELEASE_TOPICS_OPENREQ =
 			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
-					ReleasePlanOutputFormatter.topic_release_id_string,
-					ReleasePlanOutputFormatter.topic_release_requirements_assigned,
-					ReleasePlanOutputFormatter.topic_release_capacity_all
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_ID_STRING,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_REQUIREMENTS_ASSIGNED,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_CAPACITY_ALL
 					)));
 
 
 	public static final List<String> DIAGNOSED_RELEASEPLAN_COMMONTOPICS_OPENREQ = 
 			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
-					ReleasePlanOutputFormatter.topic_release_plan_name,
-					ReleasePlanOutputFormatter.topic_release_plan_consistent,
-					ReleasePlanOutputFormatter.topic_diagnosis_combined
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_PLAN_NAME,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_PLAN_CONSISTENT,
+					ReleasePlanOutputFormatter.TOPIC_DIAGNOSIS_COMBINED
 					)));
 
 	public static final List<String> ORIGINAL_RELEASEPLAN_TOPICS_OPENREQ = 
 			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
-					ReleasePlanOutputFormatter.topic_release_plan_name,
-					ReleasePlanOutputFormatter.topic_release_plan_consistent,
-					ReleasePlanOutputFormatter.topic_relationships_broken
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_PLAN_NAME,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_PLAN_CONSISTENT,
+					ReleasePlanOutputFormatter.TOPIC_RELATIONSHIPS_BROKEN
 					)));
 	
 	public static final List <String> 	UNASSIGNED_RELEASE_TOPICS_ALL = 
 			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
-					ReleasePlanOutputFormatter.topic_release_id_string,
-					ReleasePlanOutputFormatter.topic_release_number,
-					ReleasePlanOutputFormatter.topic_release_requirements_assigned,
-					ReleasePlanOutputFormatter.topic_release_capacity_used,
-					ReleasePlanOutputFormatter.topic_release_capacity_available,
-					ReleasePlanOutputFormatter.topic_release_capacity_balance,
-					ReleasePlanOutputFormatter.topic_release_capacity_used
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_ID_STRING,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_NUMBER,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_REQUIREMENTS_ASSIGNED,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_CAPACITY_USED,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_CAPACITY_AVAILABLE,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_CAPACITY_BALANCE,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_CAPACITY_USED
 					)));
 
 	public static final List<String> NORMAL_RELEASE_TOPICS_ALL =
 			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
-					ReleasePlanOutputFormatter.topic_release_id_string,
-					ReleasePlanOutputFormatter.topic_release_requirements_assigned,
-					ReleasePlanOutputFormatter.topic_release_capacity_all
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_ID_STRING,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_REQUIREMENTS_ASSIGNED,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_CAPACITY_ALL
 					)));
 
 
 	public static final List<String> DIAGNOSED_RELEASEPLAN_ALL= 
 			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
-					ReleasePlanOutputFormatter.topic_release_plan_name,
-					ReleasePlanOutputFormatter.topic_release_plan_consistent,
-					ReleasePlanOutputFormatter.topic_release_plan_duration_ms,
-					ReleasePlanOutputFormatter.topic_release_plan_has_timeout,
-					ReleasePlanOutputFormatter.topic_diagnosis_combined,
-					ReleasePlanOutputFormatter.topic_relationhips_exluded,
-					ReleasePlanOutputFormatter.topic_relationships_ignored,
-					ReleasePlanOutputFormatter.topic_diagnosis_relationships,
-					ReleasePlanOutputFormatter.topic_diagnosis_requirements
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_PLAN_NAME,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_PLAN_CONSISTENT,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_PLAN_DURATION_MS,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_PLAN_HAS_TIMEOUT,
+					ReleasePlanOutputFormatter.TOPIC_DIAGNOSIS_COMBINED,
+					ReleasePlanOutputFormatter.TOPIC_RELATIONHIPS_EXLUDED,
+					ReleasePlanOutputFormatter.TOPIC_RELATIONSHIPS_IGNORED,
+					ReleasePlanOutputFormatter.TOPIC_DIAGNOSIS_RELATIONSHIPS,
+					ReleasePlanOutputFormatter.TOPIC_DIAGNOSIS_REQUIREMENTS
 					)));
 
 	public static final List<String> ORIGINAL_RELEASEPLAN_TOPICS_ALL = 
 			Collections.unmodifiableList(new LinkedList<String>(Arrays.asList(
-					ReleasePlanOutputFormatter.topic_release_plan_name,
-					ReleasePlanOutputFormatter.topic_release_plan_consistent,
-					ReleasePlanOutputFormatter.topic_release_plan_duration_ms,
-					ReleasePlanOutputFormatter.topic_relationships_broken,
-					ReleasePlanOutputFormatter.topic_relationships_ok,
-					ReleasePlanOutputFormatter.topic_relationships_ignored
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_PLAN_NAME,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_PLAN_CONSISTENT,
+					ReleasePlanOutputFormatter.TOPIC_RELEASE_PLAN_DURATION_MS,
+					ReleasePlanOutputFormatter.TOPIC_RELATIONSHIPS_BROKEN,
+					ReleasePlanOutputFormatter.TOPIC_RELATIONSHIPS_OK,
+					ReleasePlanOutputFormatter.TOPIC_RELATIONSHIPS_IGNORED
 					)));
 
 	private List <String> unassignedReleaseTopics =  UNASSIGNED_RELEASE_TOPICS_OPENREQ;
@@ -202,17 +202,17 @@ public class ConsistencyCheckService {
 				releasePlanTopics.addAll(getOriginalReleasePlanTopics());
 
 			if (addTimingOutputs)
-				releasePlanTopics.add(ReleasePlanOutputFormatter.topic_release_plan_duration_ms);
+				releasePlanTopics.add(ReleasePlanOutputFormatter.TOPIC_RELEASE_PLAN_DURATION_MS);
 			if (timeOut_ms >0)
-				releasePlanTopics.add(ReleasePlanOutputFormatter.topic_release_plan_has_timeout);
+				releasePlanTopics.add(ReleasePlanOutputFormatter.TOPIC_RELEASE_PLAN_HAS_TIMEOUT);
 
 			JsonObject releasePlanJson = new JsonObject();
 			if (wanted.isOmitCrossProject()) {
-				releasePlanTopics.add(ReleasePlanOutputFormatter.topic_relationships_ignored);
+				releasePlanTopics.add(ReleasePlanOutputFormatter.TOPIC_RELATIONSHIPS_IGNORED);
 			}
 			
 			if (reportConsistentRelationships) {
-				releasePlanTopics.add(ReleasePlanOutputFormatter.topic_relationships_ok);
+				releasePlanTopics.add(ReleasePlanOutputFormatter.TOPIC_RELATIONSHIPS_OK);
 			}
 
 			for (String topic : releasePlanTopics) {
@@ -223,7 +223,7 @@ public class ConsistencyCheckService {
 			}
 
 			List<String> releaseTopics;
-			OutputElement releases = ofmt.getFormat(ReleasePlanOutputFormatter.topic_releases_element);
+			OutputElement releases = ofmt.getFormat(ReleasePlanOutputFormatter.TOPIC_RELEASES_ELEMENT);
 
 			JsonArray releaseArray = new JsonArray();
 
